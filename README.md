@@ -8,9 +8,7 @@ This repository contains eViewItf source code that allows to build the user spac
 
 ### Prerequisites
 
-Install the gcc toolchain
--------------------------
-
+Setup Yocto SDK to set target toolchain.
 
 ## Generate program
 
