@@ -1,9 +1,9 @@
 /**
  * \file mfis_driver_communication.c
- * \brief Handle communication with MFIS kernel driver via IOCTL
+ * \brief Handle communication with kernel
  * \author esoftthings
  *
- * Handle the tx and rx of messages from A53 CPU (Linux) to the R7 CPU via the MFIS peripheral.
+ * Handle low level communication with Linux kernel drivers
  *
  */
  
@@ -109,13 +109,7 @@ uint32_t* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem
 {
     int mem_dev;
     uint32_t* virtual_address = NULL;
-     
-    
-    printf("mfis_get_virtual_address padd=%x size=%d \n", physical_address, mem_size);
-    printf("mfis_get_virtual_address padd=%x size=%d \n", physical_address, mem_size);
-    printf("mfis_get_virtual_address padd=%x size=%d \n", physical_address, mem_size);
-    printf("mfis_get_virtual_address padd=%x size=%d psize=%d \n", physical_address, mem_size, sysconf(_SC_PAGE_SIZE));
-    
+    printf("mfis_get_virtual_address paddr=%x sz=%d \n", physical_address, mem_size);
     mem_dev = open("/dev/mem", O_RDONLY);
     if(mem_dev == -1)
     {
@@ -127,16 +121,14 @@ uint32_t* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem
     if(virtual_address == MAP_FAILED)
     {
         fprintf(stderr, "%s() error MAP_FAILED : %s\n", __FUNCTION__, strerror(errno));
+        virtual_address = NULL;
         goto out_close;
     }
-    
-    printf("mfis_get_virtual_address padd=%x vadd=%x \n", physical_address, virtual_address);
 
 out_close:
      close(mem_dev);
 out_ret:
-     return virtual_address;
-    
+     return virtual_address;  
 }
 
 
