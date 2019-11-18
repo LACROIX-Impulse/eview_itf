@@ -105,7 +105,7 @@ out_ret:
  * \param uint32_t mem_size: size of the memory to convert
  * \return pointer to virtual address (return NULL if error).
  */
-uint32_t* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size)
+void* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size)
 {
     int mem_dev;
     uint32_t* virtual_address = NULL;
