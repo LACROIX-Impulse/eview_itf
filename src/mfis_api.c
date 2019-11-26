@@ -51,6 +51,7 @@ typedef enum
 {
     FCT_GET_CAM_BUFFERS,
     FCT_INIT_API,
+    FCT_DEINIT_API,
     NB_FCT
 }fct_id_t;
 
@@ -113,10 +114,9 @@ out:
 }
 
 /**
- * \fn int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers)
- * \brief Return pointers to the cameras frame buffers located in R7 memory
+ * \fn mfis_init_api
+ * \brief Deinit MFIS driver on R7 side
  *
- * \param mfis_api_cam_buffers_t* cam_buffers: structure that will be filled with frame buffers pointers
  * \return state of the function. Return 0 if okay
  */
 int mfis_init_api(void)
@@ -148,5 +148,41 @@ int mfis_init_api(void)
 out:
     return ret;
 }
+
+/**
+ * \fn mfis_deinit_api
+ * \brief Deinit MFIS driver on R7 side
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int mfis_deinit_api(void){
+    int ret = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_DEINIT_API;
+    
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if(ret < 0)
+    {
+        ret = -1;
+        goto out;
+    }
+    
+    /* Check returned answer state */
+    if((rx_buffer[0] != FCT_DEINIT_API) && (rx_buffer[1] != FCT_RETURN_OK))
+    {
+        ret = -1;
+        goto out;
+    }
+
+out:
+    return ret;
+}
+
 
 

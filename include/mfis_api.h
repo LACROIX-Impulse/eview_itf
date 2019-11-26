@@ -40,21 +40,11 @@ typedef struct
 }
 mfis_api_cam_buffers_t;
 
-/**
- * \struct mfis_api_cam_last_buffers_id_t
- * \brief ID of the cameras last updated frames
- *
- */
-typedef struct
-{
-    uint32_t last_buffer_id[MFIS_API_MAX_CAMERA];
-}
-mfis_api_cam_last_buffers_id_t;
-
 /******************************************************************************************
 * Public Functions Prototypes
 ******************************************************************************************/
 int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers);
 int mfis_init_api(void);
+int mfis_deinit_api(void);
 #endif /* MFIS_API_H */
 

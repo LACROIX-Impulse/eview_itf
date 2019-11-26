@@ -85,7 +85,7 @@ void* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_siz
 {
     int mem_dev;
     uint32_t* virtual_address = NULL;
-    printf("mfis_get_virtual_address paddr=%x sz=%d \n", physical_address, mem_size);
+
     mem_dev = open("/dev/mem", O_RDONLY);
     if(mem_dev == -1)
     {
