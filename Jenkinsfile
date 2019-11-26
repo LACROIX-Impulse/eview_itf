@@ -17,11 +17,11 @@ pipeline {
                 '''
             }
         }
-        //stage('Coding style') {
-        //    steps {
-        //        sh 'make clangcheck'
-        //    }
-        //}
+        stage('Coding style') {
+            steps {
+                sh 'make clangcheck'
+            }
+        }
     }
     post {
         always {

@@ -1,3 +1,4 @@
+SHELL = /bin/bash
 LDFLAGS=
 INC = -I include
 BUILDDIR = build
@@ -15,3 +16,15 @@ all:
 clean:
 	@find . -name "*.o" -exec rm -f '{}' \;
 	@rm -rf $(BUILDDIR)
+
+CLANG_FORMAT_DIRS = include src
+
+.PHONY: clangformat
+clangformat:
+	@find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c | xargs clang-format --style=file -i
+
+.PHONY: clangcheck
+clangcheck:
+	@find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec cat {} \; \
+		| diff -u <(find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec \
+		clang-format --style=file {} \;) -
