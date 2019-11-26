@@ -25,9 +25,7 @@
 typedef struct
 {
    uint32_t buffer_size;
-   uint8_t *ptr_buf1;
-   uint8_t *ptr_buf2;
-   uint8_t *ptr_buf3;
+   uint8_t *ptr_buf[3];
 }
 mfis_api_cam_buffers_info_t;
 
@@ -57,7 +55,6 @@ mfis_api_cam_last_buffers_id_t;
 * Public Functions Prototypes
 ******************************************************************************************/
 int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers);
-mfis_api_cam_last_buffers_id_t* mfis_get_cam_last_buffers_id(void);
-
+int mfis_init_api(void);
 #endif /* MFIS_API_H */
 

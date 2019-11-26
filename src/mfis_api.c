@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <errno.h>
+#include <signal.h>
 #include "mfis_driver_communication.h"
 #include "mfis_api.h"
 
@@ -33,9 +34,7 @@
 typedef struct
 {
    uint32_t buffer_size;
-   uint32_t ptr_buf1;
-   uint32_t ptr_buf2;
-   uint32_t ptr_buf3;
+   uint32_t ptr_buf[3];
 }
 mfis_api_cam_buffers_info_r7_t;
 
@@ -51,7 +50,7 @@ mfis_api_cam_buffers_r7_t;
 typedef enum
 {
     FCT_GET_CAM_BUFFERS,
-    FCT_GET_CAM_LAST_BUFFERS_ID,
+    FCT_INIT_API,
     NB_FCT
 }fct_id_t;
 
@@ -86,14 +85,14 @@ int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers)
     }
     
     /* Check returned answer state */
-    if(rx_buffer[0] != FCT_RETURN_OK)
+    if((rx_buffer[0] != FCT_GET_CAM_BUFFERS) && (rx_buffer[1] != FCT_RETURN_OK))
     {
         ret = -1;
         goto out;
     }
-    
+
     /* R7 return a pointer to a structure stored in its memory. Convert this pointer into a virtual adress for A53 */
-    cam_buffers_r7 = (mfis_api_cam_buffers_r7_t*) mfis_get_virtual_address(rx_buffer[1], sizeof(mfis_api_cam_buffers_r7_t));
+    cam_buffers_r7 = (mfis_api_cam_buffers_r7_t*) mfis_get_virtual_address(rx_buffer[2], sizeof(mfis_api_cam_buffers_r7_t));
 
     /* Fill the A53 cam_buffer structure with value returned by R7*/
     for(i=0; i<MFIS_API_MAX_CAMERA; i++)
@@ -103,9 +102,9 @@ int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers)
         if(cam_buffers->cam[i].buffer_size != 0)
         {
             /* Convert R7 physical addresses of frame buffers to virtual adresses */
-            cam_buffers->cam[i].ptr_buf1 = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf1, cam_buffers_r7->cam[i].buffer_size);
-            cam_buffers->cam[i].ptr_buf2 = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf2, cam_buffers_r7->cam[i].buffer_size);
-            cam_buffers->cam[i].ptr_buf3 = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf3, cam_buffers_r7->cam[i].buffer_size);
+            cam_buffers->cam[i].ptr_buf[0] = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf[0], cam_buffers_r7->cam[i].buffer_size);
+            cam_buffers->cam[i].ptr_buf[1] = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf[1], cam_buffers_r7->cam[i].buffer_size);
+            cam_buffers->cam[i].ptr_buf[2] = mfis_get_virtual_address(cam_buffers_r7->cam[i].ptr_buf[2], cam_buffers_r7->cam[i].buffer_size);
         }
     }
 
@@ -120,17 +119,16 @@ out:
  * \param mfis_api_cam_buffers_t* cam_buffers: structure that will be filled with frame buffers pointers
  * \return state of the function. Return 0 if okay
  */
-mfis_api_cam_last_buffers_id_t* mfis_get_cam_last_buffers_id(void)
+int mfis_init_api(void)
 {
     int ret = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
-    mfis_api_cam_last_buffers_id_t* cam_last_buffers_id = NULL;
     
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
-    printf("mfis_get_cam_last_buffers_id START \n");
+
     /* Prepare TX buffer */
-    tx_buffer[0] = FCT_GET_CAM_LAST_BUFFERS_ID;
+    tx_buffer[0] = FCT_INIT_API;
     
     /* Send request to R7 */
     ret = mfis_send_request(tx_buffer, rx_buffer);
@@ -141,17 +139,14 @@ mfis_api_cam_last_buffers_id_t* mfis_get_cam_last_buffers_id(void)
     }
     
     /* Check returned answer state */
-    if(rx_buffer[0] != FCT_RETURN_OK)
+    if((rx_buffer[0] != FCT_INIT_API) && (rx_buffer[1] != FCT_RETURN_OK))
     {
         ret = -1;
         goto out;
     }
-    
-    /* R7 return a pointer to a structure stored in its memory. Convert this pointer into a virtual adress for A53 */
-    cam_last_buffers_id = (mfis_api_cam_last_buffers_id_t*) mfis_get_virtual_address(rx_buffer[1], sizeof(mfis_api_cam_last_buffers_id_t));
 
 out:
-    return cam_last_buffers_id;
+    return ret;
 }
 
 

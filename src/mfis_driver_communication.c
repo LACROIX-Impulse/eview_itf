@@ -23,11 +23,6 @@
 /******************************************************************************************
 * Private definitions
 ******************************************************************************************/
-/* Time between 2 IOCTL read (us) */
-#define READ_TIMER  2000
-/* Number of IOCTL read before exit */
-#define READ_MAX_TRY    50
-
 /* IOCTL definitions */
 #define WR_VALUE _IOW ('a', 1, int32_t*)
 #define RD_VALUE _IOR ('a', 2, int32_t*)
@@ -46,10 +41,9 @@
 int mfis_send_request(int32_t *send, int32_t *receive)
 {
     int fd, ret;
-    int read_try = 0;
     
     /* Open MFIS IOCTL */
-    fd = open("/dev/mfis_device", O_RDWR);
+    fd = open("/dev/mfis_ioctl", O_RDWR);
     if(fd < 0)
     {
         fprintf(stderr, "%s() error cannot open ioctl file : %s\n", __FUNCTION__, strerror(errno));
@@ -66,31 +60,13 @@ int mfis_send_request(int32_t *send, int32_t *receive)
     }
     
     /* Wait for MFIS answer from R7 */
-    do{
-        ret = ioctl(fd, RD_VALUE, (int32_t*) receive);
-        
-        /* IOCTL busy, keep waiting for R7 answer */
-        if(errno == EAGAIN)
-        {
-            /* Timeout */
-            if(read_try > READ_MAX_TRY)
-            {
-                fprintf(stderr, "%s() ioctl read timeout : %s\n", __FUNCTION__, strerror(errno));
-                goto out_close;
-            }
+    ret = ioctl(fd, RD_VALUE, (int32_t*) receive);
+    if(ret < 0)
+    {
+        fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
+        goto out_close;
+    }
 
-            read_try++;
-            usleep(READ_TIMER);
-        }
-        /* IOCTL error */
-        else if(ret < 0)
-        {
-            fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
-            goto out_close;
-        }
-        
-    }while(ret != 0);
-    
 out_close:
     close(fd);
 out_ret:
