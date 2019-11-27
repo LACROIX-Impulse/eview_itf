@@ -6,8 +6,6 @@
  * Handle low level communication with Linux kernel drivers
  *
  */
- 
-#define _DEFAULT_SOURCE /* Needed to use usleep() function*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
