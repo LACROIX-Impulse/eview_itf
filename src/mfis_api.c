@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <signal.h>
 #include "mfis_driver_communication.h"
-#include "mfis_api.h"
+#include "libmfis.h"
 
 /******************************************************************************************
  * Private definitions
