@@ -1,5 +1,5 @@
 /**
- * \file mfis_api.c
+ * \file eviewitf.c
  * \brief Communication API between A53 and R7 CPUs
  * \author esoftthings
  *
@@ -17,8 +17,8 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
-#include "mfis_driver_communication.h"
-#include "libmfis.h"
+#include "mfis_communication.h"
+#include "eviewitf.h"
 
 /******************************************************************************************
  * Private definitions
@@ -34,11 +34,11 @@
 typedef struct {
     uint32_t buffer_size;
     uint32_t ptr_buf[3];
-} mfis_api_cam_buffers_info_r7_t;
+} eviewitf_cam_buffers_info_r7_t;
 
 typedef struct {
-    mfis_api_cam_buffers_info_r7_t cam[MFIS_API_MAX_CAMERA];
-} mfis_api_cam_buffers_r7_t;
+    eviewitf_cam_buffers_info_r7_t cam[EVIEWITF_MAX_CAMERA];
+} eviewitf_cam_buffers_r7_t;
 
 /******************************************************************************************
  * Private enumerations
@@ -47,6 +47,7 @@ typedef enum {
     FCT_GET_CAM_BUFFERS,
     FCT_INIT_API,
     FCT_DEINIT_API,
+    FCT_SET_DISPLAY_CAM,
     NB_FCT,
 } fct_id_t;
 
@@ -54,16 +55,16 @@ typedef enum {
  * Functions
  ******************************************************************************************/
 /**
- * \fn int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers)
+ * \fn int mfis_get_cam_buffers(eviewitf_cam_buffers_t* cam_buffers)
  * \brief Return pointers to the cameras frame buffers located in R7 memory
  *
- * \param mfis_api_cam_buffers_t* cam_buffers: structure that will be filled with frame buffers pointers
+ * \param eviewitf_cam_buffers_t* cam_buffers: structure that will be filled with frame buffers pointers
  * \return state of the function. Return 0 if okay
  */
-int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers) {
+int eviewitf_get_cam_buffers(eviewitf_cam_buffers_t* cam_buffers) {
     int ret = 0, i;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
-    mfis_api_cam_buffers_r7_t* cam_buffers_r7;
+    eviewitf_cam_buffers_r7_t* cam_buffers_r7;
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -86,10 +87,10 @@ int mfis_get_cam_buffers(mfis_api_cam_buffers_t* cam_buffers) {
 
     /* R7 return a pointer to a structure stored in its memory. Convert this pointer into a virtual adress for A53 */
     cam_buffers_r7 =
-        (mfis_api_cam_buffers_r7_t*)mfis_get_virtual_address(rx_buffer[2], sizeof(mfis_api_cam_buffers_r7_t));
+        (eviewitf_cam_buffers_r7_t*)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
 
     /* Fill the A53 cam_buffer structure with value returned by R7*/
-    for (i = 0; i < MFIS_API_MAX_CAMERA; i++) {
+    for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
         cam_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
 
         if (cam_buffers->cam[i].buffer_size != 0) {
@@ -108,12 +109,12 @@ out:
 }
 
 /**
- * \fn mfis_init_api
+ * \fn eviewitf_init_api
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int mfis_init_api(void) {
+int eviewitf_init_api(void) {
     int ret = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -141,12 +142,12 @@ out:
 }
 
 /**
- * \fn mfis_deinit_api
+ * \fn eviewitf_deinit_api
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int mfis_deinit_api(void) {
+int eviewitf_deinit_api(void) {
     int ret = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -170,5 +171,35 @@ int mfis_deinit_api(void) {
     }
 
 out:
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_display_cam
+ * \brief Request R7 to change camera used on display
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_display_cam(int cam_id) {
+    int ret = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_SET_DISPLAY_CAM;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if (ret < 0) {
+        ret = -1;
+    } else {
+        /* Check returned answer state */
+        if ((rx_buffer[0] != FCT_SET_DISPLAY_CAM) && (rx_buffer[1] != FCT_RETURN_OK)) {
+            ret = -1;
+        }
+    }
+
     return ret;
 }

@@ -1,5 +1,5 @@
 /**
- * \file mfis_driver_communication.c
+ * \file mfis_communication.c
  * \brief Handle communication with kernel
  * \author esoftthings
  *
@@ -16,7 +16,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include "mfis_driver_communication.h"
+#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
