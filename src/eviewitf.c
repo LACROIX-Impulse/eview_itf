@@ -47,6 +47,7 @@ typedef enum {
     FCT_GET_CAM_BUFFERS,
     FCT_INIT_API,
     FCT_DEINIT_API,
+    FCT_SET_DISPLAY_CAM,
     NB_FCT,
 } fct_id_t;
 
@@ -108,12 +109,12 @@ out:
 }
 
 /**
- * \fn mfis_init_api
+ * \fn eviewitf_init_api
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int mfis_init_api(void) {
+int eviewitf_init_api(void) {
     int ret = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -141,12 +142,12 @@ out:
 }
 
 /**
- * \fn mfis_deinit_api
+ * \fn eviewitf_deinit_api
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int mfis_deinit_api(void) {
+int eviewitf_deinit_api(void) {
     int ret = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -170,5 +171,36 @@ int mfis_deinit_api(void) {
     }
 
 out:
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_display_cam
+ * \brief Request R7 to change camera used on display
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_display_cam(int cam_id) {
+    int ret = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_SET_DISPLAY_CAM;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if (ret < 0) {
+        ret = -1;
+    }
+    else {
+        /* Check returned answer state */
+        if ((rx_buffer[0] != FCT_SET_DISPLAY_CAM) && (rx_buffer[1] != FCT_RETURN_OK)) {
+            ret = -1;
+        }
+    }
+
     return ret;
 }

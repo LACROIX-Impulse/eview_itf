@@ -5,16 +5,23 @@ BUILDDIR = build
 
 include make/git.mk
 
-all: libewiewitf
+CFLAGS += -DVERSION=\"$(VERSION)\"
 
+all: eviewitf
+
+.PHONY: eviewitf
+eviewitf: $(BUILDDIR)/src/main.o libewiewitf
+	$(CC) $< -o $(BUILDDIR)/$@ -l$@ -L$(BUILDDIR) 
+
+.PHONY: libewiewitf
 libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o
 	@mkdir -p $(BUILDDIR)
 	@echo "Version: $(VERSION)" > $(BUILDDIR)/version.txt
-	ar rcs $(BUILDDIR)/libeviewitf.a $(BUILDDIR)/version.txt $<
+	$(AR) rcs $(BUILDDIR)/libeviewitf.a $(BUILDDIR)/version.txt $^
 
 $(BUILDDIR)/%.o : %.c
 	@mkdir -p $(@D)
-	$(CC) -c $< $(INC) -o $@
+	$(CC) $(CFLAGS) -c $< $(INC) -o $@
 
 .PHONY:	clean
 clean:

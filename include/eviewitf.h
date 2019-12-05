@@ -42,4 +42,5 @@ typedef struct {
 int eviewitf_get_cam_buffers(eviewitf_cam_buffers_t* cam_buffers);
 int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
+int eviewitf_set_display_cam(int cam_id);
 #endif /* EVIEWITF_H */
