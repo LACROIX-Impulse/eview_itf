@@ -194,8 +194,7 @@ int eviewitf_set_display_cam(int cam_id) {
     ret = mfis_send_request(tx_buffer, rx_buffer);
     if (ret < 0) {
         ret = -1;
-    }
-    else {
+    } else {
         /* Check returned answer state */
         if ((rx_buffer[0] != FCT_SET_DISPLAY_CAM) && (rx_buffer[1] != FCT_RETURN_OK)) {
             ret = -1;

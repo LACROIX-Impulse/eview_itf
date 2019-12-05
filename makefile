@@ -16,8 +16,7 @@ eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 .PHONY: libewiewitf
 libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o
 	@mkdir -p $(BUILDDIR)
-	@echo "Version: $(VERSION)" > $(BUILDDIR)/version.txt
-	$(AR) rcs $(BUILDDIR)/libeviewitf.a $(BUILDDIR)/version.txt $^
+	$(AR) rcs $(BUILDDIR)/libeviewitf.a $^
 
 $(BUILDDIR)/%.o : %.c
 	@mkdir -p $(@D)

@@ -23,8 +23,12 @@ $ make clean && make
 
 ## Deploy on eCube board
 
-This lib is build and deployed in the RootFS of eCube under the name mfislib.a in directory /usr/lib.  
+Both program and lib are deployed in the RootFS of eCube:
+* /usr/bin/eviewitf
+* /usr/lib/libeviewitf.a
+* /usr/include/eviewitf.h
+
 To get the version of the lib deployed in your board:
 ```
-$ strings -a /usr/lib/libmfis.a | grep Version
+$ eviewitf -V
 ```

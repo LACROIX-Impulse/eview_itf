@@ -22,42 +22,39 @@ static char args_doc[] = "-c [1-8]";
 
 /* Program options */
 static struct argp_option options[] = {
-    {"camera", 'c', "ID", 0,  "Select camera ID for display"},
-    { 0 }
+    {"camera", 'c', "ID", 0, "Select camera ID for display"},
+    {0},
 };
 
 /* Used by main to communicate with parse_opt. */
-struct arguments
-{
+struct arguments {
     int camera;
     int camera_id;
 };
 
 /* Parse a single option. */
-static error_t parse_opt (int key, char *arg, struct argp_state *state)
-{
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     /* Get the input argument from argp_parse */
     struct arguments *arguments = state->input;
 
-    switch (key)
-    {
+    switch (key) {
         case 'c':
             arguments->camera = 1;
-            arguments->camera_id = atoi (arg);
+            arguments->camera_id = atoi(arg);
             if ((arguments->camera_id < 1) || (arguments->camera_id > EVIEWITF_MAX_CAMERA)) {
-                argp_usage (state);
+                argp_usage(state);
             }
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
-                argp_usage (state);
-             }
-              break;
+                argp_usage(state);
+            }
+            break;
         case ARGP_KEY_END:
             if (state->arg_num < 0) {
                 /* Not enough arguments. */
-                argp_usage (state);
+                argp_usage(state);
             }
             break;
         default:
@@ -67,10 +64,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 }
 
 /* argp parser. */
-static struct argp argp = { options, parse_opt, args_doc, doc };
+static struct argp argp = {options, parse_opt, args_doc, doc};
 
-int main (int argc, char **argv)
-{
+int main(int argc, char **argv) {
     struct arguments arguments;
 
     /* Default values. */
@@ -79,7 +75,7 @@ int main (int argc, char **argv)
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
-    argp_parse (&argp, argc, argv, 0, 0, &arguments);
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     /* Select camera for display */
     if (arguments.camera) {
@@ -88,5 +84,5 @@ int main (int argc, char **argv)
         }
     }
 
-    exit (0);
+    exit(0);
 }
