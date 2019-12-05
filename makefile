@@ -71,3 +71,11 @@ clangcheck:
 	@find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec cat {} \; \
 		| diff -u <(find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec \
 		clang-format --style=file {} \;) -
+
+.PHONY: docclean
+docclean:
+	$(MAKE) -C $(PWD)/doc clean
+
+.PHONY: doc
+doc: docclean
+	$(MAKE) -C $(PWD)/doc all
