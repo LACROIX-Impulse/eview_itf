@@ -2,6 +2,7 @@ SHELL = /bin/bash
 LDFLAGS=
 INC = -I include
 BUILDDIR = build
+DESTDIR ?= ${SDKTARGETSYSROOT}
 
 include make/git.mk
 
@@ -14,7 +15,7 @@ eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 	$(CC) $< -o $(BUILDDIR)/$@ -l$@ -L$(BUILDDIR) 
 
 .PHONY: libewiewitf
-libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o
+libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_ssd.o
 	@mkdir -p $(BUILDDIR)
 	$(AR) rcs $(BUILDDIR)/libeviewitf.a $^
 
@@ -25,6 +26,12 @@ $(BUILDDIR)/%.o : %.c
 .PHONY:	clean
 clean:
 	@rm -rf $(BUILDDIR)
+
+.PHONY: install
+install: eviewitf
+	cp $(BUILDDIR)/eviewitf $(DESTDIR)/usr/bin/eviewitf
+	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
+	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
 
 CLANG_FORMAT_DIRS = include src
 

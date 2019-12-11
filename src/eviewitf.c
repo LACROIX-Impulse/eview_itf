@@ -19,6 +19,7 @@
 #include <signal.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
+#include "eviewitf_ssd.h"
 
 /******************************************************************************************
  * Private definitions
@@ -168,9 +169,14 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
         if (file_cam == -1) {
             printf("Error opening camera file\n");
             ret = -1;
-        } else {
-            // Read file content
-            ret = read(file_cam, &cam_read_param, 2);
+        }
+    }
+    if (ret >= 0) {
+        // Read file content
+        ret = read(file_cam, &cam_read_param, 2);
+        if (ret < 0) {
+            printf("Error reading camera file\n");
+            ret = -1;
         }
     }
 
@@ -329,5 +335,23 @@ int eviewitf_set_display_cam(int cam_id) {
         }
     }
 
+    return ret;
+}
+
+/**
+ * \fn eviewitf_record_cam
+ * \brief Request R7 to change camera used on display
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param delay: duration of the record in seconds
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_record_cam(int cam_id, int delay) {
+    int ret;
+    char* record_dir = NULL;
+    ssd_get_output_directory(&record_dir);
+    printf("SSD storage directory %s \n", record_dir);
+    ret = ssd_save_camera_stream(cam_id, delay, record_dir);
+    free(record_dir);
     return ret;
 }
