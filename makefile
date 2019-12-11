@@ -30,8 +30,11 @@ clean:
 
 .PHONY: install
 install: eviewitf
+	mkdir -p $(DESTDIR)/usr/bin/
 	cp $(BUILDDIR)/eviewitf $(DESTDIR)/usr/bin/eviewitf
+	mkdir -p $(DESTDIR)/usr/lib/
 	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
+	mkdir -p $(DESTDIR)/usr/include/
 	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
 
 CLANG_FORMAT_DIRS = include src
