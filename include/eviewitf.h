@@ -19,27 +19,31 @@
  ******************************************************************************************/
 /**
  * \struct eviewitf_cam_buffers_info_t
- * \brief Pointers to a camera triple buffers
+ * \brief Pointers to current camera frame buffer
  *
  */
 typedef struct {
     uint32_t buffer_size;
-    uint8_t* ptr_buf[3];
-} eviewitf_cam_buffers_info_t;
+    uint8_t* ptr_buf;
+} eviewitf_frame_buffer_info_t;
 
 /**
- * \struct eviewitf_cam_buffers_t
- * \brief Pointers to all camera buffers
+ * \struct eviewitf_frame_metadata_info_t
+ * \brief Pointers to current camera frame metadata
  *
  */
 typedef struct {
-    eviewitf_cam_buffers_info_t cam[EVIEWITF_MAX_CAMERA];
-} eviewitf_cam_buffers_t;
+    uint32_t frame_width;
+    uint32_t frame_height;
+    uint32_t frame_bpp;
+    uint64_t frame_timestamp;
+} eviewitf_frame_metadata_info_t;
 
 /******************************************************************************************
  * Public Functions Prototypes
  ******************************************************************************************/
-int eviewitf_get_cam_buffers(eviewitf_cam_buffers_t* cam_buffers);
+int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
+                       eviewitf_frame_metadata_info_t* frame_metadata);
 int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
 int eviewitf_set_display_cam(int cam_id);
