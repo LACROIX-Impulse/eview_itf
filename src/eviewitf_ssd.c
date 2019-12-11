@@ -17,14 +17,12 @@
 #include <eviewitf.h>
 #include <time.h>
 #include "eviewitf_ssd.h"
-#define MAX_FILENAME_SIZE     512
-#define CAMERA_FPS            15
-#define RECORD_LENGTH_SEC     10
-#define SIZE_DIR_NAME_PATTERN 7
-#define SIZE_MOUNT_POINT      9
+#define SSD_MAX_FILENAME_SIZE     512
+#define SSD_SIZE_DIR_NAME_PATTERN 7
+#define SSD_SIZE_MOUNT_POINT      9
 
-const char *SSD_MOUNT_POINT = "/mnt/ssd/";
-const char *SSD_DIR_NAME_PATTERN = "frames_";
+static const char *SSD_MOUNT_POINT = "/mnt/ssd/";
+static const char *SSD_DIR_NAME_PATTERN = "frames_";
 
 int ssd_get_output_directory(char **storage_directory) {
     DIR *dir;
@@ -33,14 +31,14 @@ int ssd_get_output_directory(char **storage_directory) {
     int current_index;
     int next_index = 0;
     int length_index_to_add;
-    char filepath[MAX_FILENAME_SIZE];
+    char filepath[SSD_MAX_FILENAME_SIZE];
 
     // First try to open ssd mount moint
     if ((dir = opendir(SSD_MOUNT_POINT)) == NULL) {
         return -1;
     }
     while ((dirp = readdir(dir)) != NULL) {
-        snprintf(filepath, MAX_FILENAME_SIZE, "%s%s", SSD_MOUNT_POINT, dirp->d_name);
+        snprintf(filepath, SSD_MAX_FILENAME_SIZE, "%s%s", SSD_MOUNT_POINT, dirp->d_name);
         lstat(filepath, &statbuf);
         // Look for directories only
         if (S_ISDIR(statbuf.st_mode)) {
@@ -49,8 +47,8 @@ int ssd_get_output_directory(char **storage_directory) {
                 || strcmp("lost+found", dirp->d_name) == 0) {  // Ignore lost+found directory
                 continue;
             }
-            // Get current index using SIZE_DIR_NAME_PATTERN
-            current_index = atoi(dirp->d_name + SIZE_DIR_NAME_PATTERN);
+            // Get current index using SSD_SIZE_DIR_NAME_PATTERN
+            current_index = atoi(dirp->d_name + SSD_SIZE_DIR_NAME_PATTERN);
             if (current_index >= next_index) {
                 next_index = current_index + 1;
             }
@@ -60,13 +58,13 @@ int ssd_get_output_directory(char **storage_directory) {
     closedir(dir);
 
     length_index_to_add = snprintf(NULL, 0, "%d", next_index);
-    *storage_directory = realloc(*storage_directory,
-                                 sizeof(char) * (SIZE_MOUNT_POINT + SIZE_DIR_NAME_PATTERN + length_index_to_add + 1));
+    *storage_directory = realloc(*storage_directory, sizeof(char) * (SSD_SIZE_MOUNT_POINT + SSD_SIZE_DIR_NAME_PATTERN +
+                                                                     length_index_to_add + 1));
 
     if (*storage_directory == NULL) {
         return -1;
     }
-    snprintf(*storage_directory, SIZE_MOUNT_POINT + SIZE_DIR_NAME_PATTERN + length_index_to_add + 1, "%s%s%d",
+    snprintf(*storage_directory, SSD_SIZE_MOUNT_POINT + SSD_SIZE_DIR_NAME_PATTERN + length_index_to_add + 1, "%s%s%d",
              SSD_MOUNT_POINT, SSD_DIR_NAME_PATTERN, next_index);
     return 0;
 }
@@ -74,7 +72,7 @@ int ssd_get_output_directory(char **storage_directory) {
 int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) {
     int frame_id = 0;
     int file_ssd = 0;
-    char filename_ssd[MAX_FILENAME_SIZE];
+    char filename_ssd[SSD_MAX_FILENAME_SIZE];
     eviewitf_frame_buffer_info_t frame_buffer;
     time_t start_time = time(NULL);
     struct stat st;
@@ -85,7 +83,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
     }
 
     while ((time(NULL) - start_time) < duration) {
-        snprintf(filename_ssd, MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
+        snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
         file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
         if (file_ssd == -1) {
             printf("Error opening recording file\n");
