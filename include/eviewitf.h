@@ -47,4 +47,5 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
 int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
 int eviewitf_set_display_cam(int cam_id);
+int eviewitf_record_cam(int cam_id, int delay);
 #endif /* EVIEWITF_H */
