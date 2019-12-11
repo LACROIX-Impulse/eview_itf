@@ -6,7 +6,8 @@ DESTDIR ?= ${SDKTARGETSYSROOT}
 
 include make/git.mk
 
-CFLAGS += -DVERSION=\"$(VERSION)\"
+# Needed because bitbake overrides CFLAGS
+TARGET_CFLAGS += -DVERSION=\"$(VERSION)\"
 
 all: eviewitf
 
@@ -21,7 +22,7 @@ libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(B
 
 $(BUILDDIR)/%.o : %.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< $(INC) -o $@
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) -c $< $(INC) -o $@
 
 .PHONY:	clean
 clean:
