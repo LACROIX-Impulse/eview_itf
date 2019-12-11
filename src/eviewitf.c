@@ -91,10 +91,16 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t* virtual_buffers)
     /* Prepare TX buffer */
     tx_buffer[0] = FCT_GET_CAM_BUFFERS;
 
-    /* Send request to R7 and check returned answer state */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < 0) || (rx_buffer[0] != FCT_GET_CAM_BUFFERS) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    /* Check input parameter */
+    if (virtual_buffers == NULL) {
+        printf("Error eviewitf_get_cam_buffers called with null parameter\n");
         ret = -1;
+    } else {
+        /* Send request to R7 and check returned answer state */
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+        if ((ret < 0) || (rx_buffer[0] != FCT_GET_CAM_BUFFERS) || (rx_buffer[1] != FCT_RETURN_OK)) {
+            ret = -1;
+        }
     }
 
     if (ret >= 0) {
@@ -159,7 +165,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     if (ret >= 0) {
         // Get mfis device filename
         file_cam = open(mfis_device_filenames[cam_id], O_RDONLY);
-        if (file_cam == 0) {
+        if (file_cam == -1) {
             printf("Error opening camera file\n");
             ret = -1;
         } else {
