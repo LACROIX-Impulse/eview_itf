@@ -6,7 +6,8 @@ DESTDIR ?= ${SDKTARGETSYSROOT}
 
 include make/git.mk
 
-CFLAGS += -DVERSION=\"$(VERSION)\"
+# Needed because bitbake overrides CFLAGS
+TARGET_CFLAGS += -DVERSION=\"$(VERSION)\"
 
 all: eviewitf
 
@@ -21,7 +22,7 @@ libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(B
 
 $(BUILDDIR)/%.o : %.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< $(INC) -o $@
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) -c $< $(INC) -o $@
 
 .PHONY:	clean
 clean:
@@ -29,8 +30,11 @@ clean:
 
 .PHONY: install
 install: eviewitf
+	mkdir -p $(DESTDIR)/usr/bin/
 	cp $(BUILDDIR)/eviewitf $(DESTDIR)/usr/bin/eviewitf
+	mkdir -p $(DESTDIR)/usr/lib/
 	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
+	mkdir -p $(DESTDIR)/usr/include/
 	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
 
 CLANG_FORMAT_DIRS = include src
