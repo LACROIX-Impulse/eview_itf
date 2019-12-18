@@ -205,7 +205,8 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                         frame_metadata->frame_width = metadata_info->frame_width;
                         frame_metadata->frame_height = metadata_info->frame_height;
                         frame_metadata->frame_bpp = metadata_info->frame_bpp;
-                        frame_metadata->frame_timestamp = metadata_info->frame_timestamp;
+                        frame_metadata->frame_timestamp_lsb = metadata_info->frame_timestamp_lsb;
+                        frame_metadata->frame_timestamp_msb = metadata_info->frame_timestamp_msb;
                     }
                     if (frame_buffer != NULL) {
                         frame_buffer->buffer_size = metadata->frame_size;
@@ -224,7 +225,8 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                 frame_metadata->frame_width = 0;
                 frame_metadata->frame_height = 0;
                 frame_metadata->frame_bpp = 0;
-                frame_metadata->frame_timestamp = 0;
+                frame_metadata->frame_timestamp_lsb = 0;
+                frame_metadata->frame_timestamp_msb = 0;
             }
             if (frame_buffer != NULL) {
                 frame_buffer->buffer_size = cam_virtual_buffers->cam[cam_id].buffer_size;
