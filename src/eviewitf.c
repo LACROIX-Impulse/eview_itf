@@ -325,7 +325,7 @@ int eviewitf_set_display_cam(int cam_id) {
 
     /* Prepare TX buffer */
     tx_buffer[0] = FCT_SET_DISPLAY_CAM;
-
+    tx_buffer[1] = cam_id;
     /* Send request to R7 */
     ret = mfis_send_request(tx_buffer, rx_buffer);
     if (ret < 0) {
