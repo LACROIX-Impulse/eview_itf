@@ -36,7 +36,8 @@ typedef struct {
     uint32_t frame_width;
     uint32_t frame_height;
     uint32_t frame_bpp;
-    uint64_t frame_timestamp;
+    uint32_t frame_timestamp_lsb;
+    uint32_t frame_timestamp_msb;
 } eviewitf_frame_metadata_info_t;
 
 /******************************************************************************************
