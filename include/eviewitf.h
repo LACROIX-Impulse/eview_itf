@@ -18,6 +18,18 @@
  * Public Structures
  ******************************************************************************************/
 /**
+ * \enum eviewitf_return_state
+ * \brief Return Codes
+ */
+
+typedef enum {
+    EVIEWITF_OK,
+    EVIEWITF_BLOCKED = -1,
+    EVIEWITF_INVALID_PARAM = -2,
+    EVIEWITF_FAIL = -3,
+} eviewitf_return_state;
+
+/**
  * \struct eviewitf_cam_buffers_info_t
  * \brief Pointers to current camera frame buffer
  *
@@ -49,4 +61,6 @@ int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
 int eviewitf_set_display_cam(int cam_id);
 int eviewitf_record_cam(int cam_id, int delay);
+int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
+int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
 #endif /* EVIEWITF_H */
