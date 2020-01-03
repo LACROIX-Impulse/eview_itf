@@ -84,7 +84,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
 
     while ((time(NULL) - start_time) < duration) {
         snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
-        file_ssd = open(filename_ssd, O_CREAT | O_RDWR | __O_DIRECT, 0777);
+        file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
         if (file_ssd == -1) {
             printf("Error opening recording file\n");
             return -1;
