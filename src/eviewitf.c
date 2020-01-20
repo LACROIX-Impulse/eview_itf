@@ -67,7 +67,7 @@ typedef enum {
     FCT_SET_DISPLAY_CAM,
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
-	FCT_REBOOT_CAM,
+    FCT_REBOOT_CAM,
     NB_FCT,
 } fct_id_t;
 
@@ -75,7 +75,7 @@ typedef enum {
     FCT_RETURN_OK = 1,
     FCT_RETURN_BLOCKED,
     FCT_RETURN_ERROR,
-	FCT_INV_PARAM,
+    FCT_INV_PARAM,
 } fct_ret_r;
 static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
 static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
@@ -448,8 +448,7 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_
     return ret;
 }
 
-int eviewitf_reboot_cam(int cam_id)
-{
+int eviewitf_reboot_cam(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 

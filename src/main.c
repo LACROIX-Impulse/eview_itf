@@ -22,8 +22,8 @@ static char args_doc[] =
     "to record: -c [0-7] -r [???] delay(s) \n"
     "to change display: -d -c [0-7] \n "
     "to write register: -c [0-7] -Wa [0x????] -v [0x??] \n"
-	"to read register: -c [0-7] -Wa [0x????] \n"
-	"to reboot a camera: -s -c [0-7]";
+    "to read register: -c [0-7] -Wa [0x????] \n"
+    "to reboot a camera: -s -c [0-7]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -35,8 +35,8 @@ static struct argp_option options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register"},
     {"read", 'R', 0, 0, "Read register"},
     {"write", 'W', 0, 0, "Write register"},
-	{"reboot", 's', 0, 0, "Software reboot camera"},
-	{0},
+    {"reboot", 's', 0, 0, "Software reboot camera"},
+    {0},
 };
 
 /* Used by main to communicate with parse_opt. */
@@ -99,8 +99,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->write = 1;
             break;
         case 's':
-        	arguments->reboot = 1;
-        	break;
+            arguments->reboot = 1;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -192,16 +192,16 @@ int main(int argc, char **argv) {
         }
     }
     /* reboot a camera */
-    if (arguments.camera && arguments.reboot){
-    	ret = eviewitf_reboot_cam( arguments.camera_id);
+    if (arguments.camera && arguments.reboot) {
+        ret = eviewitf_reboot_cam(arguments.camera_id);
 
-    	if (ret >= EVIEWITF_OK) {
-    		fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
-    	} else if (ret == EVIEWITF_INVALID_PARAM) {
-    	     fprintf(stdout, "You send a wrong camera Id");
-    	} else {
-    	     fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
-    	}
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You send a wrong camera Id");
+        } else {
+            fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
+        }
     }
     exit(0);
 }
