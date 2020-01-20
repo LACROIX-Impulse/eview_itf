@@ -67,6 +67,7 @@ typedef enum {
     FCT_SET_DISPLAY_CAM,
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
+	FCT_REBOOT_CAM,
     NB_FCT,
 } fct_id_t;
 
@@ -74,6 +75,7 @@ typedef enum {
     FCT_RETURN_OK = 1,
     FCT_RETURN_BLOCKED,
     FCT_RETURN_ERROR,
+	FCT_INV_PARAM,
 } fct_ret_r;
 static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
 static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
@@ -441,6 +443,35 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_
         }
         if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
             ret = EVIEWITF_BLOCKED;
+        }
+    }
+    return ret;
+}
+
+int eviewitf_reboot_cam(int cam_id)
+{
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_REBOOT_CAM;
+    tx_buffer[1] = cam_id;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_REBOOT_CAM) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_INV_PARAM) {
+            ret = EVIEWITF_INVALID_PARAM;
         }
     }
     return ret;
