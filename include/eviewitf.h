@@ -63,4 +63,5 @@ int eviewitf_set_display_cam(int cam_id);
 int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
 int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
+int eviewitf_reboot_cam(int cam_id);
 #endif /* EVIEWITF_H */
