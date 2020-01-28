@@ -16,6 +16,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <sys/mman.h>
+#include <pthread.h>
 #include "mfis_communication.h"
 
 /******************************************************************************************
@@ -25,9 +26,20 @@
 #define WR_VALUE _IOW('a', 1, int32_t*)
 #define RD_VALUE _IOR('a', 2, int32_t*)
 
+pthread_mutex_t mfis_mutex ;
+
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
+
+int mfis_init() {
+    return pthread_mutex_init(&mfis_mutex, NULL);
+}
+
+int mfis_deinit() {
+    return pthread_mutex_destroy(&mfis_mutex);
+}
+
 /**
  * \fn int mfis_send_request(int32_t *send, int32_t *receive)
  * \brief Send a request to R7 CPU and return its answer.
@@ -39,6 +51,7 @@
 int mfis_send_request(int32_t* send, int32_t* receive) {
     int fd, ret;
 
+    pthread_mutex_lock(&mfis_mutex);
     /* Open MFIS IOCTL */
     fd = open("/dev/mfis_ioctl", O_RDWR);
     if (fd < 0) {
@@ -64,6 +77,7 @@ int mfis_send_request(int32_t* send, int32_t* receive) {
 out_close:
     close(fd);
 out_ret:
+    pthread_mutex_unlock(&mfis_mutex);
     return ret;
 }
 

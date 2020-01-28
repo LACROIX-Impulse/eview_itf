@@ -18,6 +18,8 @@
 /******************************************************************************************
  * Public Functions Prototypes
  ******************************************************************************************/
+int mfis_init();
+int mfis_deinit();
 int mfis_send_request(int32_t *send, int32_t *receive);
 void *mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size);
 #endif /* MFIS_COMMUNICATION_H */
