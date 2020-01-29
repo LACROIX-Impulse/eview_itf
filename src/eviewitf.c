@@ -259,6 +259,8 @@ int eviewitf_init_api(void) {
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
+    mfis_init();
+
     /* Check if init has been done */
     if (cam_virtual_buffers != NULL) {
         printf("eviewitf_init_api already done\n");
@@ -313,6 +315,8 @@ int eviewitf_deinit_api(void) {
             ret = EVIEWITF_FAIL;
         }
     }
+
+    mfis_deinit();
 
     return ret;
 }
