@@ -34,7 +34,6 @@
    Doesn't need to be exposed in API */
 typedef struct {
     uint32_t buffer_size;
-    uint32_t ptr_buf[3];
 } eviewitf_cam_buffers_physical_r7_t;
 
 typedef struct {
@@ -45,7 +44,6 @@ typedef struct {
    Doesn't need to be exposed in API */
 typedef struct {
     uint32_t buffer_size;
-    uint8_t* ptr_buf[3];
 } eviewitf_cam_buffers_virtual_t;
 
 typedef struct {
@@ -78,9 +76,7 @@ typedef enum {
     FCT_INV_PARAM,
 } fct_ret_r;
 static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
-static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
-                                                                 "/dev/mfis_cam3", "/dev/mfis_cam4", "/dev/mfis_cam5",
-                                                                 "/dev/mfis_cam6", "/dev/mfis_cam7"};
+
 
 /******************************************************************************************
  * Functions
@@ -108,30 +104,18 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t* virtual_buffers)
         ret = mfis_send_request(tx_buffer, rx_buffer);
         if ((ret < 0) || (rx_buffer[0] != FCT_GET_CAM_BUFFERS) || (rx_buffer[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
+            return ret;
         }
     }
-
+    cam_buffers_r7 =
+                (eviewitf_cam_buffers_r7_t*)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
     if (ret >= EVIEWITF_OK) {
-        /* R7 return a pointer to a structure stored in its memory. Convert this pointer into a virtual adress for A53
-         */
-        cam_buffers_r7 =
-            (eviewitf_cam_buffers_r7_t*)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
-
         /* Fill the A53 cam_buffer structure with value returned by R7*/
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
             virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
-
-            if (virtual_buffers->cam[i].buffer_size != 0) {
-                /* Convert R7 physical addresses of frame buffers to virtual adresses */
-                virtual_buffers->cam[i].ptr_buf[0] = (uint8_t*)mfis_get_virtual_address(
-                    cam_buffers_r7->cam[i].ptr_buf[0], cam_buffers_r7->cam[i].buffer_size);
-                virtual_buffers->cam[i].ptr_buf[1] = (uint8_t*)mfis_get_virtual_address(
-                    cam_buffers_r7->cam[i].ptr_buf[1], cam_buffers_r7->cam[i].buffer_size);
-                virtual_buffers->cam[i].ptr_buf[2] = (uint8_t*)mfis_get_virtual_address(
-                    cam_buffers_r7->cam[i].ptr_buf[2], cam_buffers_r7->cam[i].buffer_size);
             }
         }
-    }
+
 
     return ret;
 }
@@ -153,7 +137,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     int cam_frame_id;
-    char cam_read_param[2];
+    char cam_read_param[cam_virtual_buffers->cam[cam_id].buffer_size];
     uint8_t* ptr_metadata;
     eviewitf_frame_metadata_t* metadata = NULL;
     eviewitf_frame_metadata_info_t* metadata_info = NULL;
@@ -180,7 +164,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     }
     if (ret >= EVIEWITF_OK) {
         // Read file content
-        ret = read(file_cam, &cam_read_param, 2);
+        ret = read(file_cam, &cam_read_param,  cam_virtual_buffers->cam[cam_id].buffer_size);
         if (ret < EVIEWITF_OK) {
             printf("Error reading camera file\n");
             ret = EVIEWITF_FAIL;
@@ -188,9 +172,8 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     }
 
     if (ret >= EVIEWITF_OK) {
-        cam_frame_id = cam_read_param[0];
         // Metadata magic number is located at the end of the buffer if present
-        ptr_metadata = cam_virtual_buffers->cam[cam_id].ptr_buf[cam_frame_id] +
+        ptr_metadata = cam_read_param +
                        cam_virtual_buffers->cam[cam_id].buffer_size - sizeof(eviewitf_frame_metadata_t);
         metadata = (eviewitf_frame_metadata_t*)ptr_metadata;
         if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
@@ -198,7 +181,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                 // Special case where frame's data looks like a magic number
                 ismetadata = 0;
             } else {
-                ptr_metadata = cam_virtual_buffers->cam[cam_id].ptr_buf[cam_frame_id] + metadata->frame_size;
+                ptr_metadata = cam_read_param + metadata->frame_size;
                 metadata_info = (eviewitf_frame_metadata_info_t*)ptr_metadata;
                 if ((metadata_info->frame_width * metadata_info->frame_height * metadata_info->frame_bpp) !=
                     metadata->frame_size) {
@@ -217,7 +200,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                     }
                     if (frame_buffer != NULL) {
                         frame_buffer->buffer_size = metadata->frame_size;
-                        frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].ptr_buf[cam_frame_id];
+                        frame_buffer->ptr_buf =cam_read_param;
                     }
                 }
             }
@@ -237,7 +220,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
             }
             if (frame_buffer != NULL) {
                 frame_buffer->buffer_size = cam_virtual_buffers->cam[cam_id].buffer_size;
-                frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].ptr_buf[cam_frame_id];
+                frame_buffer->ptr_buf = cam_read_param;
             }
         }
     }
@@ -271,10 +254,12 @@ int eviewitf_init_api(void) {
 
         /* Send request to R7 and check returned answer state*/
         ret = mfis_send_request(tx_buffer, rx_buffer);
+        printf("eviewitf_init_api on its way %d \n", ret);
         if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_INIT_API) || (rx_buffer[1] != FCT_RETURN_OK)) {
-            ret = EVIEWITF_FAIL;
-            printf("Error in eviewitf_init_api\n");
+           ret = EVIEWITF_FAIL;
+            printf("Error in eviewitf_init_api %d \n", ret);
         } else {
+            printf("eviewitf_init_api OK\n");
             // Get pointers to the cameras frame buffers located in R7 memory
             cam_virtual_buffers = malloc(sizeof(eviewitf_cam_buffers_a53_t));
             ret = eviewitf_get_cam_buffers(cam_virtual_buffers);

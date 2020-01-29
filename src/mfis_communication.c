@@ -88,7 +88,6 @@ out_ret:
 void* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size) {
     int mem_dev;
     uint32_t* virtual_address = NULL;
-
     mem_dev = open("/dev/mem", O_RDONLY);
     if (mem_dev == -1) {
         fprintf(stderr, "%s() error while opening /dev/mem : %s\n", __FUNCTION__, strerror(errno));
