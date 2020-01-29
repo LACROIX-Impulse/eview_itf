@@ -26,19 +26,15 @@
 #define WR_VALUE _IOW('a', 1, int32_t*)
 #define RD_VALUE _IOR('a', 2, int32_t*)
 
-pthread_mutex_t mfis_mutex ;
+pthread_mutex_t mfis_mutex;
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
-int mfis_init() {
-    return pthread_mutex_init(&mfis_mutex, NULL);
-}
+int mfis_init() { return pthread_mutex_init(&mfis_mutex, NULL); }
 
-int mfis_deinit() {
-    return pthread_mutex_destroy(&mfis_mutex);
-}
+int mfis_deinit() { return pthread_mutex_destroy(&mfis_mutex); }
 
 /**
  * \fn int mfis_send_request(int32_t *send, int32_t *receive)
