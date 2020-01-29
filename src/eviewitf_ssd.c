@@ -70,18 +70,8 @@ int ssd_get_output_directory(char **storage_directory) {
              SSD_MOUNT_POINT, SSD_DIR_NAME_PATTERN, next_index);
     return 0;
 }
-struct timespec diff(struct timespec start, struct timespec end) {
-    struct timespec temp;
-    if ((end.tv_nsec - start.tv_nsec) < 0) {
-        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec - start.tv_sec;
-        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
-    }
-    return temp;
-}
-int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) {
+
+int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, uint32_t size) {
     int frame_id = 0;
     int file_ssd = 0;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
@@ -89,8 +79,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
     struct timespec res_run;
     struct timespec difft;
     struct stat st;
-    int t = 1600 * 1300;
-    char buff_f[t];
+    char buff_f[size];
     int cam_fd;
     uint32_t *addr;
     // Create frame directory if not existing (and it should not exist)
@@ -107,8 +96,8 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
     while (difft.tv_sec < duration) {
         snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
         file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
-        read(cam_fd, &buff_f, t);
-        write(file_ssd, buff_f, t);
+        read(cam_fd, &buff_f, size);
+        write(file_ssd, buff_f,size);
         close(file_ssd);
         if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
             printf("Got a issue with system clock aborting \n");

@@ -252,12 +252,9 @@ int eviewitf_init_api(void) {
 
         /* Send request to R7 and check returned answer state*/
         ret = mfis_send_request(tx_buffer, rx_buffer);
-        printf("eviewitf_init_api on its way %d \n", ret);
         if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_INIT_API) || (rx_buffer[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
-            printf("Error in eviewitf_init_api %d \n", ret);
         } else {
-            printf("eviewitf_init_api OK\n");
             // Get pointers to the cameras frame buffers located in R7 memory
             cam_virtual_buffers = malloc(sizeof(eviewitf_cam_buffers_a53_t));
             ret = eviewitf_get_cam_buffers(cam_virtual_buffers);
@@ -347,7 +344,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
     char* record_dir = NULL;
     ssd_get_output_directory(&record_dir);
     printf("SSD storage directory %s \n", record_dir);
-    ret = ssd_save_camera_stream(cam_id, delay, record_dir);
+    ret = ssd_save_camera_stream(cam_id, delay, record_dir, cam_virtual_buffers->cam[cam_id].buffer_size);
     free(record_dir);
     return ret;
 }
