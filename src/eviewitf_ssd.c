@@ -22,7 +22,7 @@
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
 #define SSD_SIZE_MOUNT_POINT      9
-#define RD_VALUE _IOR('a', 2, int32_t*)
+#define RD_VALUE                  _IOR('a', 2, int32_t *)
 static const char *SSD_MOUNT_POINT = "/mnt/ssd/";
 static const char *SSD_DIR_NAME_PATTERN = "frames_";
 
@@ -70,17 +70,16 @@ int ssd_get_output_directory(char **storage_directory) {
              SSD_MOUNT_POINT, SSD_DIR_NAME_PATTERN, next_index);
     return 0;
 }
-struct timespec diff(struct timespec start, struct timespec end)
-{
-	struct timespec temp;
-	if ((end.tv_nsec-start.tv_nsec)<0) {
-		temp.tv_sec = end.tv_sec-start.tv_sec-1;
-		temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-	} else {
-		temp.tv_sec = end.tv_sec-start.tv_sec;
-		temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-	}
-	return temp;
+struct timespec diff(struct timespec start, struct timespec end) {
+    struct timespec temp;
+    if ((end.tv_nsec - start.tv_nsec) < 0) {
+        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
+        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+    } else {
+        temp.tv_sec = end.tv_sec - start.tv_sec;
+        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+    }
+    return temp;
 }
 int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) {
     int frame_id = 0;
@@ -90,7 +89,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
     struct timespec res_run;
     struct timespec difft;
     struct stat st;
-    int t = 1600*1300;
+    int t = 1600 * 1300;
     char buff_f[t];
     int cam_fd;
     uint32_t *addr;
@@ -98,36 +97,34 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory) 
     if (stat(frames_directory, &st) == -1) {
         mkdir(frames_directory, 0777);
     }
-    if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0)
-    {
-    	printf ("Got a issue with system clock aborting \n");
-    	return -1;
+    if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
+        printf("Got a issue with system clock aborting \n");
+        return -1;
     }
-	res_run = res_start;
+    res_run = res_start;
     cam_fd = open(mfis_device_filenames[camera_id], O_RDWR);
 
-	while (difft.tv_sec < duration) {
-       snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
-       file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
-       read (cam_fd, &buff_f, t);
-       write(file_ssd, buff_f, t);
-       close(file_ssd);
-       if (clock_gettime(CLOCK_MONOTONIC, &res_run)!= 0)
-       {
-       	printf ("Got a issue with system clock aborting \n");
-       	return -1;
-       }
+    while (difft.tv_sec < duration) {
+        snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
+        file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
+        read(cam_fd, &buff_f, t);
+        write(file_ssd, buff_f, t);
+        close(file_ssd);
+        if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
+            printf("Got a issue with system clock aborting \n");
+            return -1;
+        }
 
-       if ((res_run.tv_nsec-res_start.tv_nsec)<0) {
-    	   difft.tv_sec = res_run.tv_sec-res_start.tv_sec-1;
-    	   difft.tv_nsec = 1000000000+res_run.tv_nsec-res_start.tv_nsec;
-       } else {
-    	   difft.tv_sec = res_run.tv_sec-res_start.tv_sec;
-    	   difft.tv_nsec = res_run.tv_nsec-res_start.tv_nsec;
-       }
-       frame_id++;
+        if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
+            difft.tv_sec = res_run.tv_sec - res_start.tv_sec - 1;
+            difft.tv_nsec = 1000000000 + res_run.tv_nsec - res_start.tv_nsec;
+        } else {
+            difft.tv_sec = res_run.tv_sec - res_start.tv_sec;
+            difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
+        }
+        frame_id++;
     }
-	close(cam_fd);
-    printf ("Time elapsed %ds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec/100000, frame_id);
+    close(cam_fd);
+    printf("Time elapsed %ds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     return 0;
 }

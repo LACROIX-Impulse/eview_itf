@@ -35,7 +35,7 @@ static struct argp_option options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register"},
     {"read", 'R', 0, 0, "Read register"},
     {"write", 'W', 0, 0, "Write register"},
-	{"reboot", 's', 0, 0, "Software reboot camera"},
+    {"reboot", 's', 0, 0, "Software reboot camera"},
     {0},
 };
 
