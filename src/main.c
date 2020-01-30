@@ -19,8 +19,11 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 
 /* Arguments description */
 static char args_doc[] =
-    "to record: -c [0-7] -r [0-7] delay(s) \n to change display: -d -c [0-7] \n to write register: -c [0-7] -Wa "
-    "[0x????] -v [0x??] \n to read register -c [0-7] -Wa [0x????]";
+    "to record: -c [0-7] -r [???] delay(s) \n"
+    "to change display: -d -c [0-7] \n "
+    "to write register: -c [0-7] -Wa [0x????] -v [0x??] \n"
+    "to read register: -c [0-7] -Wa [0x????] \n"
+    "to reboot a camera: -s -c [0-7]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -32,6 +35,7 @@ static struct argp_option options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register"},
     {"read", 'R', 0, 0, "Read register"},
     {"write", 'W', 0, 0, "Write register"},
+    {"reboot", 's', 0, 0, "Software reboot camera"},
     {0},
 };
 
@@ -50,6 +54,7 @@ struct arguments {
     int reg_value;
     int read;
     int write;
+    int reboot;
 };
 
 /* Parse a single option. */
@@ -93,6 +98,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'W':
             arguments->write = 1;
             break;
+        case 's':
+            arguments->reboot = 1;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -132,7 +140,7 @@ int main(int argc, char **argv) {
     arguments.reg_value = 0;
     arguments.read = 0;
     arguments.write = 0;
-
+    arguments.reboot = 0;
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -180,6 +188,18 @@ int main(int argc, char **argv) {
         } else {
             fprintf(stdout, "Fail to get register 0X%X value, of camera id %d  \n", arguments.reg_address,
                     arguments.camera_id);
+        }
+    }
+    /* reboot a camera */
+    if (arguments.camera && arguments.reboot) {
+        ret = eviewitf_reboot_cam(arguments.camera_id);
+
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You send a wrong camera Id");
+        } else {
+            fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
         }
     }
     exit(0);

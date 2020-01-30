@@ -51,7 +51,9 @@ typedef struct {
     uint32_t frame_timestamp_lsb;
     uint32_t frame_timestamp_msb;
 } eviewitf_frame_metadata_info_t;
-
+static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
+                                                                 "/dev/mfis_cam3", "/dev/mfis_cam4", "/dev/mfis_cam5",
+                                                                 "/dev/mfis_cam6", "/dev/mfis_cam7"};
 /******************************************************************************************
  * Public Functions Prototypes
  ******************************************************************************************/
@@ -63,4 +65,5 @@ int eviewitf_set_display_cam(int cam_id);
 int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
 int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
+int eviewitf_reboot_cam(int cam_id);
 #endif /* EVIEWITF_H */
