@@ -141,7 +141,6 @@ int main(int argc, char **argv) {
     arguments.read = 0;
     arguments.write = 0;
     arguments.reboot = 0;
-
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
