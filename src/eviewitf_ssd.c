@@ -97,7 +97,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
         file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
         read(cam_fd, &buff_f, size);
-        write(file_ssd, buff_f,size);
+        write(file_ssd, buff_f, size);
         close(file_ssd);
         if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
             printf("Got a issue with system clock aborting \n");
