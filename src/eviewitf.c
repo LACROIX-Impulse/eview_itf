@@ -17,6 +17,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
+#include <poll.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
 #include "eviewitf_ssd.h"
@@ -160,6 +161,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
             ret = EVIEWITF_FAIL;
         }
     }
+
     if (ret >= EVIEWITF_OK) {
         // Read file content
         ret = read(file_cam, &cam_read_param, cam_virtual_buffers->cam[cam_id].buffer_size);
@@ -455,6 +457,50 @@ int eviewitf_reboot_cam(int cam_id) {
         }
         if (rx_buffer[1] == FCT_INV_PARAM) {
             ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+    return ret;
+}
+
+int eviewitf_poll(int* cam_id, int nb_cam, short* event_return) {
+    short revents;
+    struct pollfd pfd[nb_cam];
+    int r_poll;
+    int file_cam[nb_cam];
+    int ret = EVIEWITF_OK;
+    int i;
+
+    for (i = 0; i < nb_cam; i++) {
+        if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
+            printf("Invalid camera id %d\n", cam_id[i]);
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+    for (i = 0; i < nb_cam; i++) {
+        if (ret >= EVIEWITF_OK) {
+            // Get mfis device filename
+            file_cam[i] = open(mfis_device_filenames[cam_id[i]], O_RDONLY);
+            if (file_cam[i] == -1) {
+                printf("Error opening camera file %d\n", cam_id[i]);
+                ret = EVIEWITF_FAIL;
+            }
+        }
+        pfd[i].fd = file_cam[i];
+        pfd[i].events = POLLIN;
+    }
+
+    if (ret >= EVIEWITF_OK) {
+        r_poll = poll(pfd, nb_cam, -1);
+        if (r_poll == -1) {
+            printf("POLL ERROR \n");
+            ret = EVIEWITF_FAIL;
+        }
+    }
+
+    for (i = 0; i < nb_cam; i++) {
+        if (ret >= EVIEWITF_OK) {
+            event_return[i] = pfd[i].revents;
+            close(file_cam[i]);
         }
     }
     return ret;
