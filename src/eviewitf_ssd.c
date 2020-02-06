@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <eviewitf.h>
+#include <poll.h>
 #include <sys/mman.h>
 #include <time.h>
 #include <sys/ioctl.h>
@@ -77,11 +78,13 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
     struct timespec res_start;
     struct timespec res_run;
-    struct timespec difft;
+    struct timespec difft = {0};
     struct stat st;
     char buff_f[size];
     int cam_fd;
-    uint32_t *addr;
+    short revents;
+    struct pollfd pfd;
+    int r_poll;
     // Create frame directory if not existing (and it should not exist)
     if (stat(frames_directory, &st) == -1) {
         mkdir(frames_directory, 0777);
@@ -92,27 +95,38 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     }
     res_run = res_start;
     cam_fd = open(mfis_device_filenames[camera_id], O_RDWR);
-
+    pfd.fd = cam_fd;
+    pfd.events = POLLIN;
     while (difft.tv_sec < duration) {
-        snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
-        file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
-        read(cam_fd, &buff_f, size);
-        write(file_ssd, buff_f, size);
-        close(file_ssd);
-        if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
-            printf("Got a issue with system clock aborting \n");
+        r_poll = poll(&pfd, 1, -1);
+        if (r_poll == -1) {
+            printf("POLL ERROR \n");
             return -1;
         }
+        revents = pfd.revents;
+        if (revents & POLLIN) {
+            snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
+            file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
+            read(cam_fd, &buff_f, size);
+            write(file_ssd, buff_f, size);
+            close(file_ssd);
 
-        if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
-            difft.tv_sec = res_run.tv_sec - res_start.tv_sec - 1;
-            difft.tv_nsec = 1000000000 + res_run.tv_nsec - res_start.tv_nsec;
-        } else {
-            difft.tv_sec = res_run.tv_sec - res_start.tv_sec;
-            difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
+            if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
+                printf("Got a issue with system clock aborting \n");
+                return -1;
+            }
+
+            if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
+                difft.tv_sec = res_run.tv_sec - res_start.tv_sec - 1;
+                difft.tv_nsec = 1000000000 + res_run.tv_nsec - res_start.tv_nsec;
+            } else {
+                difft.tv_sec = res_run.tv_sec - res_start.tv_sec;
+                difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
+            }
+            frame_id++;
         }
-        frame_id++;
     }
+
     close(cam_fd);
     printf("Time elapsed %ds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     return 0;
