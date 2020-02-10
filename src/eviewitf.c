@@ -499,7 +499,7 @@ int eviewitf_poll(int* cam_id, int nb_cam, short* event_return) {
     return ret;
 }
 
-int eviewitf_set_camera_fps(int cam_id, int fps) {
+int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 

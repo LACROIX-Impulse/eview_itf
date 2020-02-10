@@ -215,14 +215,18 @@ int main(int argc, char **argv) {
 
     /* change camera fps */
     if (arguments.camera && arguments.set_fps) {
-        ret = eviewitf_set_camera_fps(arguments.camera_id, arguments.fps_value);
-
-        if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);
-        } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "You send a wrong camera Id or a wrong FPS value");
+        if (arguments.set_fps < 0) {
+            fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
         } else {
-            fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
+            ret = eviewitf_set_camera_fps(arguments.camera_id, arguments.fps_value);
+
+            if (ret >= EVIEWITF_OK) {
+                fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);
+            } else if (ret == EVIEWITF_INVALID_PARAM) {
+                fprintf(stdout, "You send a wrong camera Id or a wrong FPS value");
+            } else {
+                fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
+            }
         }
     }
     exit(0);
