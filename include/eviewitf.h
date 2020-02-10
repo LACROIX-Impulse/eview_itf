@@ -50,6 +50,7 @@ typedef struct {
     uint32_t frame_bpp;
     uint32_t frame_timestamp_lsb;
     uint32_t frame_timestamp_msb;
+    uint32_t frame_sync;
 } eviewitf_frame_metadata_info_t;
 static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
                                                                  "/dev/mfis_cam3", "/dev/mfis_cam4", "/dev/mfis_cam5",
