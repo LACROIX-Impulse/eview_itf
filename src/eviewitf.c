@@ -197,6 +197,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                         frame_metadata->frame_bpp = metadata_info->frame_bpp;
                         frame_metadata->frame_timestamp_lsb = metadata_info->frame_timestamp_lsb;
                         frame_metadata->frame_timestamp_msb = metadata_info->frame_timestamp_msb;
+                        frame_metadata->frame_sync = metadata_info->frame_sync;
                     }
                     if (frame_buffer != NULL) {
                         frame_buffer->buffer_size = metadata->frame_size;
