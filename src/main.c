@@ -24,7 +24,6 @@ static char args_doc[] =
     "to write register: -c [0-7] -Wa [0x????] -v [0x??] \n"
     "to read register: -c [0-7] -Wa [0x????] \n"
     "to reboot a camera: -s -c [0-7]"
-    "!!!!!!! ONLY AVAILABLE FOR FIR CAMERA NOW !!!!!!! \n"
     "to change camera fps: -f [0-60] -c [0-7] \n";
 
 /* Program options */
@@ -218,7 +217,7 @@ int main(int argc, char **argv) {
         if (arguments.set_fps < 0) {
             fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
         } else {
-            ret = eviewitf_set_camera_fps(arguments.camera_id, arguments.fps_value);
+            ret = eviewitf_set_camera_fps(arguments.camera_id, (uint32_t)arguments.fps_value);
 
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);

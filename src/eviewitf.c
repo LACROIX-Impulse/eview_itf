@@ -508,7 +508,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
 
     tx_buffer[0] = FCT_SET_FPS;
     tx_buffer[1] = cam_id;
-    tx_buffer[2] = fps;
+    tx_buffer[2] = (int32_t)fps;
     ret = mfis_send_request(tx_buffer, rx_buffer);
 
     if (ret < EVIEWITF_OK) {
