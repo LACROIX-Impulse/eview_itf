@@ -50,6 +50,10 @@ typedef struct {
     uint32_t frame_bpp;
     uint32_t frame_timestamp_lsb;
     uint32_t frame_timestamp_msb;
+    uint32_t frame_sync;
+    uint32_t reserved[24]; /* 32 metadata fields in total*/
+    uint32_t frame_size;
+    uint32_t magic_number;
 } eviewitf_frame_metadata_info_t;
 static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {"/dev/mfis_cam0", "/dev/mfis_cam1", "/dev/mfis_cam2",
                                                                  "/dev/mfis_cam3", "/dev/mfis_cam4", "/dev/mfis_cam5",
@@ -66,4 +70,6 @@ int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
 int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
 int eviewitf_reboot_cam(int cam_id);
+int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
+int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 #endif /* EVIEWITF_H */
