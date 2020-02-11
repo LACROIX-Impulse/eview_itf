@@ -23,7 +23,8 @@ static char args_doc[] =
     "to change display: -d -c [0-7] \n "
     "to write register: -c [0-7] -Wa [0x????] -v [0x??] \n"
     "to read register: -c [0-7] -Wa [0x????] \n"
-    "to reboot a camera: -s -c [0-7]";
+    "to reboot a camera: -s -c [0-7]"
+    "to change camera fps: -f [0-60] -c [0-7] \n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -36,6 +37,7 @@ static struct argp_option options[] = {
     {"read", 'R', 0, 0, "Read register"},
     {"write", 'W', 0, 0, "Write register"},
     {"reboot", 's', 0, 0, "Software reboot camera"},
+    {"fps", 'f', "FPS", 0, "Set camera FPS"},
     {0},
 };
 
@@ -55,6 +57,8 @@ struct arguments {
     int read;
     int write;
     int reboot;
+    int set_fps;
+    int fps_value;
 };
 
 /* Parse a single option. */
@@ -101,6 +105,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 's':
             arguments->reboot = 1;
             break;
+        case 'f':
+            arguments->set_fps = 1;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -141,6 +148,8 @@ int main(int argc, char **argv) {
     arguments.read = 0;
     arguments.write = 0;
     arguments.reboot = 0;
+    arguments.set_fps = 0;
+    arguments.fps_value = 0;
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -200,6 +209,23 @@ int main(int argc, char **argv) {
             fprintf(stdout, "You send a wrong camera Id");
         } else {
             fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* change camera fps */
+    if (arguments.camera && arguments.set_fps) {
+        if (arguments.set_fps < 0) {
+            fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
+        } else {
+            ret = eviewitf_set_camera_fps(arguments.camera_id, (uint32_t)arguments.fps_value);
+
+            if (ret >= EVIEWITF_OK) {
+                fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);
+            } else if (ret == EVIEWITF_INVALID_PARAM) {
+                fprintf(stdout, "You send a wrong camera Id or a wrong FPS value");
+            } else {
+                fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
+            }
         }
     }
     exit(0);

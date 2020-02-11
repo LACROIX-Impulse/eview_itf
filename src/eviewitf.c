@@ -62,6 +62,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
 
@@ -493,6 +494,35 @@ int eviewitf_poll(int* cam_id, int nb_cam, short* event_return) {
         if (ret >= EVIEWITF_OK) {
             event_return[i] = pfd[i].revents;
             close(file_cam[i]);
+        }
+    }
+    return ret;
+}
+
+int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_SET_FPS;
+    tx_buffer[1] = cam_id;
+    tx_buffer[2] = (int32_t)fps;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_SET_FPS) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+            ret = EVIEWITF_BLOCKED;
         }
     }
     return ret;
