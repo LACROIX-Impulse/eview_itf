@@ -26,7 +26,7 @@
  * Private definitions
  ******************************************************************************************/
 /* Magic number used to check metadata presence */
-#define FRAME_MAGIC_NUMBER 0xD1CECA5E
+#define FRAME_MAGIC_NUMBER 0xD1CECA5F
 
 /******************************************************************************************
  * Private structures
@@ -50,11 +50,6 @@ typedef struct {
 typedef struct {
     eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
 } eviewitf_cam_buffers_a53_t;
-
-typedef struct {
-    uint32_t frame_size;
-    uint32_t magic_number;
-} eviewitf_frame_metadata_t;
 
 /******************************************************************************************
  * Private enumerations
@@ -138,8 +133,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     int cam_frame_id;
     char cam_read_param[cam_virtual_buffers->cam[cam_id].buffer_size];
     uint8_t* ptr_metadata;
-    eviewitf_frame_metadata_t* metadata = NULL;
-    eviewitf_frame_metadata_info_t* metadata_info = NULL;
+    eviewitf_frame_metadata_info_t* metadata = NULL;
     int ismetadata = 1;
 
     // Test API has been initialized
@@ -174,17 +168,14 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     if (ret >= EVIEWITF_OK) {
         // Metadata magic number is located at the end of the buffer if present
         ptr_metadata =
-            cam_read_param + cam_virtual_buffers->cam[cam_id].buffer_size - sizeof(eviewitf_frame_metadata_t);
-        metadata = (eviewitf_frame_metadata_t*)ptr_metadata;
+            cam_read_param + cam_virtual_buffers->cam[cam_id].buffer_size - sizeof(eviewitf_frame_metadata_info_t);
+        metadata = (eviewitf_frame_metadata_info_t*)ptr_metadata;
         if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
             if (metadata->frame_size > cam_virtual_buffers->cam[cam_id].buffer_size) {
                 // Special case where frame's data looks like a magic number
                 ismetadata = 0;
             } else {
-                ptr_metadata = cam_read_param + metadata->frame_size;
-                metadata_info = (eviewitf_frame_metadata_info_t*)ptr_metadata;
-                if ((metadata_info->frame_width * metadata_info->frame_height * metadata_info->frame_bpp) !=
-                    metadata->frame_size) {
+                if ((metadata->frame_width * metadata->frame_height * metadata->frame_bpp) != metadata->frame_size) {
                     // Special case where:
                     // - frame's data looks like a magic number
                     // - frame_size is lower than buffer_size
@@ -192,12 +183,12 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                 } else {
                     // Metadata are present and valid
                     if (frame_metadata != NULL) {
-                        frame_metadata->frame_width = metadata_info->frame_width;
-                        frame_metadata->frame_height = metadata_info->frame_height;
-                        frame_metadata->frame_bpp = metadata_info->frame_bpp;
-                        frame_metadata->frame_timestamp_lsb = metadata_info->frame_timestamp_lsb;
-                        frame_metadata->frame_timestamp_msb = metadata_info->frame_timestamp_msb;
-                        frame_metadata->frame_sync = metadata_info->frame_sync;
+                        frame_metadata->frame_width = metadata->frame_width;
+                        frame_metadata->frame_height = metadata->frame_height;
+                        frame_metadata->frame_bpp = metadata->frame_bpp;
+                        frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
+                        frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
+                        frame_metadata->frame_sync = metadata->frame_sync;
                     }
                     if (frame_buffer != NULL) {
                         frame_buffer->buffer_size = metadata->frame_size;
