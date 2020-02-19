@@ -107,7 +107,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         if (revents & POLLIN) {
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
             file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
-            read(cam_fd, &buff_f, size);
+            read(cam_fd, buff_f, size);
             write(file_ssd, buff_f, size);
             close(file_ssd);
 

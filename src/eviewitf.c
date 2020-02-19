@@ -45,6 +45,7 @@ typedef struct {
    Doesn't need to be exposed in API */
 typedef struct {
     uint32_t buffer_size;
+    uint8_t *buffer;
 } eviewitf_cam_buffers_virtual_t;
 
 typedef struct {
@@ -132,7 +133,6 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     int cam_frame_id;
-    char cam_read_param[cam_virtual_buffers->cam[cam_id].buffer_size];
     uint8_t* ptr_metadata;
     eviewitf_frame_metadata_info_t* metadata = NULL;
     int ismetadata = 1;
@@ -159,7 +159,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
 
     if (ret >= EVIEWITF_OK) {
         // Read file content
-        ret = read(file_cam, &cam_read_param, cam_virtual_buffers->cam[cam_id].buffer_size);
+        ret = read(file_cam, cam_virtual_buffers->cam[cam_id].buffer, cam_virtual_buffers->cam[cam_id].buffer_size);
         if (ret < EVIEWITF_OK) {
             printf("Error reading camera file\n");
             ret = EVIEWITF_FAIL;
@@ -169,7 +169,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
     if (ret >= EVIEWITF_OK) {
         // Metadata magic number is located at the end of the buffer if present
         ptr_metadata =
-            cam_read_param + cam_virtual_buffers->cam[cam_id].buffer_size - sizeof(eviewitf_frame_metadata_info_t);
+            cam_virtual_buffers->cam[cam_id].buffer + cam_virtual_buffers->cam[cam_id].buffer_size - sizeof(eviewitf_frame_metadata_info_t);
         metadata = (eviewitf_frame_metadata_info_t*)ptr_metadata;
         if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
             if (metadata->frame_size > cam_virtual_buffers->cam[cam_id].buffer_size) {
@@ -193,7 +193,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
                     }
                     if (frame_buffer != NULL) {
                         frame_buffer->buffer_size = metadata->frame_size;
-                        frame_buffer->ptr_buf = cam_read_param;
+                        frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].buffer;
                     }
                 }
             }
@@ -213,7 +213,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
             }
             if (frame_buffer != NULL) {
                 frame_buffer->buffer_size = cam_virtual_buffers->cam[cam_id].buffer_size;
-                frame_buffer->ptr_buf = cam_read_param;
+                frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].buffer;
             }
         }
     }
@@ -253,6 +253,14 @@ int eviewitf_init_api(void) {
             // Get pointers to the cameras frame buffers located in R7 memory
             cam_virtual_buffers = malloc(sizeof(eviewitf_cam_buffers_a53_t));
             ret = eviewitf_get_cam_buffers(cam_virtual_buffers);
+            for (int i =0; i < EVIEWITF_MAX_CAMERA; i ++) {
+                if(cam_virtual_buffers->cam[i].buffer_size > 0) {
+                    cam_virtual_buffers->cam[i].buffer = malloc(cam_virtual_buffers->cam[i].buffer_size);
+                }
+                else {
+                    cam_virtual_buffers->cam[i].buffer = NULL;
+                }
+            }
         }
     }
 
@@ -278,6 +286,12 @@ int eviewitf_deinit_api(void) {
         ret = EVIEWITF_FAIL;
     } else {
         /* Free allocated resources */
+        for (int i=0; i < EVIEWITF_MAX_CAMERA; i++) {
+            if (cam_virtual_buffers->cam[i].buffer != NULL) {
+                free(cam_virtual_buffers->cam[i].buffer);
+                cam_virtual_buffers->cam[i].buffer = NULL;
+            }
+        }
         free(cam_virtual_buffers);
         cam_virtual_buffers = NULL;
 
