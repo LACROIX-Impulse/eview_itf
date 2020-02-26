@@ -38,6 +38,7 @@ static struct argp_option options[] = {
     {"write", 'W', 0, 0, "Write register"},
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
+    {"virtupdate", 'u', 0, 0, "Virtual camera update"},
     {0},
 };
 
@@ -59,6 +60,7 @@ struct arguments {
     int reboot;
     int set_fps;
     int fps_value;
+    int virt_update;
 };
 
 /* Parse a single option. */
@@ -108,6 +110,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'f':
             arguments->set_fps = 1;
             break;
+        case 'u':
+            arguments->virt_update = 1;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -149,6 +154,7 @@ int main(int argc, char **argv) {
     arguments.write = 0;
     arguments.reboot = 0;
     arguments.set_fps = 0;
+    arguments.virt_update = 0;
     arguments.fps_value = 0;
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -227,6 +233,20 @@ int main(int argc, char **argv) {
                 fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
             }
         }
+    }
+
+    /* Update VCam */
+    if (arguments.camera && arguments.virt_update) {
+        eviewitf_init_api();
+        ret = eviewitf_virtual_cam_update(arguments.camera_id);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera %d update frame \n", arguments.camera_id);
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You sent a wrong camera Id");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
+        eviewitf_deinit_api();
     }
     exit(0);
 }

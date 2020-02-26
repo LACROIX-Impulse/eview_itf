@@ -27,6 +27,7 @@
  ******************************************************************************************/
 /* Magic number used to check metadata presence */
 #define FRAME_MAGIC_NUMBER 0xD1CECA5F
+#define TEST_FRAME_SIZE    1280*800
 
 /******************************************************************************************
  * Private structures
@@ -63,6 +64,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_VIRTUAL_CAM_UPDATE,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -74,6 +76,8 @@ typedef enum {
     FCT_INV_PARAM,
 } fct_ret_r;
 static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
+
+static unsigned char test_buf[TEST_FRAME_SIZE] = {0};
 
 /******************************************************************************************
  * Functions
@@ -465,6 +469,58 @@ int eviewitf_reboot_cam(int cam_id) {
             ret = EVIEWITF_INVALID_PARAM;
         }
     }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_virtual_cam_update
+ * \brief Update the frame to be printed on a virtual camera
+ *
+ * \param cam_id: id of the camera
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_virtual_cam_update(int cam_id) {
+    int ret = EVIEWITF_OK;
+    int file_cam = 0;
+    unsigned long int i;
+    ssize_t ret_write = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Test camera id */
+    else if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a virtual camera for the write\n");
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    if (ret >= EVIEWITF_OK) {
+        /* Get mfis device filename */
+        file_cam = open(mfis_device_filenames[cam_id], O_WRONLY);
+        if (file_cam == -1) {
+            printf("Error opening camera file\n");
+            ret = EVIEWITF_FAIL;
+        }
+    }
+
+    if (ret >= EVIEWITF_OK) {
+        for (i = 0; i < TEST_FRAME_SIZE; i++){
+            test_buf[i] += 128;
+        }
+
+        ret_write = write(file_cam, test_buf, TEST_FRAME_SIZE);
+        if (ret_write < 0) {
+            printf("Error writing camera file\n");
+            ret = EVIEWITF_FAIL;
+        }
+    }
+
+    close(file_cam);
+
     return ret;
 }
 
