@@ -24,6 +24,8 @@
 #define SSD_SIZE_DIR_NAME_PATTERN 7
 #define SSD_SIZE_MOUNT_POINT      9
 #define RD_VALUE                  _IOR('a', 2, int32_t *)
+#define ONE_SEC_NS                1000000000
+
 static const char *SSD_MOUNT_POINT = "/mnt/ssd/";
 static const char *SSD_DIR_NAME_PATTERN = "frames_";
 
@@ -90,7 +92,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         mkdir(frames_directory, 0777);
     }
     if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
-        printf("Got a issue with system clock aborting \n");
+        printf("Got an issue with system clock aborting \n");
         return -1;
     }
     res_run = res_start;
@@ -112,7 +114,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
             close(file_ssd);
 
             if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
-                printf("Got a issue with system clock aborting \n");
+                printf("Got an issue with system clock aborting \n");
                 return -1;
             }
 
@@ -135,19 +137,26 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
 int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory) {
     int ret = EVIEWITF_OK;
     int frame_id = 0;
-    int file_ssd = 0;
+    int file_ssd = 1;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
     int cam_fd;
+    unsigned long int duration_ns;
+    struct timespec res_start;
+    struct timespec res_run;
+    struct timespec difft = {0};
+    char pre_read = 1;
 
     /* ToDo: Handle the size */
-    long unsigned int size = 1280*800;
+    long unsigned int size = 1600*1300;
     char buff_f[size];
 
-    /* ToDo: Cadence the video stream and get several frames */
-    //~ if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
-        //~ printf("Got a issue with system clock aborting \n");
-        //~ return -1;
-    //~ }
+    /* Test the fps value */
+    if (0 >= fps) {
+        printf("Bad fps value\n");
+        return -1;
+    }
+
+    duration_ns = ONE_SEC_NS/fps;
 
     /* Open the virtual camera to write in */
     cam_fd = open(mfis_device_filenames[camera_id], O_WRONLY);
@@ -156,46 +165,65 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
         ret = EVIEWITF_FAIL;
     }
 
-    /* Open the file to read the frame from */
-    if (EVIEWITF_OK == ret) {
-
-        printf("Test cam %d, fps %d, path %s\n", camera_id, fps, frames_directory);
-
-        snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
-        file_ssd = open(filename_ssd, O_RDONLY);
-        if (file_ssd == -1) {
-            printf("Error opening the frame file: %s\n", filename_ssd);
-            ret = EVIEWITF_FAIL;
-        }
-
-        /* Read the frame from the file and write it in the virtual camera */
-        read(file_ssd, buff_f, size);
-        write(cam_fd, buff_f, size);
-        close(file_ssd);
+    /* First time value */
+    if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
+        printf("Got an issue with system clock aborting \n");
+        return -1;
     }
 
-    //~ /* ToDo: Cadence the video stream */
-    //~ while (difft.tv_sec < duration) {
+    /* Read the frames in the directory */
+    while ((-1) != file_ssd) {
+        /* Get current time */
+        if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
+            printf("Got an issue with system clock aborting \n");
+            return -1;
+        }
 
-        //~ revents = pfd.revents;
-        //~ if (revents & POLLIN) {
+        /* Pre-read the frame during the waiting step */
+        if (1 == pre_read)
+        {
+            /* Open the file */
+            snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
+            file_ssd = open(filename_ssd, O_RDONLY);
 
+            /* Read the frame from the file */
+            read(file_ssd, buff_f, size);
+            /* ToDo: Check read */
 
-            //~ if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
-                //~ printf("Got a issue with system clock aborting \n");
-                //~ return -1;
-            //~ }
+            /* Close the file */
+            close(file_ssd);
 
-            //~ if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
-                //~ difft.tv_sec = res_run.tv_sec - res_start.tv_sec - 1;
-                //~ difft.tv_nsec = 1000000000 + res_run.tv_nsec - res_start.tv_nsec;
-            //~ } else {
-                //~ difft.tv_sec = res_run.tv_sec - res_start.tv_sec;
-                //~ difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
-            //~ }
-            //~ frame_id++;
-        //~ }
-    //~ }
+            pre_read = 0;
+        }
+
+        /* Take the second incrementation into account */
+        if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
+            difft.tv_nsec = ONE_SEC_NS + res_run.tv_nsec - res_start.tv_nsec;
+        } else {
+            difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
+        }
+
+        /* Check if the frame should be updated */
+        if (difft.tv_nsec >= duration_ns) {
+            printf("Time\n");
+
+            /* Write the frame in the virtual camera */
+            write(cam_fd, buff_f, size);
+            /* ToDo: Check write */
+
+            /* Update the starting time for the duration */
+            if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
+                printf("Got an issue with system clock aborting \n");
+                return -1;
+            }
+
+            /* Enable the pre-read */
+            pre_read = 1;
+
+            /* Update the frame to be read */
+            frame_id++;
+        }
+    }
 
     close(cam_fd);
     return ret;
