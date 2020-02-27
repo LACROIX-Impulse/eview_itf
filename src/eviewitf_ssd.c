@@ -131,3 +131,72 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     printf("Time elapsed %ds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     return 0;
 }
+
+int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory) {
+    int ret = EVIEWITF_OK;
+    int frame_id = 0;
+    int file_ssd = 0;
+    char filename_ssd[SSD_MAX_FILENAME_SIZE];
+    int cam_fd;
+
+    /* ToDo: Handle the size */
+    long unsigned int size = 1280*800;
+    char buff_f[size];
+
+    /* ToDo: Cadence the video stream and get several frames */
+    //~ if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
+        //~ printf("Got a issue with system clock aborting \n");
+        //~ return -1;
+    //~ }
+
+    /* Open the virtual camera to write in */
+    cam_fd = open(mfis_device_filenames[camera_id], O_WRONLY);
+    if (cam_fd == -1) {
+        printf("Error opening camera file\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Open the file to read the frame from */
+    if (EVIEWITF_OK == ret) {
+
+        printf("Test cam %d, fps %d, path %s\n", camera_id, fps, frames_directory);
+
+        snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
+        file_ssd = open(filename_ssd, O_RDONLY);
+        if (file_ssd == -1) {
+            printf("Error opening the frame file: %s\n", filename_ssd);
+            ret = EVIEWITF_FAIL;
+        }
+
+        /* Read the frame from the file and write it in the virtual camera */
+        read(file_ssd, buff_f, size);
+        write(cam_fd, buff_f, size);
+        close(file_ssd);
+    }
+
+    //~ /* ToDo: Cadence the video stream */
+    //~ while (difft.tv_sec < duration) {
+
+        //~ revents = pfd.revents;
+        //~ if (revents & POLLIN) {
+
+
+            //~ if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
+                //~ printf("Got a issue with system clock aborting \n");
+                //~ return -1;
+            //~ }
+
+            //~ if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
+                //~ difft.tv_sec = res_run.tv_sec - res_start.tv_sec - 1;
+                //~ difft.tv_nsec = 1000000000 + res_run.tv_nsec - res_start.tv_nsec;
+            //~ } else {
+                //~ difft.tv_sec = res_run.tv_sec - res_start.tv_sec;
+                //~ difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
+            //~ }
+            //~ frame_id++;
+        //~ }
+    //~ }
+
+    close(cam_fd);
+    return ret;
+}

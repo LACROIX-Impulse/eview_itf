@@ -479,7 +479,7 @@ int eviewitf_reboot_cam(int cam_id) {
  * \param cam_id: id of the camera
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_virtual_cam_update(int cam_id) {
+int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     unsigned long int i;
@@ -498,28 +498,12 @@ int eviewitf_virtual_cam_update(int cam_id) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        file_cam = open(mfis_device_filenames[cam_id], O_WRONLY);
-        if (file_cam == -1) {
-            printf("Error opening camera file\n");
-            ret = EVIEWITF_FAIL;
+    if (EVIEWITF_OK == ret) {
+        ret = ssd_set_virtual_camera_stream(cam_id, fps, frames_dir);
+        if (EVIEWITF_OK != ret) {
+            printf("Error: Cannot play the stream on the virtual camera\n");
         }
     }
-
-    if (ret >= EVIEWITF_OK) {
-        for (i = 0; i < TEST_FRAME_SIZE; i++){
-            test_buf[i] += 128;
-        }
-
-        ret_write = write(file_cam, test_buf, TEST_FRAME_SIZE);
-        if (ret_write < 0) {
-            printf("Error writing camera file\n");
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    close(file_cam);
 
     return ret;
 }

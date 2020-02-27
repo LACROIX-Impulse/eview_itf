@@ -11,6 +11,8 @@
 #include <argp.h>
 #include "eviewitf.h"
 
+#define DEFAULT_FPS   30
+
 const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
 
@@ -38,7 +40,7 @@ static struct argp_option options[] = {
     {"write", 'W', 0, 0, "Write register"},
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
-    {"virtupdate", 'u', 0, 0, "Virtual camera update"},
+    {"virtupdate", 'u', "PATH", 0, "Virtual camera update"},
     {0},
 };
 
@@ -61,6 +63,7 @@ struct arguments {
     int set_fps;
     int fps_value;
     int virt_update;
+    char* path_frames_dir;
 };
 
 /* Parse a single option. */
@@ -109,9 +112,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'f':
             arguments->set_fps = 1;
+            arguments->fps_value = atoi(arg);
             break;
         case 'u':
             arguments->virt_update = 1;
+            arguments->path_frames_dir = arg;
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -156,6 +161,8 @@ int main(int argc, char **argv) {
     arguments.set_fps = 0;
     arguments.virt_update = 0;
     arguments.fps_value = 0;
+    arguments.path_frames_dir = NULL;
+
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -219,7 +226,7 @@ int main(int argc, char **argv) {
     }
 
     /* change camera fps */
-    if (arguments.camera && arguments.set_fps) {
+    if (arguments.camera && arguments.set_fps && !arguments.virt_update) {
         if (arguments.set_fps < 0) {
             fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
         } else {
@@ -238,7 +245,15 @@ int main(int argc, char **argv) {
     /* Update VCam */
     if (arguments.camera && arguments.virt_update) {
         eviewitf_init_api();
-        ret = eviewitf_virtual_cam_update(arguments.camera_id);
+
+        printf("Main path %s\n", arguments.path_frames_dir);
+
+        if (arguments.set_fps) {
+            ret = eviewitf_virtual_cam_update(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
+        }
+        else {
+            ret = eviewitf_virtual_cam_update(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
+        }
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d update frame \n", arguments.camera_id);
         } else if (ret == EVIEWITF_INVALID_PARAM) {
@@ -248,5 +263,6 @@ int main(int argc, char **argv) {
         }
         eviewitf_deinit_api();
     }
+
     exit(0);
 }
