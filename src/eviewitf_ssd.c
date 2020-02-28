@@ -145,14 +145,15 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
     struct timespec res_run;
     struct timespec difft = {0};
     char pre_read = 1;
+    int test_rw = 0;
 
     /* ToDo: Handle the size */
     long unsigned int size = 1600*1300;
     char buff_f[size];
 
     /* Test the fps value */
-    if (0 >= fps) {
-        printf("Bad fps value\n");
+    if (5 > fps) {
+        printf("Bad fps value. Please enter a value greater than or equal to 5\n");
         return -1;
     }
 
@@ -180,15 +181,13 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
         }
 
         /* Pre-read the frame during the waiting step */
-        if (1 == pre_read)
-        {
+        if (1 == pre_read){
             /* Open the file */
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
             file_ssd = open(filename_ssd, O_RDONLY);
 
-            /* Read the frame from the file */
+            /* Read the frame from the file (read not tested as a read fail means "end of the loop") */
             read(file_ssd, buff_f, size);
-            /* ToDo: Check read */
 
             /* Close the file */
             close(file_ssd);
@@ -205,15 +204,16 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
 
         /* Check if the frame should be updated */
         if (difft.tv_nsec >= duration_ns) {
-            printf("Time\n");
-
-            /* Write the frame in the virtual camera */
-            write(cam_fd, buff_f, size);
-            /* ToDo: Check write */
-
             /* Update the starting time for the duration */
             if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
                 printf("Got an issue with system clock aborting \n");
+                return -1;
+            }
+
+            /* Write the frame in the virtual camera */
+            write(cam_fd, buff_f, size);
+            if ((-1) == test_rw) {
+                printf("[Error] Write frame in the virtual camera\n");
                 return -1;
             }
 
