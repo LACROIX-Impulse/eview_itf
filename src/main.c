@@ -11,7 +11,7 @@
 #include <argp.h>
 #include "eviewitf.h"
 
-#define DEFAULT_FPS   30
+#define DEFAULT_FPS 30
 
 const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
@@ -64,7 +64,7 @@ struct arguments {
     int set_fps;
     int fps_value;
     int play;
-    char* path_frames_dir;
+    char *path_frames_dir;
 };
 
 /* Parse a single option. */
@@ -248,8 +248,7 @@ int main(int argc, char **argv) {
         eviewitf_init_api();
         if (arguments.set_fps) {
             ret = eviewitf_virtual_cam_update(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
-        }
-        else {
+        } else {
             ret = eviewitf_virtual_cam_update(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
         }
         if (ret >= EVIEWITF_OK) {

@@ -134,7 +134,17 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     return 0;
 }
 
-int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory) {
+/**
+ * \fn ssd_set_virtual_camera_stream
+ * \brief Play a recording on a virtual camera
+
+ * \param in camera_id: id of the camera
+ * \param in buffer_size: size of the virtual camera buffer
+ * \param in fps: fps to apply on the recording
+ * \param in frames_directory: path to the recording
+ * \return state of the function. Return 0 if okay
+ */
+int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, char *frames_directory) {
     int ret = EVIEWITF_OK;
     int frame_id = 0;
     int file_ssd = 1;
@@ -146,10 +156,7 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
     struct timespec difft = {0};
     char pre_read = 1;
     int test_rw = 0;
-
-    /* ToDo: Handle the size */
-    long unsigned int size = 1600*1300;
-    char buff_f[size];
+    char buff_f[buffer_size];
 
     /* Test the fps value */
     if (5 > fps) {
@@ -157,7 +164,10 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
         return -1;
     }
 
-    duration_ns = ONE_SEC_NS/fps;
+    printf("Playing the recording...\n");
+
+    /* The duration between two frames directly depends on the desired FPS */
+    duration_ns = ONE_SEC_NS / fps;
 
     /* Open the virtual camera to write in */
     cam_fd = open(mfis_device_filenames[camera_id], O_WRONLY);
@@ -181,13 +191,13 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
         }
 
         /* Pre-read the frame during the waiting step */
-        if (1 == pre_read){
+        if (1 == pre_read) {
             /* Open the file */
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
             file_ssd = open(filename_ssd, O_RDONLY);
 
             /* Read the frame from the file (read not tested as a read fail means "end of the loop") */
-            read(file_ssd, buff_f, size);
+            read(file_ssd, buff_f, buffer_size);
 
             /* Close the file */
             close(file_ssd);
@@ -211,7 +221,7 @@ int ssd_set_virtual_camera_stream(int camera_id, int fps, char* frames_directory
             }
 
             /* Write the frame in the virtual camera */
-            write(cam_fd, buff_f, size);
+            write(cam_fd, buff_f, buffer_size);
             if ((-1) == test_rw) {
                 printf("[Error] Write frame in the virtual camera\n");
                 return -1;

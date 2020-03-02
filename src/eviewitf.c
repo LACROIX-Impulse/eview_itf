@@ -27,7 +27,6 @@
  ******************************************************************************************/
 /* Magic number used to check metadata presence */
 #define FRAME_MAGIC_NUMBER 0xD1CECA5F
-#define TEST_FRAME_SIZE    1280*800
 
 /******************************************************************************************
  * Private structures
@@ -76,8 +75,6 @@ typedef enum {
     FCT_INV_PARAM,
 } fct_ret_r;
 static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
-
-static unsigned char test_buf[TEST_FRAME_SIZE] = {0};
 
 /******************************************************************************************
  * Functions
@@ -474,9 +471,11 @@ int eviewitf_reboot_cam(int cam_id) {
 
 /**
  * \fn eviewitf_virtual_cam_update
- * \brief Update the frame to be printed on a virtual camera
- *
- * \param cam_id: id of the camera
+ * \brief Update the frames to be printed on a virtual camera
+
+ * \param in cam_id: id of the camera
+ * \param in fps: fps to apply on the recording
+ * \param in frames_dir: path to the recording
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir) {
@@ -499,7 +498,7 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_virtual_camera_stream(cam_id, fps, frames_dir);
+        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[i].buffer_size, fps, frames_dir);
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot play the stream on the virtual camera\n");
         }
