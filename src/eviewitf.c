@@ -490,11 +490,13 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir) {
         ret = EVIEWITF_FAIL;
     }
 
-    /* Test camera id */
-    else if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a virtual camera for the write\n");
-        ret = EVIEWITF_INVALID_PARAM;
+    if (EVIEWITF_OK == ret) {
+        /* Test camera id */
+        if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+            printf("Invalid camera id\n");
+            printf("Please choose a virtual camera for the write\n");
+            ret = EVIEWITF_INVALID_PARAM;
+        }
     }
 
     if (EVIEWITF_OK == ret) {

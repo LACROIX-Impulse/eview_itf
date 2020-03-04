@@ -157,10 +157,24 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     char pre_read = 1;
     int test_rw = 0;
     char buff_f[buffer_size];
+    DIR *dir;
 
     /* Test the fps value */
     if (5 > fps) {
         printf("Bad fps value. Please enter a value greater than or equal to 5\n");
+        return -1;
+    }
+
+    /* Test the frames_directory pointer */
+    if (NULL == frames_directory) {
+        printf("The recording directory is not set\n");
+        return -1;
+    }
+
+    /* Test the directory existence */
+    dir = opendir(frames_directory);
+    if (NULL == dir) {
+        printf("The recording directory cannot be found\n");
         return -1;
     }
 
@@ -192,46 +206,54 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
 
         /* Pre-read the frame during the waiting step */
         if (1 == pre_read) {
-            /* Open the file */
+            /* Open the file (an open fail means "end of the loop") */
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
             file_ssd = open(filename_ssd, O_RDONLY);
 
-            /* Read the frame from the file (read not tested as a read fail means "end of the loop") */
-            read(file_ssd, buff_f, buffer_size);
+            if ((-1) != file_ssd) {
+                /* Read the frame from the file  */
+                test_rw = read(file_ssd, buff_f, buffer_size);
+                if ((-1) == test_rw) {
+                    printf("[Error] Read frame from the file\n");
+                    return -1;
+                }
 
-            /* Close the file */
-            close(file_ssd);
+                /* Close the file */
+                close(file_ssd);
+            }
 
             pre_read = 0;
         }
 
-        /* Take the second incrementation into account */
-        if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
-            difft.tv_nsec = ONE_SEC_NS + res_run.tv_nsec - res_start.tv_nsec;
-        } else {
-            difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
-        }
-
-        /* Check if the frame should be updated */
-        if (difft.tv_nsec >= duration_ns) {
-            /* Update the starting time for the duration */
-            if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
-                printf("Got an issue with system clock aborting \n");
-                return -1;
+        if ((-1) != file_ssd) {
+            /* Take the second incrementation into account */
+            if ((res_run.tv_nsec - res_start.tv_nsec) < 0) {
+                difft.tv_nsec = ONE_SEC_NS + res_run.tv_nsec - res_start.tv_nsec;
+            } else {
+                difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
             }
 
-            /* Write the frame in the virtual camera */
-            write(cam_fd, buff_f, buffer_size);
-            if ((-1) == test_rw) {
-                printf("[Error] Write frame in the virtual camera\n");
-                return -1;
+            /* Check if the frame should be updated */
+            if (difft.tv_nsec >= duration_ns) {
+                /* Update the starting time for the duration */
+                if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
+                    printf("Got an issue with system clock aborting \n");
+                    return -1;
+                }
+
+                /* Write the frame in the virtual camera */
+                write(cam_fd, buff_f, buffer_size);
+                if ((-1) == test_rw) {
+                    printf("[Error] Write frame in the virtual camera\n");
+                    return -1;
+                }
+
+                /* Enable the pre-read */
+                pre_read = 1;
+
+                /* Update the frame to be read */
+                frame_id++;
             }
-
-            /* Enable the pre-read */
-            pre_read = 1;
-
-            /* Update the frame to be read */
-            frame_id++;
         }
     }
 
