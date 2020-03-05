@@ -215,6 +215,7 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
                 test_rw = read(file_ssd, buff_f, buffer_size);
                 if ((-1) == test_rw) {
                     printf("[Error] Read frame from the file\n");
+                    close(file_ssd);
                     return -1;
                 }
 
