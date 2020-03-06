@@ -63,6 +63,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_VIRTUAL_CAM_UPDATE,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -465,6 +466,46 @@ int eviewitf_reboot_cam(int cam_id) {
             ret = EVIEWITF_INVALID_PARAM;
         }
     }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_virtual_cam_update
+ * \brief Update the frames to be printed on a virtual camera
+
+ * \param in cam_id: id of the camera
+ * \param in fps: fps to apply on the recording
+ * \param in frames_dir: path to the recording
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir) {
+    int ret = EVIEWITF_OK;
+    int file_cam = 0;
+    unsigned long int i;
+    ssize_t ret_write = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    if (EVIEWITF_OK == ret) {
+        /* Test camera id */
+        if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+            printf("Invalid camera id\n");
+            printf("Please choose a virtual camera for the write\n");
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    if (EVIEWITF_OK == ret) {
+        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[i].buffer_size, fps, frames_dir);
+        if (EVIEWITF_OK != ret) {
+            printf("Error: Cannot play the stream on the virtual camera\n");
+        }
+    }
+
     return ret;
 }
 
