@@ -21,11 +21,11 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 
 /* Arguments description */
 static char args_doc[] =
-    "change display:  -d -c [0-7]\n"
+    "change display:  -d -c [0-15]\n"
     "record:          -c [0-7] -r [???]\n"
-    "play recordings: -c [0-7] -f [5-?] -p [PATH]\n"
+    "play recordings: -c [8-15] -f [5-?] -p [PATH]\n"
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
-    "read register:   -c [0-7] -Wa [0x????]\n"
+    "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]";
 
@@ -90,10 +90,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             break;
-            /*    case 't':
-                    arguments->type = 1;
-                    arguments->camera_type = atoi(arg);
-                    break;*/
         case 'a':
             arguments->reg = 1;
             arguments->reg_address = (int)strtol(arg, NULL, 16);
