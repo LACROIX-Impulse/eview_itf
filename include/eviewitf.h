@@ -57,10 +57,10 @@ typedef struct {
     uint32_t magic_number;
 } eviewitf_frame_metadata_info_t;
 
-static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] =
-    {"/dev/mfis_cam0" , "/dev/mfis_cam1" , "/dev/mfis_cam2" , "/dev/mfis_cam3" , "/dev/mfis_cam4" , "/dev/mfis_cam5" ,
-     "/dev/mfis_cam6" , "/dev/mfis_cam7" , "/dev/mfis_cam8" , "/dev/mfis_cam9" , "/dev/mfis_cam10", "/dev/mfis_cam11",
-     "/dev/mfis_cam12", "/dev/mfis_cam13", "/dev/mfis_cam14", "/dev/mfis_cam15"};
+static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
+    "/dev/mfis_cam0",  "/dev/mfis_cam1",  "/dev/mfis_cam2",  "/dev/mfis_cam3", "/dev/mfis_cam4",  "/dev/mfis_cam5",
+    "/dev/mfis_cam6",  "/dev/mfis_cam7",  "/dev/mfis_cam8",  "/dev/mfis_cam9", "/dev/mfis_cam10", "/dev/mfis_cam11",
+    "/dev/mfis_cam12", "/dev/mfis_cam13", "/dev/mfis_cam14", "/dev/mfis_cam15"};
 
 /******************************************************************************************
  * Public Functions Prototypes

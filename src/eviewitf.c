@@ -357,8 +357,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the record\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         ssd_get_output_directory(&record_dir);
         printf("SSD storage directory %s \n", record_dir);
         ret = ssd_save_camera_stream(cam_id, delay, record_dir, cam_virtual_buffers->cam[cam_id].buffer_size);
@@ -386,8 +385,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the get param\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
@@ -435,8 +433,7 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the set param\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
@@ -475,8 +472,7 @@ int eviewitf_reboot_cam(int cam_id) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the reboot\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
@@ -595,8 +591,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the fps\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
