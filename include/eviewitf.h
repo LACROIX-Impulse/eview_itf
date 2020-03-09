@@ -15,6 +15,8 @@
 #define EVIEWITF_MAX_CAMERA      16
 #define EVIEWITF_MAX_REAL_CAMERA 8
 
+#define EVIEWITF_BLENDING_DEV    "/dev/mfis_blend"
+
 /******************************************************************************************
  * Public Structures
  ******************************************************************************************/
@@ -75,6 +77,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t
 int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
 int eviewitf_reboot_cam(int cam_id);
 int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir);
+int eviewitf_set_blending(char* frame);
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_check_camera_on(int cam_id);

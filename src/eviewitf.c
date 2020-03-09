@@ -39,6 +39,7 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_physical_r7_t cam[EVIEWITF_MAX_CAMERA];
+    eviewitf_cam_buffers_physical_r7_t blend;
 } eviewitf_cam_buffers_r7_t;
 
 /* Structures used for internal lib purpose.
@@ -50,6 +51,7 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
+    eviewitf_cam_buffers_virtual_t blend;
 } eviewitf_cam_buffers_a53_t;
 
 /******************************************************************************************
@@ -63,7 +65,6 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
-    FCT_VIRTUAL_CAM_UPDATE,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -112,6 +113,7 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers)
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
             virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
         }
+        virtual_buffers->blend.buffer_size = cam_buffers_r7->blend.buffer_size;
     }
 
     return ret;
@@ -260,6 +262,12 @@ int eviewitf_init_api(void) {
                 } else {
                     cam_virtual_buffers->cam[i].buffer = NULL;
                 }
+            }
+            /* Blending */
+            if (cam_virtual_buffers->blend.buffer_size > 0) {
+                cam_virtual_buffers->blend.buffer = malloc(cam_virtual_buffers->blend.buffer_size);
+            } else {
+                cam_virtual_buffers->blend.buffer = NULL;
             }
         }
     }
@@ -511,7 +519,6 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     unsigned long int i;
-    ssize_t ret_write = 0;
 
     /* Test API has been initialized */
     if (cam_virtual_buffers == NULL) {
@@ -532,6 +539,33 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
         ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[i].buffer_size, fps, frames_dir);
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot play the stream on the virtual camera\n");
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_blending
+ * \brief Set a blending frame
+
+ * \param in frame: path to the blending frame
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_blending(char* frame) {
+    int ret = EVIEWITF_OK;
+    int file_cam = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    if (EVIEWITF_OK == ret) {
+        ret = ssd_set_blending(cam_virtual_buffers->blend.buffer_size, frame);
+        if (EVIEWITF_OK != ret) {
+            printf("Error: Cannot set the blending\n");
         }
     }
 

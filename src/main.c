@@ -27,7 +27,8 @@ static char args_doc[] =
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
-    "change the fps:  -f [0-60] -c [0-7]";
+    "change the fps:  -f [0-60] -c [0-7]\n"
+    "set a blending:  -b [PATH]\n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -42,6 +43,7 @@ static struct argp_option options[] = {
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
+    {"blending", 'b', "PATH", 0, "Set the blending <PATH> over the camera"},
     {0},
 };
 
@@ -65,6 +67,8 @@ struct arguments {
     int fps_value;
     int play;
     char *path_frames_dir;
+    int blending;
+    char *path_blend_frame;
 };
 
 /* Parse a single option. */
@@ -115,6 +119,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->play = 1;
             arguments->path_frames_dir = arg;
             break;
+        case 'b':
+            arguments->blending = 1;
+            arguments->path_blend_frame = arg;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -159,6 +167,8 @@ int main(int argc, char **argv) {
     arguments.play = 0;
     arguments.fps_value = 0;
     arguments.path_frames_dir = NULL;
+    arguments.blending = 0;
+    arguments.path_blend_frame = NULL;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -249,6 +259,20 @@ int main(int argc, char **argv) {
         }
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Recording played on camera %d\n", arguments.camera_id);
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You sent a wrong parameter\n");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
+        eviewitf_deinit_api();
+    }
+
+    /* Set a blending frame */
+    if (arguments.blending) {
+        eviewitf_init_api();
+        ret = eviewitf_set_blending(arguments.path_blend_frame);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Blending applied\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {
             fprintf(stdout, "You sent a wrong parameter\n");
         } else {
