@@ -28,7 +28,7 @@ static char args_doc[] =
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
-    "set a blending:  -b [PATH]\n";
+    "set a blending:  -b [PATH]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -43,7 +43,7 @@ static struct argp_option options[] = {
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
-    {"blending", 'b', "PATH", 0, "Set the blending <PATH> over the camera"},
+    {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
     {0},
 };
 
