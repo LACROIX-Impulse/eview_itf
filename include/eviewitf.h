@@ -77,4 +77,5 @@ int eviewitf_reboot_cam(int cam_id);
 int eviewitf_virtual_cam_update(int cam_id, int fps, char* frames_dir);
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
+int eviewitf_check_camera_probing(int cam_id);
 #endif /* EVIEWITF_H */
