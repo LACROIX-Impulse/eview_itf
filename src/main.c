@@ -28,7 +28,8 @@ static char args_doc[] =
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
-    "set a blending:  -b [PATH]";
+    "set blending:    -b [PATH]\n"
+    "stop blending:   -n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -44,6 +45,7 @@ static struct argp_option options[] = {
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
+    {"no-blending", 'n', 0, 0, "Stop the blending"},
     {0},
 };
 
@@ -69,6 +71,7 @@ struct arguments {
     char *path_frames_dir;
     int blending;
     char *path_blend_frame;
+    int stop_blending;
 };
 
 /* Parse a single option. */
@@ -123,6 +126,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->blending = 1;
             arguments->path_blend_frame = arg;
             break;
+        case 'n':
+            arguments->stop_blending = 1;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -169,6 +175,7 @@ int main(int argc, char **argv) {
     arguments.path_frames_dir = NULL;
     arguments.blending = 0;
     arguments.path_blend_frame = NULL;
+    arguments.stop_blending = 0;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -279,6 +286,18 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Fail\n");
         }
         eviewitf_deinit_api();
+    }
+
+    /* Stop the blending */
+    if (arguments.stop_blending) {
+        ret = eviewitf_stop_blending();
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Blending stopped\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "An error occurred\n");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
     }
 
     exit(0);

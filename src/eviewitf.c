@@ -65,6 +65,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_STOP_BLENDING,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -503,6 +504,40 @@ int eviewitf_reboot_cam(int cam_id) {
             }
         }
     }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_stop_blending
+ * \brief Stop the blending
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_stop_blending(void) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_STOP_BLENDING;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_STOP_BLENDING) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_INV_PARAM) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
     return ret;
 }
 
