@@ -32,7 +32,7 @@
  * Private structures
  ******************************************************************************************/
 /* Structures used for internal communication between A53 and R7.
-   Doesn't need to be exposed in API */
+ Doesn't need to be exposed in API */
 typedef struct {
     uint32_t buffer_size;
 } eviewitf_cam_buffers_physical_r7_t;
@@ -42,10 +42,10 @@ typedef struct {
 } eviewitf_cam_buffers_r7_t;
 
 /* Structures used for internal lib purpose.
-   Doesn't need to be exposed in API */
+ Doesn't need to be exposed in API */
 typedef struct {
     uint32_t buffer_size;
-    uint8_t* buffer;
+    uint8_t *buffer;
 } eviewitf_cam_buffers_virtual_t;
 
 typedef struct {
@@ -63,6 +63,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_VIRTUAL_CAM_UPDATE,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -73,18 +74,18 @@ typedef enum {
     FCT_RETURN_ERROR,
     FCT_INV_PARAM,
 } fct_ret_r;
-static eviewitf_cam_buffers_a53_t* cam_virtual_buffers = NULL;
+static eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
 /* Private function used to retrieved cam buffer during api initialization.
-   Doesn't need to be exposed in API */
-static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t* virtual_buffers) {
+ Doesn't need to be exposed in API */
+static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers) {
     int ret = EVIEWITF_OK, i;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
-    eviewitf_cam_buffers_r7_t* cam_buffers_r7;
+    eviewitf_cam_buffers_r7_t *cam_buffers_r7;
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -105,7 +106,7 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t* virtual_buffers)
         }
     }
     cam_buffers_r7 =
-        (eviewitf_cam_buffers_r7_t*)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
+        (eviewitf_cam_buffers_r7_t *)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
     if (ret >= EVIEWITF_OK) {
         /* Fill the A53 cam_buffer structure with value returned by R7*/
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
@@ -128,13 +129,13 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t* virtual_buffers)
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
-                       eviewitf_frame_metadata_info_t* frame_metadata) {
+int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t *frame_buffer,
+                       eviewitf_frame_metadata_info_t *frame_metadata) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     int cam_frame_id;
-    uint8_t* ptr_metadata;
-    eviewitf_frame_metadata_info_t* metadata = NULL;
+    uint8_t *ptr_metadata;
+    eviewitf_frame_metadata_info_t *metadata = NULL;
     int ismetadata = 1;
 
     // Test API has been initialized
@@ -170,7 +171,7 @@ int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
         // Metadata magic number is located at the end of the buffer if present
         ptr_metadata = cam_virtual_buffers->cam[cam_id].buffer + cam_virtual_buffers->cam[cam_id].buffer_size -
                        sizeof(eviewitf_frame_metadata_info_t);
-        metadata = (eviewitf_frame_metadata_info_t*)ptr_metadata;
+        metadata = (eviewitf_frame_metadata_info_t *)ptr_metadata;
         if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
             if (metadata->frame_size > cam_virtual_buffers->cam[cam_id].buffer_size) {
                 // Special case where frame's data looks like a magic number
@@ -349,11 +350,19 @@ int eviewitf_set_display_cam(int cam_id) {
  */
 int eviewitf_record_cam(int cam_id, int delay) {
     int ret = EVIEWITF_OK;
-    char* record_dir = NULL;
-    ssd_get_output_directory(&record_dir);
-    printf("SSD storage directory %s \n", record_dir);
-    ret = ssd_save_camera_stream(cam_id, delay, record_dir, cam_virtual_buffers->cam[cam_id].buffer_size);
-    free(record_dir);
+    char *record_dir = NULL;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a real camera for the record\n");
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        ssd_get_output_directory(&record_dir);
+        printf("SSD storage directory %s \n", record_dir);
+        ret = ssd_save_camera_stream(cam_id, delay, record_dir, cam_virtual_buffers->cam[cam_id].buffer_size);
+        free(record_dir);
+    }
     return ret;
 }
 
@@ -367,35 +376,42 @@ int eviewitf_record_cam(int cam_id, int delay) {
  * \param *reg_value: Register Value
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value) {
+int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t *reg_value) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    /* Prepare TX buffer */
-    tx_buffer[0] = FCT_CAM_REG_R;
-    tx_buffer[1] = cam_id;
-    tx_buffer[2] = cam_type;
-    tx_buffer[3] = reg_adress;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a real camera for the get param\n");
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_CAM_REG_R) {
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        /* Prepare TX buffer */
+        tx_buffer[0] = FCT_CAM_REG_R;
+        tx_buffer[1] = cam_id;
+        tx_buffer[2] = cam_type;
+        tx_buffer[3] = reg_adress;
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_CAM_REG_R) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+                ret = EVIEWITF_BLOCKED;
+            }
         }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
-            ret = EVIEWITF_BLOCKED;
-        }
+        *reg_value = (uint16_t)rx_buffer[2];
     }
-    *reg_value = (uint16_t)rx_buffer[2];
     return ret;
 }
 /**
@@ -412,29 +428,36 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    /* Prepare TX buffer */
-    tx_buffer[0] = FCT_CAM_REG_W;
-    tx_buffer[1] = cam_id;
-    tx_buffer[2] = cam_type;
-    tx_buffer[3] = reg_adress;
-    tx_buffer[4] = reg_value;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a real camera for the set param\n");
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_CAM_REG_W) {
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        /* Prepare TX buffer */
+        tx_buffer[0] = FCT_CAM_REG_W;
+        tx_buffer[1] = cam_id;
+        tx_buffer[2] = cam_type;
+        tx_buffer[3] = reg_adress;
+        tx_buffer[4] = reg_value;
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
-            ret = EVIEWITF_BLOCKED;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_CAM_REG_W) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+                ret = EVIEWITF_BLOCKED;
+            }
         }
     }
     return ret;
@@ -444,31 +467,78 @@ int eviewitf_reboot_cam(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_REBOOT_CAM;
-    tx_buffer[1] = cam_id;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a real camera for the reboot\n");
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_REBOOT_CAM) {
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        tx_buffer[0] = FCT_REBOOT_CAM;
+        tx_buffer[1] = cam_id;
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_INV_PARAM) {
-            ret = EVIEWITF_INVALID_PARAM;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_REBOOT_CAM) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
         }
     }
     return ret;
 }
 
-int eviewitf_poll(int* cam_id, int nb_cam, short* event_return) {
+/**
+ * \fn eviewitf_virtual_cam_update
+ * \brief Update the frames to be printed on a virtual camera
+
+ * \param in cam_id: id of the camera
+ * \param in fps: fps to apply on the recording
+ * \param in frames_dir: path to the recording
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
+    int ret = EVIEWITF_OK;
+    int file_cam = 0;
+    unsigned long int i;
+    ssize_t ret_write = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    if (EVIEWITF_OK == ret) {
+        /* Test camera id */
+        if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+            printf("Invalid camera id\n");
+            printf("Please choose a virtual camera for the playback\n");
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    if (EVIEWITF_OK == ret) {
+        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[i].buffer_size, fps, frames_dir);
+        if (EVIEWITF_OK != ret) {
+            printf("Error: Cannot play the stream on the virtual camera\n");
+        }
+    }
+
+    return ret;
+}
+
+int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
     short revents;
     struct pollfd pfd[nb_cam];
     int r_poll;
@@ -516,27 +586,51 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_SET_FPS;
-    tx_buffer[1] = cam_id;
-    tx_buffer[2] = (int32_t)fps;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+        printf("Invalid camera id\n");
+        printf("Please choose a real camera for the fps\n");
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_SET_FPS) {
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        tx_buffer[0] = FCT_SET_FPS;
+        tx_buffer[1] = cam_id;
+        tx_buffer[2] = (int32_t)fps;
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
-            ret = EVIEWITF_BLOCKED;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_SET_FPS) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+                ret = EVIEWITF_BLOCKED;
+            }
         }
     }
     return ret;
+}
+
+int eviewitf_check_camera_on(int cam_id) {
+    int ret;
+    if (cam_virtual_buffers == NULL) {
+        printf("eviewitf_init_api never done\n");
+        return EVIEWITF_FAIL;
+    } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+        printf("Invalid camera id %d\n", cam_id);
+        return EVIEWITF_FAIL;
+    } else {
+        if (cam_virtual_buffers->cam[cam_id].buffer_size == 0) {
+            return EVIEWITF_FAIL;
+        } else {
+            return EVIEWITF_OK;
+        }
+    }
 }

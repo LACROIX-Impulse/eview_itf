@@ -11,6 +11,8 @@
 #include <argp.h>
 #include "eviewitf.h"
 
+#define DEFAULT_FPS 30
+
 const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
 
@@ -19,18 +21,19 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 
 /* Arguments description */
 static char args_doc[] =
-    "to record: -c [0-7] -r [???] delay(s) \n"
-    "to change display: -d -c [0-7] \n "
-    "to write register: -c [0-7] -Wa [0x????] -v [0x??] \n"
-    "to read register: -c [0-7] -Wa [0x????] \n"
-    "to reboot a camera: -s -c [0-7]"
-    "to change camera fps: -f [0-60] -c [0-7] \n";
+    "change display:  -d -c [0-15]\n"
+    "record:          -c [0-7] -r [???]\n"
+    "play recordings: -c [8-15] -f [5-?] -p [PATH]\n"
+    "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
+    "read register:   -c [0-7] -Ra [0x????]\n"
+    "reboot a camera: -s -c [0-7]\n"
+    "change the fps:  -f [0-60] -c [0-7]";
 
 /* Program options */
 static struct argp_option options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs"},
     {"display", 'd', 0, 0, "Select camera as display"},
-    {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (in seconds)"},
+    {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)"},
     /* {"type", 't', "TYPE", 0, "Select camera type"}, not used for now */
     {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write"},
     {"value", 'v', "VALUE", 0, "VALUE to write in the register"},
@@ -38,6 +41,7 @@ static struct argp_option options[] = {
     {"write", 'W', 0, 0, "Write register"},
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
+    {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
     {0},
 };
 
@@ -59,6 +63,8 @@ struct arguments {
     int reboot;
     int set_fps;
     int fps_value;
+    int play;
+    char *path_frames_dir;
 };
 
 /* Parse a single option. */
@@ -84,10 +90,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             break;
-            /*    case 't':
-                    arguments->type = 1;
-                    arguments->camera_type = atoi(arg);
-                    break;*/
         case 'a':
             arguments->reg = 1;
             arguments->reg_address = (int)strtol(arg, NULL, 16);
@@ -107,6 +109,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'f':
             arguments->set_fps = 1;
+            arguments->fps_value = atoi(arg);
+            break;
+        case 'p':
+            arguments->play = 1;
+            arguments->path_frames_dir = arg;
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -149,7 +156,10 @@ int main(int argc, char **argv) {
     arguments.write = 0;
     arguments.reboot = 0;
     arguments.set_fps = 0;
+    arguments.play = 0;
     arguments.fps_value = 0;
+    arguments.path_frames_dir = NULL;
+
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -206,14 +216,14 @@ int main(int argc, char **argv) {
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
         } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "You send a wrong camera Id");
+            fprintf(stdout, "You send a wrong camera Id\n");
         } else {
             fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
         }
     }
 
     /* change camera fps */
-    if (arguments.camera && arguments.set_fps) {
+    if (arguments.camera && arguments.set_fps && !arguments.play) {
         if (arguments.set_fps < 0) {
             fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
         } else {
@@ -222,11 +232,30 @@ int main(int argc, char **argv) {
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);
             } else if (ret == EVIEWITF_INVALID_PARAM) {
-                fprintf(stdout, "You send a wrong camera Id or a wrong FPS value");
+                fprintf(stdout, "You send a wrong camera Id or a wrong FPS value\n");
             } else {
                 fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
             }
         }
     }
+
+    /* Play a stream as a virtual camera */
+    if (arguments.camera && arguments.play) {
+        eviewitf_init_api();
+        if (arguments.set_fps) {
+            ret = eviewitf_virtual_cam_update(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
+        } else {
+            ret = eviewitf_virtual_cam_update(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
+        }
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Recording played on camera %d\n", arguments.camera_id);
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You sent a wrong parameter\n");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
+        eviewitf_deinit_api();
+    }
+
     exit(0);
 }
