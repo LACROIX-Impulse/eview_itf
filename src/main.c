@@ -277,7 +277,7 @@ int main(int argc, char **argv) {
     /* Set a blending frame */
     if (arguments.blending) {
         eviewitf_init_api();
-        ret = eviewitf_set_blending(arguments.path_blend_frame);
+        ret = eviewitf_set_blending_from_file(arguments.path_blend_frame);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending applied\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {

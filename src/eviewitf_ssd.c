@@ -273,21 +273,12 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
 int ssd_set_blending(uint32_t buffer_size, char *frame) {
     int ret = EVIEWITF_OK;
     int file_ssd;
-    int blend_fd;
     int test_rw = 0;
     char buff_f[buffer_size];
-
-    /* Open the virtual camera to write in */
-    blend_fd = open(EVIEWITF_BLENDING_DEV, O_WRONLY);
-    if ((-1) == blend_fd) {
-        printf("[Error] Opening the blendind device\n");
-        return -1;
-    }
 
     file_ssd = open(frame, O_RDONLY);
     if ((-1) == file_ssd) {
         printf("[Error] Cannot find the input file\n");
-        close(blend_fd);
         return -1;
     }
 
@@ -295,21 +286,12 @@ int ssd_set_blending(uint32_t buffer_size, char *frame) {
     test_rw = read(file_ssd, buff_f, buffer_size);
     if ((-1) == test_rw) {
         printf("[Error] Read frame from the file\n");
-        close(blend_fd);
         close(file_ssd);
         return -1;
     }
 
-    /* Write the frame in the blending device */
-    test_rw = write(blend_fd, buff_f, buffer_size);
-    if ((-1) == test_rw) {
-        printf("[Error] Write frame in the blending device\n");
-        close(blend_fd);
-        close(file_ssd);
-        return -1;
-    }
+    ret = eviewitf_set_blending(buffer_size, buff_f);
 
-    close(blend_fd);
     close(file_ssd);
 
     return ret;

@@ -581,13 +581,13 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
 }
 
 /**
- * \fn eviewitf_set_blending
+ * \fn eviewitf_set_blending_from_file
  * \brief Set a blending frame
 
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending(char* frame) {
+int eviewitf_set_blending_from_file(char* frame) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
 
@@ -603,6 +603,45 @@ int eviewitf_set_blending(char* frame) {
             printf("Error: Cannot set the blending\n");
         }
     }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_blending
+ * \brief Set a blending buffer
+
+ * \param in buffer_size: Size of the blending buffer
+ * \param in buffer: blending buffer
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_blending(uint32_t buffer_size, char* buffer) {
+    int ret = EVIEWITF_OK;
+    int blend_fd;
+    int test_rw = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Open the blending device to write in */
+    blend_fd = open(EVIEWITF_BLENDING_DEV, O_WRONLY);
+    if ((-1) == blend_fd) {
+        printf("[Error] Opening the blendind device\n");
+        return -1;
+    }
+
+    /* Write the frame in the blending device */
+    test_rw = write(blend_fd, buffer, buffer_size);
+    if ((-1) == test_rw) {
+        printf("[Error] Write frame in the blending device\n");
+        close(blend_fd);
+        return -1;
+    }
+
+    close(blend_fd);
 
     return ret;
 }
