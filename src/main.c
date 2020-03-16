@@ -260,9 +260,9 @@ int main(int argc, char **argv) {
     if (arguments.camera && arguments.play) {
         eviewitf_init_api();
         if (arguments.set_fps) {
-            ret = eviewitf_virtual_cam_update(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
+            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
         } else {
-            ret = eviewitf_virtual_cam_update(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
+            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
         }
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Recording played on camera %d\n", arguments.camera_id);

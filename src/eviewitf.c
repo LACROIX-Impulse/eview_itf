@@ -76,6 +76,7 @@ typedef enum {
     FCT_RETURN_ERROR,
     FCT_INV_PARAM,
 } fct_ret_r;
+
 static eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
 
 /******************************************************************************************
@@ -542,7 +543,7 @@ int eviewitf_stop_blending(void) {
 }
 
 /**
- * \fn eviewitf_virtual_cam_update
+ * \fn eviewitf_play_on_virtual_cam
  * \brief Update the frames to be printed on a virtual camera
 
  * \param in cam_id: id of the camera
@@ -550,7 +551,7 @@ int eviewitf_stop_blending(void) {
  * \param in frames_dir: path to the recording
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
+int eviewitf_play_on_virtual_cam(int cam_id, int fps, char* frames_dir) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     unsigned long int i;
@@ -576,6 +577,46 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
             printf("Error: Cannot play the stream on the virtual camera\n");
         }
     }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_virtual_cam
+ * \brief Set a virtual camera frame
+
+ * \param in cam_id: id of the camera
+ * \param in buffer_size: size of the virtual camera buffer
+ * \param in buffer: virtual camera buffer
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer) {
+    int ret = EVIEWITF_OK;
+    int cam_fd;
+    int test_rw = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Open the virtual camera to write in */
+    cam_fd = open(mfis_device_filenames[cam_id], O_WRONLY);
+    if (cam_fd == -1) {
+        printf("Error opening camera file\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Write the frame in the virtual camera */
+    test_rw = write(cam_fd, buffer, buffer_size);
+    if ((-1) == test_rw) {
+        printf("[Error] Write frame in the virtual camera\n");
+        return EVIEWITF_FAIL;
+    }
+
+    /* Close the virtual camera file device */
+    close(cam_fd);
 
     return ret;
 }
@@ -611,7 +652,7 @@ int eviewitf_set_blending_from_file(char* frame) {
  * \fn eviewitf_set_blending
  * \brief Set a blending buffer
 
- * \param in buffer_size: Size of the blending buffer
+ * \param in buffer_size: size of the blending buffer
  * \param in buffer: blending buffer
  * \return state of the function. Return 0 if okay
  */

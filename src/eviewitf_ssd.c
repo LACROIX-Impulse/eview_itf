@@ -183,13 +183,6 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     /* The duration between two frames directly depends on the desired FPS */
     duration_ns = ONE_SEC_NS / fps;
 
-    /* Open the virtual camera to write in */
-    cam_fd = open(mfis_device_filenames[camera_id], O_WRONLY);
-    if (cam_fd == -1) {
-        printf("Error opening camera file\n");
-        ret = EVIEWITF_FAIL;
-    }
-
     /* First time value */
     if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
         printf("Got an issue with system clock aborting \n");
@@ -243,9 +236,8 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
                 }
 
                 /* Write the frame in the virtual camera */
-                write(cam_fd, buff_f, buffer_size);
-                if ((-1) == test_rw) {
-                    printf("[Error] Write frame in the virtual camera\n");
+                if (EVIEWITF_OK != eviewitf_set_virtual_cam(camera_id, buffer_size, buff_f)) {
+                    printf("[Error] Set a frame in the virtual camera\n");
                     return -1;
                 }
 
@@ -258,7 +250,6 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
         }
     }
 
-    close(cam_fd);
     return ret;
 }
 
