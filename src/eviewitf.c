@@ -618,7 +618,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     return ret;
 }
 
-int eviewitf_check_camera_probing(int cam_id) {
+int eviewitf_check_camera_on(int cam_id) {
     int ret;
     if (cam_virtual_buffers == NULL) {
         printf("eviewitf_init_api never done\n");
@@ -630,7 +630,7 @@ int eviewitf_check_camera_probing(int cam_id) {
         if (cam_virtual_buffers->cam[cam_id].buffer_size == 0) {
             return EVIEWITF_FAIL;
         } else {
-            return EVIEWITF_BLOCKED;
+            return EVIEWITF_OK;
         }
     }
 }
