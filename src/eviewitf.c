@@ -551,7 +551,7 @@ int eviewitf_stop_blending(void) {
  * \param in frames_dir: path to the recording
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char* frames_dir) {
+int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     unsigned long int i;
@@ -590,7 +590,7 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char* frames_dir) {
  * \param in buffer: virtual camera buffer
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer) {
+int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
     int ret = EVIEWITF_OK;
     int cam_fd;
     int test_rw = 0;
@@ -628,7 +628,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer) {
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending_from_file(char* frame) {
+int eviewitf_set_blending_from_file(char *frame) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
 
@@ -656,7 +656,7 @@ int eviewitf_set_blending_from_file(char* frame) {
  * \param in buffer: blending buffer
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending(uint32_t buffer_size, char* buffer) {
+int eviewitf_set_blending(uint32_t buffer_size, char *buffer) {
     int ret = EVIEWITF_OK;
     int blend_fd;
     int test_rw = 0;

@@ -15,7 +15,7 @@
 #define EVIEWITF_MAX_CAMERA      16
 #define EVIEWITF_MAX_REAL_CAMERA 8
 
-#define EVIEWITF_BLENDING_DEV    "/dev/mfis_blend"
+#define EVIEWITF_BLENDING_DEV "/dev/mfis_blend"
 
 /******************************************************************************************
  * Public Structures
