@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <argp.h>
+#include <unistd.h>
 #include "eviewitf.h"
 
 #define DEFAULT_FPS 30
@@ -28,8 +29,9 @@ static char args_doc[] =
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
-    "set blending:    -b [PATH]\n"
-    "stop blending:   -n";
+    "set blending:    -b [PATH] -o [1-3]\n"
+    "start blending:   -B -o [1-3]"
+    "stop blending:   -n -o [1-3]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -46,6 +48,7 @@ static struct argp_option options[] = {
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
     {"no-blending", 'n', 0, 0, "Stop the blending"},
+    {"Ox interface", 'o', "Ox", 0, "Select Ox interface on which command occurs"},
     {0},
 };
 
@@ -72,6 +75,8 @@ struct arguments {
     int blending;
     char *path_blend_frame;
     int stop_blending;
+    int Ox;
+    int Ox_interface;
 };
 
 /* Parse a single option. */
@@ -128,6 +133,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'n':
             arguments->stop_blending = 1;
+            break;
+        case 'o':
+            arguments->Ox = 1;
+            arguments->Ox_interface = atoi(arg);
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -275,22 +284,30 @@ int main(int argc, char **argv) {
     }
 
     /* Set a blending frame */
-    if (arguments.blending) {
+    if (arguments.blending && arguments.Ox) {
         eviewitf_init_api();
-        ret = eviewitf_set_blending_from_file(arguments.path_blend_frame);
+        ret = eviewitf_start_blending(arguments.Ox_interface);
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Blending applied\n");
-        } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "You sent a wrong parameter\n");
+            ret = eviewitf_set_blending_from_file(arguments.Ox_interface, arguments.path_blend_frame);
+            if (ret >= EVIEWITF_OK) {
+                fprintf(stdout, "Blending applied\n");
+            } else if (ret == EVIEWITF_INVALID_PARAM) {
+                fprintf(stdout, "You sent a wrong parameter\n");
+            } else {
+                fprintf(stdout, "Fail\n");
+            }
+        }else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You sent a wrong parameter to Start blending\n");
         } else {
-            fprintf(stdout, "Fail\n");
+            fprintf(stdout, "Start blending Fail\n");
         }
+
         eviewitf_deinit_api();
     }
 
     /* Stop the blending */
-    if (arguments.stop_blending) {
-        ret = eviewitf_stop_blending();
+    if (arguments.stop_blending && arguments.Ox) {
+        ret = eviewitf_stop_blending(arguments.Ox_interface);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {

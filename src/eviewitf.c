@@ -39,7 +39,9 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_physical_r7_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_physical_r7_t blend;
+    eviewitf_cam_buffers_physical_r7_t O1;
+    eviewitf_cam_buffers_physical_r7_t O2;
+    eviewitf_cam_buffers_physical_r7_t O3;
 } eviewitf_cam_buffers_r7_t;
 
 /* Structures used for internal lib purpose.
@@ -51,7 +53,9 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_virtual_t blend;
+    eviewitf_cam_buffers_virtual_t O1;
+    eviewitf_cam_buffers_virtual_t O2;
+    eviewitf_cam_buffers_virtual_t O3;
 } eviewitf_cam_buffers_a53_t;
 
 /******************************************************************************************
@@ -65,6 +69,7 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
+    FCT_START_BLENDING,
     FCT_STOP_BLENDING,
     FCT_SET_FPS,
     NB_FCT,
@@ -73,8 +78,8 @@ typedef enum {
 typedef enum {
     FCT_RETURN_OK = 1,
     FCT_RETURN_BLOCKED,
-    FCT_RETURN_ERROR,
     FCT_INV_PARAM,
+    FCT_RETURN_ERROR,
 } fct_ret_r;
 
 static eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
@@ -115,7 +120,9 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers)
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
             virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
         }
-        virtual_buffers->blend.buffer_size = cam_buffers_r7->blend.buffer_size;
+        virtual_buffers->O1.buffer_size = cam_buffers_r7->O1.buffer_size;
+        virtual_buffers->O2.buffer_size = cam_buffers_r7->O2.buffer_size;
+        virtual_buffers->O3.buffer_size = cam_buffers_r7->O3.buffer_size;
     }
 
     return ret;
@@ -266,10 +273,20 @@ int eviewitf_init_api(void) {
                 }
             }
             /* Blending */
-            if (cam_virtual_buffers->blend.buffer_size > 0) {
-                cam_virtual_buffers->blend.buffer = malloc(cam_virtual_buffers->blend.buffer_size);
+            if (cam_virtual_buffers->O1.buffer_size > 0) {
+                cam_virtual_buffers->O1.buffer = malloc(cam_virtual_buffers->O1.buffer_size);
             } else {
-                cam_virtual_buffers->blend.buffer = NULL;
+                cam_virtual_buffers->O1.buffer = NULL;
+            }
+            if (cam_virtual_buffers->O2.buffer_size > 0) {
+                cam_virtual_buffers->O2.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
+            } else {
+                cam_virtual_buffers->O2.buffer = NULL;
+            }
+            if (cam_virtual_buffers->O3.buffer_size > 0) {
+                cam_virtual_buffers->O3.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
+            } else {
+                cam_virtual_buffers->O3.buffer = NULL;
             }
         }
     }
@@ -514,7 +531,43 @@ int eviewitf_reboot_cam(int cam_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_stop_blending(void) {
+int eviewitf_start_blending(int Ox_id) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_START_BLENDING;
+    tx_buffer[1] = Ox_id;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_START_BLENDING) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_INV_PARAM) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    return ret;
+}
+
+
+/**
+ * \fn eviewitf_stop_blending
+ * \brief Stop the blending
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_stop_blending(int Ox_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -522,6 +575,7 @@ int eviewitf_stop_blending(void) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     tx_buffer[0] = FCT_STOP_BLENDING;
+    tx_buffer[1] = Ox_id;
     ret = mfis_send_request(tx_buffer, rx_buffer);
 
     if (ret < EVIEWITF_OK) {
@@ -628,7 +682,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending_from_file(char *frame) {
+int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
 
@@ -639,7 +693,19 @@ int eviewitf_set_blending_from_file(char *frame) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_blending(cam_virtual_buffers->blend.buffer_size, frame);
+        switch (blending_id){
+            case 2:
+                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O2.buffer_size, frame);
+                break;
+            case 3:
+                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O3.buffer_size, frame);
+                break;
+            default:
+                printf("Device %d not allowed for blending \n",blending_id);
+                ret = EVIEWITF_INVALID_PARAM;
+                break;
+        }
+
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot set the blending\n");
         }
@@ -656,7 +722,7 @@ int eviewitf_set_blending_from_file(char *frame) {
  * \param in buffer: blending buffer
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending(uint32_t buffer_size, char *buffer) {
+int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer) {
     int ret = EVIEWITF_OK;
     int blend_fd;
     int test_rw = 0;
@@ -668,7 +734,7 @@ int eviewitf_set_blending(uint32_t buffer_size, char *buffer) {
     }
 
     /* Open the blending device to write in */
-    blend_fd = open(EVIEWITF_BLENDING_DEV, O_WRONLY);
+    blend_fd = open(Ox_interface[blending_id], O_WRONLY);
     if ((-1) == blend_fd) {
         printf("[Error] Opening the blendind device\n");
         return -1;

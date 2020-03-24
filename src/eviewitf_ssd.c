@@ -19,6 +19,7 @@
 #include <sys/mman.h>
 #include <time.h>
 #include <sys/ioctl.h>
+#include "eviewitf.h"
 #include "eviewitf_ssd.h"
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
@@ -261,7 +262,7 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
  * \param in frame: blending frame file
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_blending(uint32_t buffer_size, char *frame) {
+int ssd_set_blending(int Ox_id, uint32_t buffer_size, char *frame) {
     int ret = EVIEWITF_OK;
     int file_ssd;
     int test_rw = 0;
@@ -281,7 +282,7 @@ int ssd_set_blending(uint32_t buffer_size, char *frame) {
         return -1;
     }
 
-    ret = eviewitf_set_blending(buffer_size, buff_f);
+    ret = eviewitf_write_blending(Ox_id, buffer_size, buff_f);
 
     close(file_ssd);
 
