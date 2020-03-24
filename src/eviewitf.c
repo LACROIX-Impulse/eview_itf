@@ -560,7 +560,6 @@ int eviewitf_start_blending(int Ox_id) {
     return ret;
 }
 
-
 /**
  * \fn eviewitf_stop_blending
  * \brief Stop the blending
@@ -693,7 +692,7 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     }
 
     if (EVIEWITF_OK == ret) {
-        switch (blending_id){
+        switch (blending_id) {
             case 2:
                 ret = ssd_set_blending(blending_id, cam_virtual_buffers->O2.buffer_size, frame);
                 break;
@@ -701,7 +700,7 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
                 ret = ssd_set_blending(blending_id, cam_virtual_buffers->O3.buffer_size, frame);
                 break;
             default:
-                printf("Device %d not allowed for blending \n",blending_id);
+                printf("Device %d not allowed for blending \n", blending_id);
                 ret = EVIEWITF_INVALID_PARAM;
                 break;
         }

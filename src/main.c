@@ -296,7 +296,7 @@ int main(int argc, char **argv) {
             } else {
                 fprintf(stdout, "Fail\n");
             }
-        }else if (ret == EVIEWITF_INVALID_PARAM) {
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
             fprintf(stdout, "You sent a wrong parameter to Start blending\n");
         } else {
             fprintf(stdout, "Start blending Fail\n");
