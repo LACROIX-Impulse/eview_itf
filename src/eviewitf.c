@@ -39,7 +39,6 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_physical_r7_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_physical_r7_t O1;
     eviewitf_cam_buffers_physical_r7_t O2;
     eviewitf_cam_buffers_physical_r7_t O3;
 } eviewitf_cam_buffers_r7_t;
@@ -53,7 +52,6 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_virtual_t O1;
     eviewitf_cam_buffers_virtual_t O2;
     eviewitf_cam_buffers_virtual_t O3;
 } eviewitf_cam_buffers_a53_t;
@@ -120,7 +118,6 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers)
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
             virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
         }
-        virtual_buffers->O1.buffer_size = cam_buffers_r7->O1.buffer_size;
         virtual_buffers->O2.buffer_size = cam_buffers_r7->O2.buffer_size;
         virtual_buffers->O3.buffer_size = cam_buffers_r7->O3.buffer_size;
     }
@@ -271,12 +268,6 @@ int eviewitf_init_api(void) {
                 } else {
                     cam_virtual_buffers->cam[i].buffer = NULL;
                 }
-            }
-            /* Blending */
-            if (cam_virtual_buffers->O1.buffer_size > 0) {
-                cam_virtual_buffers->O1.buffer = malloc(cam_virtual_buffers->O1.buffer_size);
-            } else {
-                cam_virtual_buffers->O1.buffer = NULL;
             }
             if (cam_virtual_buffers->O2.buffer_size > 0) {
                 cam_virtual_buffers->O2.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
