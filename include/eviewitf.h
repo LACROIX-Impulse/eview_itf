@@ -59,7 +59,7 @@ typedef struct {
 } eviewitf_frame_metadata_info_t;
 static const char* Ox_interface[EVIEWITF_MAX_OX] = {
     "",
-    "/dev/mfis_O1",
+    "",
     "/dev/mfis_O2",
     "/dev/mfis_O3",
 };

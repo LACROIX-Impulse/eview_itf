@@ -29,9 +29,8 @@ static char args_doc[] =
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
-    "set blending:    -b [PATH] -o [1-3]\n"
-    "start blending:   -B -o [1-3]"
-    "stop blending:   -n -o [1-3]";
+    "set blending:    -b [PATH] -o [2-3]\n"
+    "stop blending:   -n -o [2-3]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -75,8 +74,8 @@ struct arguments {
     int blending;
     char *path_blend_frame;
     int stop_blending;
-    int Ox;
-    int Ox_interface;
+    int ox;
+    int ox_interface;
 };
 
 /* Parse a single option. */
@@ -135,8 +134,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->stop_blending = 1;
             break;
         case 'o':
-            arguments->Ox = 1;
-            arguments->Ox_interface = atoi(arg);
+            arguments->ox = 1;
+            arguments->ox_interface = atoi(arg);
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -284,11 +283,11 @@ int main(int argc, char **argv) {
     }
 
     /* Set a blending frame */
-    if (arguments.blending && arguments.Ox) {
+    if (arguments.blending && arguments.ox) {
         eviewitf_init_api();
-        ret = eviewitf_start_blending(arguments.Ox_interface);
+        ret = eviewitf_start_blending(arguments.ox_interface);
         if (ret >= EVIEWITF_OK) {
-            ret = eviewitf_set_blending_from_file(arguments.Ox_interface, arguments.path_blend_frame);
+            ret = eviewitf_set_blending_from_file(arguments.ox_interface, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Blending applied\n");
             } else if (ret == EVIEWITF_INVALID_PARAM) {
@@ -306,8 +305,8 @@ int main(int argc, char **argv) {
     }
 
     /* Stop the blending */
-    if (arguments.stop_blending && arguments.Ox) {
-        ret = eviewitf_stop_blending(arguments.Ox_interface);
+    if (arguments.stop_blending && arguments.ox) {
+        ret = eviewitf_stop_blending(arguments.ox_interface);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {
