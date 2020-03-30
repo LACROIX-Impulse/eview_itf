@@ -683,10 +683,10 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
 
     if (EVIEWITF_OK == ret) {
         switch (blending_id) {
-            case 2:
+            case 0:
                 ret = ssd_set_blending(blending_id, cam_virtual_buffers->O2.buffer_size, frame);
                 break;
-            case 3:
+            case 1:
                 ret = ssd_set_blending(blending_id, cam_virtual_buffers->O3.buffer_size, frame);
                 break;
             default:
