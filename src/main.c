@@ -74,8 +74,8 @@ struct arguments {
     int blending;
     char *path_blend_frame;
     int stop_blending;
-    int ox;
-    int ox_interface;
+    int blend_interface;
+    int blending_interface;
 };
 
 /* Parse a single option. */
@@ -134,8 +134,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->stop_blending = 1;
             break;
         case 'o':
-            arguments->ox = 1;
-            arguments->ox_interface = atoi(arg);
+            arguments->blend_interface = 1;
+            arguments->blending_interface = atoi(arg);
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -283,11 +283,11 @@ int main(int argc, char **argv) {
     }
 
     /* Set a blending frame */
-    if (arguments.blending && arguments.ox) {
+    if (arguments.blending && arguments.blend_interface) {
         eviewitf_init_api();
-        ret = eviewitf_start_blending(arguments.ox_interface);
+        ret = eviewitf_start_blending(arguments.blending_interface);
         if (ret >= EVIEWITF_OK) {
-            ret = eviewitf_set_blending_from_file(arguments.ox_interface, arguments.path_blend_frame);
+            ret = eviewitf_set_blending_from_file(arguments.blending_interface, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Blending applied\n");
             } else if (ret == EVIEWITF_INVALID_PARAM) {
