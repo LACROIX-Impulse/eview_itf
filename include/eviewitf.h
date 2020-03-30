@@ -83,7 +83,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer);
 int eviewitf_set_blending_from_file(int blending_id, char* frame);
 int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer);
 int eviewitf_start_blending(int blending_id);
-int eviewitf_stop_blending();
+int eviewitf_stop_blending(void);
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_check_camera_on(int cam_id);

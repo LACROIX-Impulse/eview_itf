@@ -557,7 +557,7 @@ int eviewitf_start_blending(int blending_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_stop_blending() {
+int eviewitf_stop_blending(void) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
