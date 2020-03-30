@@ -19,6 +19,7 @@
 #include <sys/mman.h>
 #include <time.h>
 #include <sys/ioctl.h>
+#include "eviewitf.h"
 #include "eviewitf_ssd.h"
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
@@ -183,13 +184,6 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     /* The duration between two frames directly depends on the desired FPS */
     duration_ns = ONE_SEC_NS / fps;
 
-    /* Open the virtual camera to write in */
-    cam_fd = open(mfis_device_filenames[camera_id], O_WRONLY);
-    if (cam_fd == -1) {
-        printf("Error opening camera file\n");
-        ret = EVIEWITF_FAIL;
-    }
-
     /* First time value */
     if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
         printf("Got an issue with system clock aborting \n");
@@ -243,9 +237,8 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
                 }
 
                 /* Write the frame in the virtual camera */
-                write(cam_fd, buff_f, buffer_size);
-                if ((-1) == test_rw) {
-                    printf("[Error] Write frame in the virtual camera\n");
+                if (EVIEWITF_OK != eviewitf_set_virtual_cam(camera_id, buffer_size, buff_f)) {
+                    printf("[Error] Set a frame in the virtual camera\n");
                     return -1;
                 }
 
@@ -258,6 +251,40 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
         }
     }
 
-    close(cam_fd);
+    return ret;
+}
+
+/**
+ * \fn ssd_set_virtual_camera_stream
+ * \brief Set a blending frame from a file
+
+ * \param in buffer_size: size of the blending frame
+ * \param in frame: blending frame file
+ * \return state of the function. Return 0 if okay
+ */
+int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
+    int ret = EVIEWITF_OK;
+    int file_ssd;
+    int test_rw = 0;
+    char buff_f[buffer_size];
+
+    file_ssd = open(frame, O_RDONLY);
+    if ((-1) == file_ssd) {
+        printf("[Error] Cannot find the input file\n");
+        return -1;
+    }
+
+    /* Read the frame from the file  */
+    test_rw = read(file_ssd, buff_f, buffer_size);
+    if ((-1) == test_rw) {
+        printf("[Error] Read frame from the file\n");
+        close(file_ssd);
+        return -1;
+    }
+
+    ret = eviewitf_write_blending(blending_id, buffer_size, buff_f);
+
+    close(file_ssd);
+
     return ret;
 }
