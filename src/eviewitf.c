@@ -522,7 +522,7 @@ int eviewitf_reboot_cam(int cam_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_start_blending(int Ox_id) {
+int eviewitf_start_blending(int blending_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -530,7 +530,7 @@ int eviewitf_start_blending(int Ox_id) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     tx_buffer[0] = FCT_START_BLENDING;
-    tx_buffer[1] = Ox_id;
+    tx_buffer[1] = blending_id;
     ret = mfis_send_request(tx_buffer, rx_buffer);
 
     if (ret < EVIEWITF_OK) {
@@ -557,7 +557,7 @@ int eviewitf_start_blending(int Ox_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_stop_blending(int Ox_id) {
+int eviewitf_stop_blending() {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -565,7 +565,6 @@ int eviewitf_stop_blending(int Ox_id) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     tx_buffer[0] = FCT_STOP_BLENDING;
-    tx_buffer[1] = Ox_id;
     ret = mfis_send_request(tx_buffer, rx_buffer);
 
     if (ret < EVIEWITF_OK) {
@@ -724,7 +723,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     }
 
     /* Open the blending device to write in */
-    blend_fd = open(Ox_interface[blending_id], O_WRONLY);
+    blend_fd = open(blending_interface[blending_id], O_WRONLY);
     if ((-1) == blend_fd) {
         printf("[Error] Opening the blendind device\n");
         return -1;

@@ -29,8 +29,8 @@ static char args_doc[] =
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
-    "set blending:    -b [PATH] -o [2-3]\n"
-    "stop blending:   -n -o [2-3]";
+    "set blending:    -b [PATH] -o [0-1]\n"
+    "stop blending:   -n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -47,7 +47,7 @@ static struct argp_option options[] = {
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
     {"no-blending", 'n', 0, 0, "Stop the blending"},
-    {"Ox interface", 'o', "Ox", 0, "Select Ox interface on which command occurs"},
+    {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs"},
     {0},
 };
 
@@ -305,8 +305,8 @@ int main(int argc, char **argv) {
     }
 
     /* Stop the blending */
-    if (arguments.stop_blending && arguments.ox) {
-        ret = eviewitf_stop_blending(arguments.ox_interface);
+    if (arguments.stop_blending) {
+        ret = eviewitf_stop_blending();
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {

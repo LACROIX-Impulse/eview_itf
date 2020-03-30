@@ -14,7 +14,7 @@
  ******************************************************************************************/
 #define EVIEWITF_MAX_CAMERA      16
 #define EVIEWITF_MAX_REAL_CAMERA 8
-#define EVIEWITF_MAX_OX          4
+#define EVIEWITF_MAX_BLENDING    2
 
 /******************************************************************************************
  * Public Structures
@@ -57,9 +57,7 @@ typedef struct {
     uint32_t frame_size;
     uint32_t magic_number;
 } eviewitf_frame_metadata_info_t;
-static const char* Ox_interface[EVIEWITF_MAX_OX] = {
-    "",
-    "",
+static const char* blending_interface[EVIEWITF_MAX_BLENDING] = {
     "/dev/mfis_O2",
     "/dev/mfis_O3",
 };
@@ -84,8 +82,8 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char* frames_dir);
 int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer);
 int eviewitf_set_blending_from_file(int blending_id, char* frame);
 int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer);
-int eviewitf_start_blending(int Ox_id);
-int eviewitf_stop_blending(int Ox_id);
+int eviewitf_start_blending(int blending_id);
+int eviewitf_stop_blending();
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_check_camera_on(int cam_id);
