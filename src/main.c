@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <argp.h>
+#include <unistd.h>
 #include "eviewitf.h"
 
 #define DEFAULT_FPS 30
@@ -27,7 +28,9 @@ static char args_doc[] =
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
-    "change the fps:  -f [0-60] -c [0-7]";
+    "change the fps:  -f [0-60] -c [0-7]\n"
+    "set blending:    -b [PATH] -o [0-1]\n"
+    "stop blending:   -n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -42,6 +45,9 @@ static struct argp_option options[] = {
     {"reboot", 's', 0, 0, "Software reboot camera"},
     {"fps", 'f', "FPS", 0, "Set camera FPS"},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
+    {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
+    {"no-blending", 'n', 0, 0, "Stop the blending"},
+    {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs"},
     {0},
 };
 
@@ -65,6 +71,11 @@ struct arguments {
     int fps_value;
     int play;
     char *path_frames_dir;
+    int blending;
+    char *path_blend_frame;
+    int stop_blending;
+    int blend_interface;
+    int blending_interface;
 };
 
 /* Parse a single option. */
@@ -115,6 +126,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->play = 1;
             arguments->path_frames_dir = arg;
             break;
+        case 'b':
+            arguments->blending = 1;
+            arguments->path_blend_frame = arg;
+            break;
+        case 'n':
+            arguments->stop_blending = 1;
+            break;
+        case 'o':
+            arguments->blend_interface = 1;
+            arguments->blending_interface = atoi(arg);
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -159,6 +181,9 @@ int main(int argc, char **argv) {
     arguments.play = 0;
     arguments.fps_value = 0;
     arguments.path_frames_dir = NULL;
+    arguments.blending = 0;
+    arguments.path_blend_frame = NULL;
+    arguments.stop_blending = 0;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -243,9 +268,9 @@ int main(int argc, char **argv) {
     if (arguments.camera && arguments.play) {
         eviewitf_init_api();
         if (arguments.set_fps) {
-            ret = eviewitf_virtual_cam_update(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
+            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
         } else {
-            ret = eviewitf_virtual_cam_update(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
+            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
         }
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Recording played on camera %d\n", arguments.camera_id);
@@ -255,6 +280,40 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Fail\n");
         }
         eviewitf_deinit_api();
+    }
+
+    /* Set a blending frame */
+    if (arguments.blending && arguments.blend_interface) {
+        eviewitf_init_api();
+        ret = eviewitf_start_blending(arguments.blending_interface);
+        if (ret >= EVIEWITF_OK) {
+            ret = eviewitf_set_blending_from_file(arguments.blending_interface, arguments.path_blend_frame);
+            if (ret >= EVIEWITF_OK) {
+                fprintf(stdout, "Blending applied\n");
+            } else if (ret == EVIEWITF_INVALID_PARAM) {
+                fprintf(stdout, "You sent a wrong parameter\n");
+            } else {
+                fprintf(stdout, "Fail\n");
+            }
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "You sent a wrong parameter to Start blending\n");
+        } else {
+            fprintf(stdout, "Start blending Fail\n");
+        }
+
+        eviewitf_deinit_api();
+    }
+
+    /* Stop the blending */
+    if (arguments.stop_blending) {
+        ret = eviewitf_stop_blending();
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Blending stopped\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "An error occurred\n");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
     }
 
     exit(0);

@@ -39,6 +39,8 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_physical_r7_t cam[EVIEWITF_MAX_CAMERA];
+    eviewitf_cam_buffers_physical_r7_t O2;
+    eviewitf_cam_buffers_physical_r7_t O3;
 } eviewitf_cam_buffers_r7_t;
 
 /* Structures used for internal lib purpose.
@@ -50,6 +52,8 @@ typedef struct {
 
 typedef struct {
     eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
+    eviewitf_cam_buffers_virtual_t O2;
+    eviewitf_cam_buffers_virtual_t O3;
 } eviewitf_cam_buffers_a53_t;
 
 /******************************************************************************************
@@ -63,7 +67,8 @@ typedef enum {
     FCT_CAM_REG_R,
     FCT_CAM_REG_W,
     FCT_REBOOT_CAM,
-    FCT_VIRTUAL_CAM_UPDATE,
+    FCT_START_BLENDING,
+    FCT_STOP_BLENDING,
     FCT_SET_FPS,
     NB_FCT,
 } fct_id_t;
@@ -71,9 +76,10 @@ typedef enum {
 typedef enum {
     FCT_RETURN_OK = 1,
     FCT_RETURN_BLOCKED,
-    FCT_RETURN_ERROR,
     FCT_INV_PARAM,
+    FCT_RETURN_ERROR,
 } fct_ret_r;
+
 static eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
 
 /******************************************************************************************
@@ -112,6 +118,8 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers)
         for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
             virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
         }
+        virtual_buffers->O2.buffer_size = cam_buffers_r7->O2.buffer_size;
+        virtual_buffers->O3.buffer_size = cam_buffers_r7->O3.buffer_size;
     }
 
     return ret;
@@ -260,6 +268,16 @@ int eviewitf_init_api(void) {
                 } else {
                     cam_virtual_buffers->cam[i].buffer = NULL;
                 }
+            }
+            if (cam_virtual_buffers->O2.buffer_size > 0) {
+                cam_virtual_buffers->O2.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
+            } else {
+                cam_virtual_buffers->O2.buffer = NULL;
+            }
+            if (cam_virtual_buffers->O3.buffer_size > 0) {
+                cam_virtual_buffers->O3.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
+            } else {
+                cam_virtual_buffers->O3.buffer = NULL;
             }
         }
     }
@@ -499,7 +517,76 @@ int eviewitf_reboot_cam(int cam_id) {
 }
 
 /**
- * \fn eviewitf_virtual_cam_update
+ * \fn eviewitf_stop_blending
+ * \brief Stop the blending
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_start_blending(int blending_id) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_START_BLENDING;
+    tx_buffer[1] = blending_id;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_START_BLENDING) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_INV_PARAM) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_stop_blending
+ * \brief Stop the blending
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_stop_blending(void) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    tx_buffer[0] = FCT_STOP_BLENDING;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_STOP_BLENDING) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_INV_PARAM) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_play_on_virtual_cam
  * \brief Update the frames to be printed on a virtual camera
 
  * \param in cam_id: id of the camera
@@ -507,11 +594,10 @@ int eviewitf_reboot_cam(int cam_id) {
  * \param in frames_dir: path to the recording
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
+int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
     int file_cam = 0;
     unsigned long int i;
-    ssize_t ret_write = 0;
 
     /* Test API has been initialized */
     if (cam_virtual_buffers == NULL) {
@@ -534,6 +620,124 @@ int eviewitf_virtual_cam_update(int cam_id, int fps, char *frames_dir) {
             printf("Error: Cannot play the stream on the virtual camera\n");
         }
     }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_virtual_cam
+ * \brief Set a virtual camera frame
+
+ * \param in cam_id: id of the camera
+ * \param in buffer_size: size of the virtual camera buffer
+ * \param in buffer: virtual camera buffer
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
+    int ret = EVIEWITF_OK;
+    int cam_fd;
+    int test_rw = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Open the virtual camera to write in */
+    cam_fd = open(mfis_device_filenames[cam_id], O_WRONLY);
+    if (cam_fd == -1) {
+        printf("Error opening camera file\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Write the frame in the virtual camera */
+    test_rw = write(cam_fd, buffer, buffer_size);
+    if ((-1) == test_rw) {
+        printf("[Error] Write frame in the virtual camera\n");
+        return EVIEWITF_FAIL;
+    }
+
+    /* Close the virtual camera file device */
+    close(cam_fd);
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_blending_from_file
+ * \brief Set a blending frame
+
+ * \param in frame: path to the blending frame
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_blending_from_file(int blending_id, char *frame) {
+    int ret = EVIEWITF_OK;
+    int file_cam = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    if (EVIEWITF_OK == ret) {
+        switch (blending_id) {
+            case 0:
+                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O2.buffer_size, frame);
+                break;
+            case 1:
+                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O3.buffer_size, frame);
+                break;
+            default:
+                printf("Device %d not allowed for blending \n", blending_id);
+                ret = EVIEWITF_INVALID_PARAM;
+                break;
+        }
+
+        if (EVIEWITF_OK != ret) {
+            printf("Error: Cannot set the blending\n");
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_blending
+ * \brief Set a blending buffer
+
+ * \param in buffer_size: size of the blending buffer
+ * \param in buffer: blending buffer
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer) {
+    int ret = EVIEWITF_OK;
+    int blend_fd;
+    int test_rw = 0;
+
+    /* Test API has been initialized */
+    if (cam_virtual_buffers == NULL) {
+        printf("Please call eviewitf_init_api first\n");
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Open the blending device to write in */
+    blend_fd = open(blending_interface[blending_id], O_WRONLY);
+    if ((-1) == blend_fd) {
+        printf("[Error] Opening the blendind device\n");
+        return -1;
+    }
+
+    /* Write the frame in the blending device */
+    test_rw = write(blend_fd, buffer, buffer_size);
+    if ((-1) == test_rw) {
+        printf("[Error] Write frame in the blending device\n");
+        close(blend_fd);
+        return -1;
+    }
+
+    close(blend_fd);
 
     return ret;
 }
