@@ -87,4 +87,6 @@ int eviewitf_stop_blending(void);
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_check_camera_on(int cam_id);
+int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
+int eviewitf_set_R7_boot_mode(uint32_t mode);
 #endif /* EVIEWITF_H */
