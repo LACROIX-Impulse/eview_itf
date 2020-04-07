@@ -84,6 +84,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
 
     switch (key) {
+        case 'a':
+            arguments->reg = 1;
+            arguments->reg_address = (int)strtol(arg, NULL, 16);
+            break;
+        case 'b':
+            arguments->blending = 1;
+            arguments->path_blend_frame = arg;
+            break;
         case 'c':
             arguments->camera = 1;
             arguments->camera_id = atoi(arg);
@@ -94,41 +102,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'd':
             arguments->display = 1;
             break;
-        case 'r':
-            arguments->record = 1;
-            arguments->record_duration = atoi(arg);
-            if (arguments->record_duration < 0) {
-                argp_usage(state);
-            }
-            break;
-        case 'a':
-            arguments->reg = 1;
-            arguments->reg_address = (int)strtol(arg, NULL, 16);
-            break;
-        case 'v':
-            arguments->val = 1;
-            arguments->reg_value = (int)strtol(arg, NULL, 16);
-            break;
-        case 'R':
-            arguments->read = 1;
-            break;
-        case 'W':
-            arguments->write = 1;
-            break;
-        case 's':
-            arguments->reboot = 1;
-            break;
         case 'f':
             arguments->set_fps = 1;
             arguments->fps_value = atoi(arg);
-            break;
-        case 'p':
-            arguments->play = 1;
-            arguments->path_frames_dir = arg;
-            break;
-        case 'b':
-            arguments->blending = 1;
-            arguments->path_blend_frame = arg;
             break;
         case 'n':
             arguments->stop_blending = 1;
@@ -136,6 +112,30 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'o':
             arguments->blend_interface = 1;
             arguments->blending_interface = atoi(arg);
+            break;
+        case 'p':
+            arguments->play = 1;
+            arguments->path_frames_dir = arg;
+            break;
+        case 's':
+            arguments->reboot = 1;
+            break;
+        case 'R':
+            arguments->read = 1;
+            break;
+        case 'r':
+            arguments->record = 1;
+            arguments->record_duration = atoi(arg);
+            if (arguments->record_duration < 0) {
+                argp_usage(state);
+            }
+            break;
+        case 'v':
+            arguments->val = 1;
+            arguments->reg_value = (int)strtol(arg, NULL, 16);
+            break;
+        case 'W':
+            arguments->write = 1;
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
