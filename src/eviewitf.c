@@ -70,6 +70,8 @@ typedef enum {
     FCT_START_BLENDING,
     FCT_STOP_BLENDING,
     FCT_SET_FPS,
+    FCT_HEARTBEAT,
+    FCT_BOOT_MODE,
     NB_FCT,
 } fct_id_t;
 
@@ -837,4 +839,58 @@ int eviewitf_check_camera_on(int cam_id) {
             return EVIEWITF_OK;
         }
     }
+}
+
+/**
+ * \fn eviewitf_set_R7_heartbeat_mode
+ * \brief Activate/deactivate R7 heartbeat
+ *
+ * \param in mode: 0 to deactivate heartbeat other to activate it
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_HEARTBEAT;
+    tx_buffer[1] = mode;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_HEARTBEAT) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_R7_boot_mode
+ * \brief Set the R7 boot mode
+ *
+ * \param in mode: requets a specific R7 boot mode
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_R7_boot_mode(uint32_t mode) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_BOOT_MODE;
+    tx_buffer[1] = mode;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
 }

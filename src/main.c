@@ -30,7 +30,10 @@ static char args_doc[] =
     "reboot a camera: -s -c [0-7]\n"
     "change the fps:  -f [0-60] -c [0-7]\n"
     "set blending:    -b [PATH] -o [0-1]\n"
-    "stop blending:   -n";
+    "stop blending:   -n\n"
+    "activate R7 heartbeat: -H\n"
+    "deactivate R7 heartbeat: -h\n"
+    "set R7 boot mode: -B [0-?]";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -47,6 +50,9 @@ static struct argp_option options[] = {
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
     {"no-blending", 'n', 0, 0, "Stop the blending"},
+    {"heartbeaton", 'H', 0, 0, "Activate R7 heartbeat"},
+    {"heartbeatoff", 'h', 0, 0, "Deactivate R7 heartbeat"},
+    {"boot", 'B', "MODE", 0, "Select R7 boot mode"},
     {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs"},
     {0},
 };
@@ -76,6 +82,8 @@ struct arguments {
     int stop_blending;
     int blend_interface;
     int blending_interface;
+    int boot_mode;
+    int heartbeat;
 };
 
 /* Parse a single option. */
@@ -84,6 +92,20 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
 
     switch (key) {
+        case 'a':
+            arguments->reg = 1;
+            arguments->reg_address = (int)strtol(arg, NULL, 16);
+            break;
+        case 'B':
+            arguments->boot_mode = atoi(arg);
+            if (arguments->boot_mode < 0) {
+                argp_usage(state);
+            }
+            break;
+        case 'b':
+            arguments->blending = 1;
+            arguments->path_blend_frame = arg;
+            break;
         case 'c':
             arguments->camera = 1;
             arguments->camera_id = atoi(arg);
@@ -94,41 +116,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'd':
             arguments->display = 1;
             break;
-        case 'r':
-            arguments->record = 1;
-            arguments->record_duration = atoi(arg);
-            if (arguments->record_duration < 0) {
-                argp_usage(state);
-            }
-            break;
-        case 'a':
-            arguments->reg = 1;
-            arguments->reg_address = (int)strtol(arg, NULL, 16);
-            break;
-        case 'v':
-            arguments->val = 1;
-            arguments->reg_value = (int)strtol(arg, NULL, 16);
-            break;
-        case 'R':
-            arguments->read = 1;
-            break;
-        case 'W':
-            arguments->write = 1;
-            break;
-        case 's':
-            arguments->reboot = 1;
-            break;
         case 'f':
             arguments->set_fps = 1;
             arguments->fps_value = atoi(arg);
             break;
-        case 'p':
-            arguments->play = 1;
-            arguments->path_frames_dir = arg;
+        case 'H':
+            arguments->heartbeat = 1;
             break;
-        case 'b':
-            arguments->blending = 1;
-            arguments->path_blend_frame = arg;
+        case 'h':
+            arguments->heartbeat = 0;
             break;
         case 'n':
             arguments->stop_blending = 1;
@@ -136,6 +132,30 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'o':
             arguments->blend_interface = 1;
             arguments->blending_interface = atoi(arg);
+            break;
+        case 'p':
+            arguments->play = 1;
+            arguments->path_frames_dir = arg;
+            break;
+        case 's':
+            arguments->reboot = 1;
+            break;
+        case 'R':
+            arguments->read = 1;
+            break;
+        case 'r':
+            arguments->record = 1;
+            arguments->record_duration = atoi(arg);
+            if (arguments->record_duration < 0) {
+                argp_usage(state);
+            }
+            break;
+        case 'v':
+            arguments->val = 1;
+            arguments->reg_value = (int)strtol(arg, NULL, 16);
+            break;
+        case 'W':
+            arguments->write = 1;
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
@@ -184,6 +204,8 @@ int main(int argc, char **argv) {
     arguments.blending = 0;
     arguments.path_blend_frame = NULL;
     arguments.stop_blending = 0;
+    arguments.boot_mode = -1;
+    arguments.heartbeat = -1;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -316,5 +338,28 @@ int main(int argc, char **argv) {
         }
     }
 
+    /* R7 heartbeat */
+    if (arguments.heartbeat >= 0) {
+        ret = eviewitf_set_R7_heartbeat_mode((uint32_t)arguments.heartbeat);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "R7 heartbeat mode changed\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "Set R7 heartbeat mode error\n");
+        } else {
+            fprintf(stdout, "Set R7 heartbeat mode failure\n");
+        }
+    }
+
+    /* R7 boot mode */
+    if (arguments.boot_mode >= 0) {
+        ret = eviewitf_set_R7_heartbeat_mode((uint32_t)arguments.boot_mode);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "R7 boot mode changed\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "Set R7 boot mode error\n");
+        } else {
+            fprintf(stdout, "Set R7 boot mode failure\n");
+        }
+    }
     exit(0);
 }
