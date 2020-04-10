@@ -32,16 +32,6 @@ typedef enum {
 } eviewitf_return_state;
 
 /**
- * \struct eviewitf_cam_buffers_info_t
- * \brief Pointers to current camera frame buffer
- *
- */
-typedef struct {
-    uint32_t buffer_size;
-    uint8_t* ptr_buf;
-} eviewitf_frame_buffer_info_t;
-
-/**
  * \struct eviewitf_frame_metadata_info_t
  * \brief Pointers to current camera frame metadata
  *
@@ -57,6 +47,7 @@ typedef struct {
     uint32_t frame_size;
     uint32_t magic_number;
 } eviewitf_frame_metadata_info_t;
+
 static const char* blending_interface[EVIEWITF_MAX_BLENDING] = {
     "/dev/mfis_O2",
     "/dev/mfis_O3",
@@ -69,8 +60,17 @@ static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
 /******************************************************************************************
  * Public Functions Prototypes
  ******************************************************************************************/
-int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer,
-                       eviewitf_frame_metadata_info_t* frame_metadata);
+
+/* Cameras */
+int eviewitf_open_cam(int cam_id);
+int eviewitf_close_cam(int cam_id);
+int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size);
+int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
+int eviewitf_check_camera_on(int cam_id);
+int eviewitf_get_camera_buffer_size(int cam_id);
+int eviewitf_extract_metadata(uint8_t *buf, uint32_t buffer_size,
+                              eviewitf_frame_metadata_info_t *frame_metadata);
+
 int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
 int eviewitf_set_display_cam(int cam_id);
@@ -84,9 +84,8 @@ int eviewitf_set_blending_from_file(int blending_id, char* frame);
 int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer);
 int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
-int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
+
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
-int eviewitf_check_camera_on(int cam_id);
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
 int eviewitf_set_R7_boot_mode(uint32_t mode);
 #endif /* EVIEWITF_H */

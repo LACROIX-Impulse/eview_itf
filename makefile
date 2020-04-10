@@ -16,7 +16,7 @@ eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 	$(CC) $< -o $(BUILDDIR)/$@ -l$@ -lrt -L$(BUILDDIR) 
 
 .PHONY: libewiewitf
-libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_ssd.o
+libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_cam.o $(BUILDDIR)/src/eviewitf_ssd.o
 	@mkdir -p $(BUILDDIR)
 	$(AR) rcs $(BUILDDIR)/libeviewitf.a $^
 
