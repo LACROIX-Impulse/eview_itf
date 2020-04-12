@@ -61,31 +61,30 @@ static const char* mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
  * Public Functions Prototypes
  ******************************************************************************************/
 
-/* Cameras */
-int eviewitf_open_cam(int cam_id);
-int eviewitf_close_cam(int cam_id);
-int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size);
-int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
-int eviewitf_check_camera_on(int cam_id);
-int eviewitf_get_camera_buffer_size(int cam_id);
-int eviewitf_extract_metadata(uint8_t *buf, uint32_t buffer_size,
-                              eviewitf_frame_metadata_info_t *frame_metadata);
-
+/* eView */
 int eviewitf_init_api(void);
 int eviewitf_deinit_api(void);
-int eviewitf_set_display_cam(int cam_id);
-int eviewitf_record_cam(int cam_id, int delay);
+int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
+int eviewitf_set_R7_boot_mode(uint32_t mode);
+
+/* Cameras */
+int eviewitf_camera_open(int cam_id);
+int eviewitf_camera_close(int cam_id);
+int eviewitf_check_camera_on(int cam_id);
+uint32_t eviewitf_camera_get_buffer_size(int cam_id);
+int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size);
+int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer);
+int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
 int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
 int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
-int eviewitf_reboot_cam(int cam_id);
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char* frames_dir);
-int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer);
-int eviewitf_set_blending_from_file(int blending_id, char* frame);
+int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
+int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
+                              eviewitf_frame_metadata_info_t *frame_metadata);
+int eviewitf_set_display_cam(int cam_id);
+
+/* Blending */
 int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer);
 int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
 
-int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
-int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
-int eviewitf_set_R7_boot_mode(uint32_t mode);
 #endif /* EVIEWITF_H */

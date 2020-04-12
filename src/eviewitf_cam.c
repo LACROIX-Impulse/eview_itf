@@ -1,24 +1,18 @@
 /**
  * \file eviewitf-cam.c
- * \brief Communication API between A53 and R7 CPUs for cam devices
- * \author esoftthings
+ * \brief Communication API between A53 and R7 CPUs for camera devices
+ * \author eSoftThings
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include <errno.h>
-#include <signal.h>
 #include <poll.h>
-#include "mfis_communication.h"
 #include "eviewitf.h"
 #include "eviewitf_priv.h"
 
@@ -48,14 +42,14 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1};
  ******************************************************************************************/
 
 /**
- * \fn int eviewitf_open_cam(int cam_id)
+ * \fn int eviewitf_camera_open(int cam_id)
  * \brief Open a camera device
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_open_cam(int cam_id) {
+int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
 
     // Test API has been initialized
@@ -82,14 +76,14 @@ int eviewitf_open_cam(int cam_id) {
 }
 
 /**
- * \fn int eviewitf_close_cam(int cam_id)
+ * \fn int eviewitf_camera_close(int cam_id)
  * \brief Close a camera device
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_close_cam(int cam_id) {
+int eviewitf_camera_close(int cam_id) {
     int ret = EVIEWITF_OK;
 
     // Test camera id
@@ -100,7 +94,7 @@ int eviewitf_close_cam(int cam_id) {
     // Test camera has been opened
     if (file_cams[cam_id] == -1) {
         printf("Camera is not open\n");
-        ret = EVIEWITF_INVALID_PARAM;
+        ret = EVIEWITF_FAIL;
     }
 
     if (ret >= EVIEWITF_OK) {
@@ -117,16 +111,16 @@ int eviewitf_close_cam(int cam_id) {
 }
 
 /**
- * \fn int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size)
- * \brief Return pointer to the camera frame buffer and to the associated metadata if any
+ * \fn int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size)
+ * \brief Copy frame from physical memory to the given buffer location
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param eviewitf_frame_buffer_info_t* frame_buffer: structure that will be filled with frame buffer pointer and size
- size
+ * \param frame_buffer: buffer to store the incoming frame
+ * \param buffer_size: buffer size for coherency check
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
     int cam_frame_id;
 
@@ -137,7 +131,7 @@ int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) 
     }
     else if (file_cams[cam_id] == -1) {
         printf("Camera is not open\n");
-        ret = EVIEWITF_INVALID_PARAM;
+        ret = EVIEWITF_FAIL;
     }
 
     if (ret >= EVIEWITF_OK) {
@@ -153,14 +147,12 @@ int eviewitf_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) 
 }
 
 /**
- * \fn int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer, eviewitf_frame_metadata_info_t*
- frame_metadata)
- * \brief Return pointer to the camera frame buffer and to the associated metadata if any
+ * \fn int eviewitf_poll(int *cam_id, int nb_cam, short *event_return)
+ * \brief Poll on multiple cameras to check a new frame is available
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param eviewitf_frame_buffer_info_t* frame_buffer: structure that will be filled with frame buffer pointer and size
- * \param eviewitf_frame_metadata_info_t* frame_metadata: structure that will be filled with frame metadata pointer and
- size
+ * \param cam_id: table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
+ * \param nb_cam: number of cameras on which the polling applies
+ * \param event_return: detected events for each camera, 0 if no frame, 1 if a frame is available
 
  * \return state of the function. Return 0 if okay
  */
@@ -198,13 +190,21 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
 
     for (i = 0; i < nb_cam; i++) {
         if (ret >= EVIEWITF_OK) {
-            event_return[i] = pfd[i].revents;
+            event_return[i] = pfd[i].revents & POLLIN;
         }
     }
 
     return ret;
 }
 
+/**
+ * \fn int eviewitf_check_camera_on(int cam_id)
+ * \brief Check if the camera is available
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+
+ * \return state of the function. Return 0 if okay
+ */
 int eviewitf_check_camera_on(int cam_id) {
     int ret;
     if (cam_virtual_buffers == NULL) {
@@ -222,7 +222,15 @@ int eviewitf_check_camera_on(int cam_id) {
     }
 }
 
-int eviewitf_get_camera_buffer_size(int cam_id) {
+/**
+ * \fn int eviewitf_camera_get_buffer_size(int cam_id)
+ * \brief Check the buffer size to be allocated to read frames
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+
+ * \return size of the buffer. Return 0 if camera not available
+ */
+uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
     int ret;
     if (cam_virtual_buffers == NULL) {
         printf("eviewitf_init_api never done\n");
@@ -230,18 +238,29 @@ int eviewitf_get_camera_buffer_size(int cam_id) {
     } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
         printf("Invalid camera id %d\n", cam_id);
         return 0;
-    } else {
-        return cam_virtual_buffers->cam[cam_id].buffer_size;
     }
+
+    return cam_virtual_buffers->cam[cam_id].buffer_size;
 }
 
-int eviewitf_extract_metadata(uint8_t *buf, uint32_t buffer_size,
+/**
+ * \fn int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
+                              eviewitf_frame_metadata_info_t *frame_metadata)
+ * \brief Extract metadata from a frame buffer
+ *
+ * \param buf: pointer on the buffe rwhere the frame is stored
+ * \param buffer_size: size of the buffer
+ * \param frame_metadata: pointer on metadata structure to be filled
+
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                               eviewitf_frame_metadata_info_t *frame_metadata) {
     uint8_t *ptr_metadata;
     eviewitf_frame_metadata_info_t *metadata = NULL;
     int ismetadata = 1;
 
-    if (buf == NULL) {
+    if ((buf == NULL) || (frame_metadata == NULL)) {
         printf("Invalid buffer to extract metadata\n");
         return EVIEWITF_INVALID_PARAM;
     }

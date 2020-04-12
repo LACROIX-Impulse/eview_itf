@@ -11,6 +11,7 @@
 #include <argp.h>
 #include <unistd.h>
 #include "eviewitf.h"
+#include "eviewitf_priv.h"
 
 #define DEFAULT_FPS 30
 
