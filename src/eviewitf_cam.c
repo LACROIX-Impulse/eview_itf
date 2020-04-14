@@ -26,7 +26,6 @@
  * Private structures
  ******************************************************************************************/
 
-
 /******************************************************************************************
  * Private enumerations
  ******************************************************************************************/
@@ -70,7 +69,7 @@ int eviewitf_camera_open(int cam_id) {
             printf("Error opening camera file\n");
             ret = EVIEWITF_FAIL;
         }
-    }    
+    }
 
     return ret;
 }
@@ -128,8 +127,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else if (file_cams[cam_id] == -1) {
+    } else if (file_cams[cam_id] == -1) {
         printf("Camera is not open\n");
         ret = EVIEWITF_FAIL;
     }
@@ -255,7 +253,7 @@ uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
-                              eviewitf_frame_metadata_info_t *frame_metadata) {
+                                     eviewitf_frame_metadata_info_t *frame_metadata) {
     uint8_t *ptr_metadata;
     eviewitf_frame_metadata_info_t *metadata = NULL;
     int ismetadata = 1;
