@@ -88,5 +88,5 @@ int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
 
 /* Infos */
-char* eviewitf_get_lib_version(char *version);
+char* eviewitf_get_lib_version(char* version);
 #endif /* EVIEWITF_H */
