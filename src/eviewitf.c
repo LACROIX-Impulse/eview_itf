@@ -706,3 +706,19 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 
     return ret;
 }
+
+/**
+ * \fn eviewitf_get_version
+ * \brief Return the eViewitf lib version
+ *
+ * \param in version: string to fill with version
+ * \return state of the function. Return version if okay, NULL if fail
+ */
+char* eviewitf_get_lib_version(char *version) {
+    if (version == NULL) {
+        printf("Please allocate buffer \n");
+        return NULL;
+    }
+    strcpy(version, VERSION);
+    return VERSION;
+}
