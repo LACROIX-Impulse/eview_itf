@@ -17,6 +17,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/mman.h>
 #include <poll.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
@@ -58,6 +59,7 @@ typedef enum {
     FCT_SET_FPS,
     FCT_HEARTBEAT,
     FCT_BOOT_MODE,
+    FCT_GET_EVIEW_VERSION,
     NB_FCT,
 } fct_id_t;
 
@@ -713,3 +715,41 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
  * \return state of the function. Return version if okay, NULL if fail
  */
 const char *eviewitf_get_lib_version(void) { return VERSION; }
+
+/**
+ * \fn eviewitf_get_eview_version
+ * \brief Retrieve eview version
+ *
+ * \param in version: return version number
+ * \return state of the function. Return 0 if okay
+ */
+const char *eviewitf_get_eview_version(void) {
+    int ret = EVIEWITF_OK;
+    int mem_dev;
+    int i = 0;
+    int j = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t *ptr = NULL;
+    char *tmp;
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_GET_EVIEW_VERSION;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_GET_EVIEW_VERSION) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+        return NULL;
+    } else {
+        tmp = (char *)malloc(rx_buffer[2]);
+        for (i = 0; i < (rx_buffer[2] / 4) + 1; i++) {
+            for (j = 0; j < 4; j++) {
+                tmp[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
+            }
+        }
+        return tmp;
+    }
+}
+
