@@ -62,7 +62,6 @@ typedef enum {
 } fct_id_t;
 
 eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
-
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
@@ -706,3 +705,11 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 
     return ret;
 }
+
+/**
+ * \fn eviewitf_get_version
+ * \brief Return the eViewitf lib version
+ *
+ * \return state of the function. Return version if okay, NULL if fail
+ */
+const char *eviewitf_get_lib_version(void) { return VERSION; }

@@ -87,4 +87,6 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer)
 int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
 
+/* Infos */
+const char* eviewitf_get_lib_version(void);
 #endif /* EVIEWITF_H */
