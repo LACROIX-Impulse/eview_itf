@@ -712,6 +712,4 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
  *
  * \return state of the function. Return version if okay, NULL if fail
  */
-const char *eviewitf_get_lib_version(void) {
-    return VERSION;
-}
+const char *eviewitf_get_lib_version(void) { return VERSION; }
