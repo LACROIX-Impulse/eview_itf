@@ -752,4 +752,3 @@ const char *eviewitf_get_eview_version(void) {
         return tmp;
     }
 }
-
