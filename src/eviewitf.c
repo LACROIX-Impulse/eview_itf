@@ -27,7 +27,7 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
-
+#define MAX_VERSION_SIZE 21
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
@@ -64,6 +64,7 @@ typedef enum {
 } fct_id_t;
 
 eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
+char eview_version[MAX_VERSION_SIZE];
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
@@ -728,9 +729,14 @@ const char *eviewitf_get_eview_version(void) {
     int mem_dev;
     int i = 0;
     int j = 0;
+    int size_div = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
     int32_t *ptr = NULL;
     char *tmp;
+
+    if (strlen(eview_version) != 0) {
+        return eview_version;
+    }
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
@@ -743,12 +749,17 @@ const char *eviewitf_get_eview_version(void) {
         ret = EVIEWITF_FAIL;
         return NULL;
     } else {
-        tmp = (char *)malloc(rx_buffer[2]);
-        for (i = 0; i < (rx_buffer[2] / 4) + 1; i++) {
+        if (rx_buffer[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
+        {
+            size_div = 5;
+        } else {
+            size_div = (rx_buffer[2] / 4) + 1; /* +1 to get the rest of the division */
+        }
+        for (i = 0; i < size_div; i++) {
             for (j = 0; j < 4; j++) {
-                tmp[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
+                eview_version[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
             }
         }
-        return tmp;
+        return eview_version;
     }
 }
