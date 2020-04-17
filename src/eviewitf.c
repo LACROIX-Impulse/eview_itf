@@ -752,8 +752,10 @@ const char *eviewitf_get_eview_version(void) {
         if (rx_buffer[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
         {
             size_div = 5;
+        } else if ((rx_buffer[2] - ((rx_buffer[2] / 4) * 4)) >= 1) { /* check if there is a rest */
+            size_div = (rx_buffer[2] / 4) + 1;                       /* +1 to get the rest of the division */
         } else {
-            size_div = (rx_buffer[2] / 4) + 1; /* +1 to get the rest of the division */
+            size_div = (rx_buffer[2] / 4); /* no rest */
         }
         for (i = 0; i < size_div; i++) {
             for (j = 0; j < 4; j++) {
