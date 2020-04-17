@@ -768,8 +768,8 @@ const char *eviewitf_get_eview_version(void) {
 }
 
 /**
- * \fn eviewitf_send_cropping
- * \brief Send the cropping coordinates to R7
+ * \fn eviewitf_start_cropping
+ * \brief Start the cropping with coordinates to R7
  *
  * \param in x1: set first coordinate X position
  * \param in y1: set first coordinate Y position
@@ -777,7 +777,7 @@ const char *eviewitf_get_eview_version(void) {
  * \param in y2: set second coordinate Y position
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_send_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
 
@@ -806,4 +806,4 @@ int eviewitf_send_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_stop_cropping(void) { return eviewitf_send_cropping(0, 0, 0, 0); }
+int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
