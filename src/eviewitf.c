@@ -60,6 +60,7 @@ typedef enum {
     FCT_HEARTBEAT,
     FCT_BOOT_MODE,
     FCT_GET_EVIEW_VERSION,
+    FCT_UPDATE_CROPPING,
     NB_FCT,
 } fct_id_t;
 
@@ -765,3 +766,44 @@ const char *eviewitf_get_eview_version(void) {
         return eview_version;
     }
 }
+
+/**
+ * \fn eviewitf_start_cropping
+ * \brief Start the cropping with coordinates to R7
+ *
+ * \param in x1: set first coordinate X position
+ * \param in y1: set first coordinate Y position
+ * \param in x2: set second coordinate X position
+ * \param in y2: set second coordinate Y position
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_UPDATE_CROPPING;
+    tx_buffer[1] = x1;
+    tx_buffer[2] = y1;
+    tx_buffer[3] = x2;
+    tx_buffer[4] = y2;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_UPDATE_CROPPING) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_stop_cropping
+ * \brief Stop the cropping on R7
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
