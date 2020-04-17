@@ -35,7 +35,6 @@ pipeline {
                 anyOf {
                     branch "master"
                     branch "release/*"
-                    branch "feature/EMIRROR-502-eviewitf-add-ipk-generation-and-publish-to-nexus"
                 }
             }
             environment {
