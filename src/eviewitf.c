@@ -17,6 +17,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/mman.h>
 #include <poll.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
@@ -26,7 +27,7 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
-
+#define MAX_VERSION_SIZE 21
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
@@ -58,10 +59,12 @@ typedef enum {
     FCT_SET_FPS,
     FCT_HEARTBEAT,
     FCT_BOOT_MODE,
+    FCT_GET_EVIEW_VERSION,
     NB_FCT,
 } fct_id_t;
 
 eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
+char eview_version[MAX_VERSION_SIZE];
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
@@ -713,3 +716,52 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
  * \return state of the function. Return version if okay, NULL if fail
  */
 const char *eviewitf_get_lib_version(void) { return VERSION; }
+
+/**
+ * \fn eviewitf_get_eview_version
+ * \brief Retrieve eview version
+ *
+ * \param in version: return version number
+ * \return state of the function. Return 0 if okay
+ */
+const char *eviewitf_get_eview_version(void) {
+    int ret = EVIEWITF_OK;
+    int mem_dev;
+    int i = 0;
+    int j = 0;
+    int size_div = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t *ptr = NULL;
+    char *tmp;
+
+    if (strlen(eview_version) != 0) {
+        return eview_version;
+    }
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_GET_EVIEW_VERSION;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_GET_EVIEW_VERSION) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+        return NULL;
+    } else {
+        if (rx_buffer[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
+        {
+            size_div = 5;
+        } else if ((rx_buffer[2] - ((rx_buffer[2] / 4) * 4)) >= 1) { /* check if there is a rest */
+            size_div = (rx_buffer[2] / 4) + 1;                       /* +1 to get the rest of the division */
+        } else {
+            size_div = (rx_buffer[2] / 4); /* no rest */
+        }
+        for (i = 0; i < size_div; i++) {
+            for (j = 0; j < 4; j++) {
+                eview_version[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
+            }
+        }
+        return eview_version;
+    }
+}
