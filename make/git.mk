@@ -21,5 +21,3 @@ else #GITSTATUS
 # Always use dirty name when there are local changes
 VERSION:=dirty-$(GITREV)
 endif #GITSTATUS
-# Display VERSION
-$(info VERSION is $(VERSION))

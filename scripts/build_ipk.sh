@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-source $(dirname "$(readlink -f "$0")")/version.sh
 
 BUILDDIR="${BUILDDIR:-build}"
 IPKDIR=${BUILDDIR}/ipk
@@ -8,7 +7,7 @@ IPKDIR=${BUILDDIR}/ipk
 # (Re)create workin dirs
 rm -rf ${IPKDIR}
 mkdir -p ${IPKDIR}/{control,data}
-VERSIONNAME=$(getVersion)
+VERSIONNAME=$1
 
 # Create debian-binary file
 echo 2.0 > ${IPKDIR}/debian-binary
@@ -34,5 +33,5 @@ tar --numeric-owner --group=0 --owner=0 -czf ../data.tar.gz ./*
 popd
 
 pushd ${IPKDIR}
-tar --numeric-owner --group=0 --owner=0 -cf ../eviewitf-${VERSIONNAME}.ecube.ipk ./debian-binary ./data.tar.gz ./control.tar.gz 
+tar --numeric-owner --group=0 --owner=0 -cf ../eviewitf-${VERSIONNAME}.ipk ./debian-binary ./data.tar.gz ./control.tar.gz 
 popd
