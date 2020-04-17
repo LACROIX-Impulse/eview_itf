@@ -37,6 +37,10 @@ install: eviewitf
 	mkdir -p $(DESTDIR)/usr/include/
 	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
 
+.PHONY: ipk
+ipk: eviewitf
+	scripts/build_ipk.sh
+
 CLANG_FORMAT_DIRS = include src
 
 .PHONY: clangformat
