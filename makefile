@@ -16,7 +16,7 @@ eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 	$(CC) $< -o $(BUILDDIR)/$@ -l$@ -lrt -L$(BUILDDIR) 
 
 .PHONY: libewiewitf
-libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_ssd.o
+libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_cam.o $(BUILDDIR)/src/eviewitf_ssd.o
 	@mkdir -p $(BUILDDIR)
 	$(AR) rcs $(BUILDDIR)/libeviewitf.a $^
 
@@ -36,6 +36,14 @@ install: eviewitf
 	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
 	mkdir -p $(DESTDIR)/usr/include/
 	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
+
+.PHONY: version
+version:
+	@echo $(VERSION)
+
+.PHONY: ipk
+ipk: eviewitf
+	scripts/build_ipk.sh $(VERSION)
 
 CLANG_FORMAT_DIRS = include src
 

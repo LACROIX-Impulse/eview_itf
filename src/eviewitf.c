@@ -17,17 +17,17 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/mman.h>
 #include <poll.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
+#include "eviewitf_priv.h"
 #include "eviewitf_ssd.h"
 
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
-/* Magic number used to check metadata presence */
-#define FRAME_MAGIC_NUMBER 0xD1CECA5F
-
+#define MAX_VERSION_SIZE 21
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
@@ -43,19 +43,6 @@ typedef struct {
     eviewitf_cam_buffers_physical_r7_t O3;
 } eviewitf_cam_buffers_r7_t;
 
-/* Structures used for internal lib purpose.
- Doesn't need to be exposed in API */
-typedef struct {
-    uint32_t buffer_size;
-    uint8_t *buffer;
-} eviewitf_cam_buffers_virtual_t;
-
-typedef struct {
-    eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_virtual_t O2;
-    eviewitf_cam_buffers_virtual_t O3;
-} eviewitf_cam_buffers_a53_t;
-
 /******************************************************************************************
  * Private enumerations
  ******************************************************************************************/
@@ -70,18 +57,15 @@ typedef enum {
     FCT_START_BLENDING,
     FCT_STOP_BLENDING,
     FCT_SET_FPS,
+    FCT_HEARTBEAT,
+    FCT_BOOT_MODE,
+    FCT_GET_EVIEW_VERSION,
+    FCT_UPDATE_CROPPING,
     NB_FCT,
 } fct_id_t;
 
-typedef enum {
-    FCT_RETURN_OK = 1,
-    FCT_RETURN_BLOCKED,
-    FCT_INV_PARAM,
-    FCT_RETURN_ERROR,
-} fct_ret_r;
-
-static eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
-
+eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
+char eview_version[MAX_VERSION_SIZE];
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
@@ -122,112 +106,6 @@ static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers)
         virtual_buffers->O3.buffer_size = cam_buffers_r7->O3.buffer_size;
     }
 
-    return ret;
-}
-
-/**
- * \fn int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t* frame_buffer, eviewitf_frame_metadata_info_t*
- frame_metadata)
- * \brief Return pointer to the camera frame buffer and to the associated metadata if any
- *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param eviewitf_frame_buffer_info_t* frame_buffer: structure that will be filled with frame buffer pointer and size
- * \param eviewitf_frame_metadata_info_t* frame_metadata: structure that will be filled with frame metadata pointer and
- size
-
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_get_frame(int cam_id, eviewitf_frame_buffer_info_t *frame_buffer,
-                       eviewitf_frame_metadata_info_t *frame_metadata) {
-    int ret = EVIEWITF_OK;
-    int file_cam = 0;
-    int cam_frame_id;
-    uint8_t *ptr_metadata;
-    eviewitf_frame_metadata_info_t *metadata = NULL;
-    int ismetadata = 1;
-
-    // Test API has been initialized
-    if (cam_virtual_buffers == NULL) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
-    }
-    // Test camera id
-    else if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        ret = EVIEWITF_INVALID_PARAM;
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        // Get mfis device filename
-        file_cam = open(mfis_device_filenames[cam_id], O_RDONLY);
-        if (file_cam == -1) {
-            printf("Error opening camera file\n");
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        // Read file content
-        ret = read(file_cam, cam_virtual_buffers->cam[cam_id].buffer, cam_virtual_buffers->cam[cam_id].buffer_size);
-        if (ret < EVIEWITF_OK) {
-            printf("Error reading camera file\n");
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        // Metadata magic number is located at the end of the buffer if present
-        ptr_metadata = cam_virtual_buffers->cam[cam_id].buffer + cam_virtual_buffers->cam[cam_id].buffer_size -
-                       sizeof(eviewitf_frame_metadata_info_t);
-        metadata = (eviewitf_frame_metadata_info_t *)ptr_metadata;
-        if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
-            if (metadata->frame_size > cam_virtual_buffers->cam[cam_id].buffer_size) {
-                // Special case where frame's data looks like a magic number
-                ismetadata = 0;
-            } else {
-                if ((metadata->frame_width * metadata->frame_height * metadata->frame_bpp) != metadata->frame_size) {
-                    // Special case where:
-                    // - frame's data looks like a magic number
-                    // - frame_size is lower than buffer_size
-                    ismetadata = 0;
-                } else {
-                    // Metadata are present and valid
-                    if (frame_metadata != NULL) {
-                        frame_metadata->frame_width = metadata->frame_width;
-                        frame_metadata->frame_height = metadata->frame_height;
-                        frame_metadata->frame_bpp = metadata->frame_bpp;
-                        frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
-                        frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
-                        frame_metadata->frame_sync = metadata->frame_sync;
-                    }
-                    if (frame_buffer != NULL) {
-                        frame_buffer->buffer_size = metadata->frame_size;
-                        frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].buffer;
-                    }
-                }
-            }
-        } else {
-            // Magic number not found, no metadata
-            ismetadata = 0;
-        }
-
-        if (ismetadata == 0) {
-            // No metadata available
-            if (frame_metadata != NULL) {
-                frame_metadata->frame_width = 0;
-                frame_metadata->frame_height = 0;
-                frame_metadata->frame_bpp = 0;
-                frame_metadata->frame_timestamp_lsb = 0;
-                frame_metadata->frame_timestamp_msb = 0;
-            }
-            if (frame_buffer != NULL) {
-                frame_buffer->buffer_size = cam_virtual_buffers->cam[cam_id].buffer_size;
-                frame_buffer->ptr_buf = cam_virtual_buffers->cam[cam_id].buffer;
-            }
-        }
-    }
-
-    close(file_cam);
     return ret;
 }
 
@@ -742,50 +620,6 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     return ret;
 }
 
-int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
-    short revents;
-    struct pollfd pfd[nb_cam];
-    int r_poll;
-    int file_cam[nb_cam];
-    int ret = EVIEWITF_OK;
-    int i;
-
-    for (i = 0; i < nb_cam; i++) {
-        if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
-            printf("Invalid camera id %d\n", cam_id[i]);
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-    for (i = 0; i < nb_cam; i++) {
-        if (ret >= EVIEWITF_OK) {
-            // Get mfis device filename
-            file_cam[i] = open(mfis_device_filenames[cam_id[i]], O_RDONLY);
-            if (file_cam[i] == -1) {
-                printf("Error opening camera file %d\n", cam_id[i]);
-                ret = EVIEWITF_FAIL;
-            }
-        }
-        pfd[i].fd = file_cam[i];
-        pfd[i].events = POLLIN;
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        r_poll = poll(pfd, nb_cam, -1);
-        if (r_poll == -1) {
-            printf("POLL ERROR \n");
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    for (i = 0; i < nb_cam; i++) {
-        if (ret >= EVIEWITF_OK) {
-            event_return[i] = pfd[i].revents;
-            close(file_cam[i]);
-        }
-    }
-    return ret;
-}
-
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
@@ -822,19 +656,154 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     return ret;
 }
 
-int eviewitf_check_camera_on(int cam_id) {
-    int ret;
-    if (cam_virtual_buffers == NULL) {
-        printf("eviewitf_init_api never done\n");
-        return EVIEWITF_FAIL;
-    } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
-        printf("Invalid camera id %d\n", cam_id);
-        return EVIEWITF_FAIL;
+/**
+ * \fn eviewitf_set_R7_heartbeat_mode
+ * \brief Activate/deactivate R7 heartbeat
+ *
+ * \param in mode: 0 to deactivate heartbeat other to activate it
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_HEARTBEAT;
+    tx_buffer[1] = mode;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_HEARTBEAT) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_set_R7_boot_mode
+ * \brief Set the R7 boot mode
+ *
+ * \param in mode: requets a specific R7 boot mode
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_set_R7_boot_mode(uint32_t mode) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_BOOT_MODE;
+    tx_buffer[1] = mode;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_get_version
+ * \brief Return the eViewitf lib version
+ *
+ * \return state of the function. Return version if okay, NULL if fail
+ */
+const char *eviewitf_get_lib_version(void) { return VERSION; }
+
+/**
+ * \fn eviewitf_get_eview_version
+ * \brief Retrieve eview version
+ *
+ * \param in version: return version number
+ * \return state of the function. Return 0 if okay
+ */
+const char *eviewitf_get_eview_version(void) {
+    int ret = EVIEWITF_OK;
+    int mem_dev;
+    int i = 0;
+    int j = 0;
+    int size_div = 0;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t *ptr = NULL;
+    char *tmp;
+
+    if (strlen(eview_version) != 0) {
+        return eview_version;
+    }
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_GET_EVIEW_VERSION;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_GET_EVIEW_VERSION) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+        return NULL;
     } else {
-        if (cam_virtual_buffers->cam[cam_id].buffer_size == 0) {
-            return EVIEWITF_FAIL;
+        if (rx_buffer[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
+        {
+            size_div = 5;
+        } else if ((rx_buffer[2] - ((rx_buffer[2] / 4) * 4)) >= 1) { /* check if there is a rest */
+            size_div = (rx_buffer[2] / 4) + 1;                       /* +1 to get the rest of the division */
         } else {
-            return EVIEWITF_OK;
+            size_div = (rx_buffer[2] / 4); /* no rest */
         }
+        for (i = 0; i < size_div; i++) {
+            for (j = 0; j < 4; j++) {
+                eview_version[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
+            }
+        }
+        return eview_version;
     }
 }
+
+/**
+ * \fn eviewitf_start_cropping
+ * \brief Start the cropping with coordinates to R7
+ *
+ * \param in x1: set first coordinate X position
+ * \param in y1: set first coordinate Y position
+ * \param in x2: set second coordinate X position
+ * \param in y2: set second coordinate Y position
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_UPDATE_CROPPING;
+    tx_buffer[1] = x1;
+    tx_buffer[2] = y1;
+    tx_buffer[3] = x2;
+    tx_buffer[4] = y2;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_UPDATE_CROPPING) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_stop_cropping
+ * \brief Stop the cropping on R7
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
