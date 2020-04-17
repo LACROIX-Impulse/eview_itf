@@ -88,6 +88,9 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer)
 int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
 
+/* Cropping */
+int eviewitf_send_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
+int eviewitf_stop_cropping(void);
 /* Infos */
 const char* eviewitf_get_lib_version(void);
 #endif /* EVIEWITF_H */
