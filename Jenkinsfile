@@ -43,8 +43,8 @@ pipeline {
             }
             steps {
                 nexusPublisher nexusInstanceId: 'Nexus3', nexusRepositoryId: 'eCube-releases', packages:
-                    [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: 'ipk', filePath: "build/eviewitf-${env.VERSION}.ipk"]],
-                        mavenCoordinate: [artifactId: 'eviewitf', groupId: 'com.esoftthings.ecube', packaging: 'ipk', version: "${env.VERSION}"]]]
+                    [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: '.ipk.tar', filePath: "build/eviewitf-${env.VERSION}.ipk"]],
+                        mavenCoordinate: [artifactId: 'eviewitf', groupId: 'com.esoftthings.ecube', packaging: 'tar', version: "${env.VERSION}"]]]
             }
         }
     }
