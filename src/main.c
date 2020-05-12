@@ -68,7 +68,7 @@ struct arguments {
     int type;
     int camera_type;
     int reg;
-    int reg_address;
+    uint32_t reg_address;
     int val;
     int reg_value;
     int read;
