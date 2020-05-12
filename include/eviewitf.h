@@ -76,8 +76,8 @@ uint32_t eviewitf_camera_get_buffer_size(int cam_id);
 int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer_size);
 int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char* buffer);
 int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
-int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint16_t* reg_value);
-int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, int reg_value);
+int eviewitf_get_camera_param(int cam_id, int cam_type, int reg_adress, uint32_t* reg_value);
+int eviewitf_set_camera_param(int cam_id, int cam_type, int reg_adress, uint32_t reg_value);
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t* frame_metadata);

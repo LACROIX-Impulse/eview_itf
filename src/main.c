@@ -182,7 +182,7 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 int main(int argc, char **argv) {
     struct arguments arguments;
     int ret;
-    uint16_t register_value = 0;
+    uint32_t register_value = 0;
     /* Default values. */
     arguments.camera = 0;
     arguments.camera_id = 0;
