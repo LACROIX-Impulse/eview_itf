@@ -169,7 +169,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->cropping = 1;
             arguments->cropping_coord = arg;
             break;
-        case 'u' :
+        case 'u':
             arguments->cropping = 0;
             break;
         case ARGP_KEY_ARG:
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
     int ret = EVIEWITF_OK;
     uint32_t register_value = 0;
     /* cropping deparse variables */
-    char * cropping_args;
+    char *cropping_args;
     uint32_t cropp_x1, cropp_y1, cropp_x2, cropp_y2;
     /* Default values. */
     arguments.camera = 0;
@@ -386,7 +386,7 @@ int main(int argc, char **argv) {
     if (arguments.cropping == 1) {
         cropping_args = strtok(arguments.cropping_coord, ":");
         if ((ret >= EVIEWITF_OK) && (cropping_args != NULL)) {
-            cropp_x1 = (uint32_t) atoi(cropping_args);
+            cropp_x1 = (uint32_t)atoi(cropping_args);
         } else {
             fprintf(stdout, "Start cropping, seems you forget to set x1 parameter, aborting \n");
             ret = EVIEWITF_INVALID_PARAM;
@@ -394,7 +394,7 @@ int main(int argc, char **argv) {
         if (ret >= EVIEWITF_OK) {
             cropping_args = strtok(NULL, ":");
             if (cropping_args != NULL) {
-                cropp_y1 = (uint32_t) atoi(cropping_args);
+                cropp_y1 = (uint32_t)atoi(cropping_args);
             } else {
                 fprintf(stdout, "Start cropping, seems you forget to set y1 parameter, aborting \n");
                 ret = EVIEWITF_INVALID_PARAM;
@@ -404,7 +404,7 @@ int main(int argc, char **argv) {
         if (ret >= EVIEWITF_OK) {
             cropping_args = strtok(NULL, ":");
             if (cropping_args != NULL) {
-                cropp_x2 = (uint32_t) atoi(cropping_args);
+                cropp_x2 = (uint32_t)atoi(cropping_args);
             } else {
                 fprintf(stdout, "Start cropping, seems you forget to set x2 parameter, aborting \n");
                 ret = EVIEWITF_INVALID_PARAM;
@@ -414,7 +414,7 @@ int main(int argc, char **argv) {
         if (ret >= EVIEWITF_OK) {
             cropping_args = strtok(NULL, ":");
             if (cropping_args != NULL) {
-                cropp_y2 = (uint32_t) atoi(cropping_args);
+                cropp_y2 = (uint32_t)atoi(cropping_args);
             } else {
                 fprintf(stdout, "Start cropping, seems you forget to set y2 parameter, aborting \n");
                 ret = EVIEWITF_INVALID_PARAM;
@@ -423,7 +423,6 @@ int main(int argc, char **argv) {
         if (ret >= EVIEWITF_OK) {
             eviewitf_start_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
         }
-
     }
 
     /* stop cropping  */
