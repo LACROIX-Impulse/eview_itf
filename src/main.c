@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <argp.h>
 #include <unistd.h>
+#include <string.h>
 #include "eviewitf.h"
 #include "eviewitf_priv.h"
 
@@ -34,7 +35,9 @@ static char args_doc[] =
     "stop blending:   -n\n"
     "activate R7 heartbeat: -H\n"
     "deactivate R7 heartbeat: -h\n"
-    "set R7 boot mode: -B [0-?]";
+    "set R7 boot mode: -B [0-?]\n"
+    "start cropping -U x1:y1:x2:y2\n"
+    "stop cropping -u";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -55,6 +58,8 @@ static struct argp_option options[] = {
     {"heartbeatoff", 'h', 0, 0, "Deactivate R7 heartbeat"},
     {"boot", 'B', "MODE", 0, "Select R7 boot mode"},
     {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs"},
+    {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates"},
+    {"cropping stop", 'u', 0, 0, "Stop the cropping according"},
     {0},
 };
 
@@ -85,6 +90,8 @@ struct arguments {
     int blending_interface;
     int boot_mode;
     int heartbeat;
+    int cropping;
+    char *cropping_coord;
 };
 
 /* Parse a single option. */
@@ -158,6 +165,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'W':
             arguments->write = 1;
             break;
+        case 'U':
+            arguments->cropping = 1;
+            arguments->cropping_coord = arg;
+            break;
+        case 'u' :
+            arguments->cropping = 0;
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 0) {
                 /* Too many arguments. */
@@ -181,8 +195,11 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 
 int main(int argc, char **argv) {
     struct arguments arguments;
-    int ret;
+    int ret = EVIEWITF_OK;
     uint32_t register_value = 0;
+    /* cropping deparse variables */
+    char * cropping_args;
+    uint32_t cropp_x1, cropp_y1, cropp_x2, cropp_y2;
     /* Default values. */
     arguments.camera = 0;
     arguments.camera_id = 0;
@@ -207,6 +224,8 @@ int main(int argc, char **argv) {
     arguments.stop_blending = 0;
     arguments.boot_mode = -1;
     arguments.heartbeat = -1;
+    arguments.cropping = -1;
+    arguments.cropping_coord = NULL;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -360,6 +379,62 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Set R7 boot mode error\n");
         } else {
             fprintf(stdout, "Set R7 boot mode failure\n");
+        }
+    }
+
+    /* start cropping */
+    if (arguments.cropping == 1) {
+        cropping_args = strtok(arguments.cropping_coord, ":");
+        if ((ret >= EVIEWITF_OK) && (cropping_args != NULL)) {
+            cropp_x1 = (uint32_t) atoi(cropping_args);
+        } else {
+            fprintf(stdout, "Start cropping, seems you forget to set x1 parameter, aborting \n");
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+        if (ret >= EVIEWITF_OK) {
+            cropping_args = strtok(NULL, ":");
+            if (cropping_args != NULL) {
+                cropp_y1 = (uint32_t) atoi(cropping_args);
+            } else {
+                fprintf(stdout, "Start cropping, seems you forget to set y1 parameter, aborting \n");
+                ret = EVIEWITF_INVALID_PARAM;
+            }
+        }
+
+        if (ret >= EVIEWITF_OK) {
+            cropping_args = strtok(NULL, ":");
+            if (cropping_args != NULL) {
+                cropp_x2 = (uint32_t) atoi(cropping_args);
+            } else {
+                fprintf(stdout, "Start cropping, seems you forget to set x2 parameter, aborting \n");
+                ret = EVIEWITF_INVALID_PARAM;
+            }
+        }
+
+        if (ret >= EVIEWITF_OK) {
+            cropping_args = strtok(NULL, ":");
+            if (cropping_args != NULL) {
+                cropp_y2 = (uint32_t) atoi(cropping_args);
+            } else {
+                fprintf(stdout, "Start cropping, seems you forget to set y2 parameter, aborting \n");
+                ret = EVIEWITF_INVALID_PARAM;
+            }
+        }
+        if (ret >= EVIEWITF_OK) {
+            eviewitf_start_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
+        }
+
+    }
+
+    /* stop cropping  */
+    if (arguments.cropping == 0) {
+        ret = eviewitf_stop_cropping();
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Cropping stopped\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "Cropping stopped error\n");
+        } else {
+            fprintf(stdout, "Cropping stopped failure\n");
         }
     }
     exit(0);
