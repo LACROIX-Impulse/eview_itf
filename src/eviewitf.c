@@ -19,6 +19,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <poll.h>
+#include <dlfcn.h>
 #include "mfis_communication.h"
 #include "eviewitf.h"
 #include "eviewitf_priv.h"
@@ -43,6 +44,13 @@ typedef struct {
     eviewitf_cam_buffers_physical_r7_t O3;
 } eviewitf_cam_buffers_r7_t;
 
+typedef struct {
+    void *handle_plugin;
+    char *(*get_lib_version)();
+    char *(*get_seek_lib_version)();
+} eviewitf_seek_plugin_handle;
+char *seek_version = NULL;
+char *seek_plugin_version = NULL;
 /******************************************************************************************
  * Private enumerations
  ******************************************************************************************/
@@ -66,6 +74,7 @@ typedef enum {
 
 eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
 char eview_version[MAX_VERSION_SIZE];
+eviewitf_seek_plugin_handle seek_plugin_handle;
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
@@ -807,3 +816,64 @@ int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) 
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
+
+/**
+ * \fn eviewitf_import_seek_plugin
+ * \brief Import fct definition of the seek plugin
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_import_seek_plugin(void) {
+    if (seek_plugin_handle.handle_plugin == NULL) {
+        seek_plugin_handle.handle_plugin = dlopen("libeview_itf_seek.so", RTLD_LAZY);
+        if (seek_plugin_handle.handle_plugin == NULL) {
+            printf("[Error] Issue while loading libeview_itf_seek.so, aborting \n");
+            return EVIEWITF_FAIL;
+        }
+    }
+    seek_plugin_handle.get_seek_lib_version = dlsym(seek_plugin_handle.handle_plugin, "get_seek_lib_version");
+    if (seek_plugin_handle.get_seek_lib_version == NULL) {
+        printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.get_lib_version = dlsym(seek_plugin_handle.handle_plugin, "get_lib_version");
+    if (seek_plugin_handle.get_lib_version == NULL) {
+        printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    return EVIEWITF_OK;
+}
+/**
+ * \fn eviewitf_get_seek_version
+ * \brief Get seek library version
+ *
+ * \return seek library version. Return NUL if fail
+ */
+char *eviewitf_get_seek_version(void) {
+    if (seek_version == NULL) {
+        if (seek_plugin_handle.get_seek_lib_version != NULL) {
+            seek_version = seek_plugin_handle.get_seek_lib_version();
+        } else {
+            printf("[Error] no reference to get_seek_lib_version \n");
+            return NULL;
+        }
+    }
+    return seek_version;
+}
+/**
+ * \fn eviewitf_get_plugin_version
+ * \brief Get seek plugin library version
+ *
+ * \return seek plugin version. Return NUL if fail
+ */
+char *eviewitf_get_plugin_version(void) {
+    if (seek_plugin_version == NULL) {
+        if (seek_plugin_handle.get_lib_version != NULL) {
+            seek_plugin_version = seek_plugin_handle.get_lib_version();
+        } else {
+            printf("[Error] no reference to get_lib_version \n");
+            return NULL;
+        }
+    }
+    return seek_plugin_version;
+}

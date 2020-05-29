@@ -93,4 +93,9 @@ int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 int eviewitf_stop_cropping(void);
 /* Infos */
 const char* eviewitf_get_lib_version(void);
+
+/* Specific SEEK */
+int eviewitf_import_seek_plugin(void);
+char* eviewitf_get_plugin_version(void);
+char* eviewitf_get_seek_version(void);
 #endif /* EVIEWITF_H */
