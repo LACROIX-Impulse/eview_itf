@@ -48,6 +48,7 @@ typedef struct {
     void *handle_plugin;
     char *(*get_lib_version)();
     char *(*get_seek_lib_version)();
+    void *(*get_camera_frame)(int camId, float** temperature_frame);
 } eviewitf_seek_plugin_handle;
 char *seek_version = NULL;
 char *seek_plugin_version = NULL;
@@ -818,13 +819,18 @@ int eviewitf_import_seek_plugin(void) {
         printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
     }
+    seek_plugin_handle.get_camera_frame = dlsym(seek_plugin_handle.handle_plugin, "get_camera_frame");
+    if (seek_plugin_handle.get_camera_frame == NULL) {
+        printf("[Error] Issue while loading get_camera_frame in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
     return EVIEWITF_OK;
 }
 /**
  * \fn eviewitf_get_seek_version
  * \brief Get seek library version
  *
- * \return seek library version. Return NUL if fail
+ * \return seek library version. Return NULL if fail
  */
 char *eviewitf_get_seek_version(void) {
     if (seek_version == NULL) {
@@ -837,11 +843,12 @@ char *eviewitf_get_seek_version(void) {
     }
     return seek_version;
 }
+
 /**
  * \fn eviewitf_get_plugin_version
  * \brief Get seek plugin library version
  *
- * \return seek plugin version. Return NUL if fail
+ * \return seek plugin version. Return NULL if fail
  */
 char *eviewitf_get_plugin_version(void) {
     if (seek_plugin_version == NULL) {
@@ -853,4 +860,20 @@ char *eviewitf_get_plugin_version(void) {
         }
     }
     return seek_plugin_version;
+}
+
+/**
+ * \fn eviewitf_get_camera_frame
+ * \brief Get the latest frame from a Seek camera
+ *
+ * \return 0 if everything is fine
+ */
+int eviewitf_get_camera_frame(int camId, float** temperature_frame) {
+    if (seek_plugin_handle.get_camera_frame != NULL) {
+        seek_plugin_handle.get_camera_frame(camId, temperature_frame);
+    } else {
+        printf("[Error] no reference to get_camera_frame \n");
+        return -1;
+    }
+    return 0;
 }

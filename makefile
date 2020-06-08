@@ -3,6 +3,7 @@ LDFLAGS=
 INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
+TARGET ?= ${TARGETIP}
 
 include make/git.mk
 
@@ -36,6 +37,12 @@ install: eviewitf
 	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
 	mkdir -p $(DESTDIR)/usr/include/
 	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
+
+.PHONY: deploy
+deploy: install
+	scp build/eviewitf root@$(TARGET):/usr/bin/
+	scp build/libeviewitf.a root@$(TARGET):/usr/lib/
+	scp include/eviewitf.h root@$(TARGET):/usr/include/
 
 .PHONY: version
 version:

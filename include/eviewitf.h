@@ -98,4 +98,5 @@ const char* eviewitf_get_lib_version(void);
 int eviewitf_import_seek_plugin(void);
 char* eviewitf_get_plugin_version(void);
 char* eviewitf_get_seek_version(void);
+int   eviewitf_get_camera_frame(int camId, float** temperature_frame);
 #endif /* EVIEWITF_H */
