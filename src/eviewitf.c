@@ -809,17 +809,18 @@ int eviewitf_import_seek_plugin(void) {
             return EVIEWITF_FAIL;
         }
     }
-    seek_plugin_handle.get_seek_lib_version = dlsym(seek_plugin_handle.handle_plugin, "get_seek_lib_version");
+    seek_plugin_handle.get_seek_lib_version = dlsym(seek_plugin_handle.handle_plugin,
+        "eviewitf_seek_get_seek_lib_version");
     if (seek_plugin_handle.get_seek_lib_version == NULL) {
         printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
     }
-    seek_plugin_handle.get_lib_version = dlsym(seek_plugin_handle.handle_plugin, "get_lib_version");
+    seek_plugin_handle.get_lib_version = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_lib_version");
     if (seek_plugin_handle.get_lib_version == NULL) {
-        printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
+        printf("[Error] Issue while loading get_lib_version in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
     }
-    seek_plugin_handle.get_camera_frame = dlsym(seek_plugin_handle.handle_plugin, "get_camera_frame");
+    seek_plugin_handle.get_camera_frame = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_camera_frame");
     if (seek_plugin_handle.get_camera_frame == NULL) {
         printf("[Error] Issue while loading get_camera_frame in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
