@@ -46,9 +46,16 @@ typedef struct {
 
 typedef struct {
     void *handle_plugin;
-    char *(*get_lib_version)();
-    char *(*get_seek_lib_version)();
-    void *(*get_camera_frame)(int camId, float** temperature_frame);
+    char *(*get_lib_version)      ();
+    char *(*get_seek_lib_version) ();
+    int  (*init_all_cameras)      (int nb_cam);
+    int  (*deinit_all_cameras)    (int nb_cam);
+    int  (*start_camera)          (int cam_id);
+    int  (*stop_camera)           (int cam_id);
+    int  (*get_camera_setting)    (int cam_id, int setting_nb, int* setting_value);
+    int  (*set_camera_setting)    (int cam_id, int setting_nb, int setting_value);
+    int  (*poll)                  (int nb_cam, short *event_return);
+    int  (*get_camera_frame)      (int cam_id, float** temperature, uint32_t** display);
 } eviewitf_seek_plugin_handle;
 char *seek_version = NULL;
 char *seek_plugin_version = NULL;
@@ -820,6 +827,41 @@ int eviewitf_import_seek_plugin(void) {
         printf("[Error] Issue while loading get_lib_version in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
     }
+    seek_plugin_handle.init_all_cameras = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_init_all_cameras");
+    if (seek_plugin_handle.init_all_cameras == NULL) {
+        printf("[Error] Issue while loading init_all_cameras in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.deinit_all_cameras = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_deinit_all_cameras");
+    if (seek_plugin_handle.deinit_all_cameras == NULL) {
+        printf("[Error] Issue while loading deinit_all_cameras in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.start_camera = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_start_camera");
+    if (seek_plugin_handle.start_camera == NULL) {
+        printf("[Error] Issue while loading start_camera in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.stop_camera = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_stop_camera");
+    if (seek_plugin_handle.stop_camera == NULL) {
+        printf("[Error] Issue while loading stop_camera in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.get_camera_setting = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_camera_setting");
+    if (seek_plugin_handle.get_camera_setting == NULL) {
+        printf("[Error] Issue while loading get_camera_setting in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.set_camera_setting = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_set_camera_setting");
+    if (seek_plugin_handle.set_camera_setting == NULL) {
+        printf("[Error] Issue while loading set_camera_setting in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
+    seek_plugin_handle.poll = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_poll");
+    if (seek_plugin_handle.poll == NULL) {
+        printf("[Error] Issue while loading poll in libeview_itf_seek.so, aborting \n");
+        return EVIEWITF_FAIL;
+    }
     seek_plugin_handle.get_camera_frame = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_camera_frame");
     if (seek_plugin_handle.get_camera_frame == NULL) {
         printf("[Error] Issue while loading get_camera_frame in libeview_itf_seek.so, aborting \n");
@@ -827,13 +869,14 @@ int eviewitf_import_seek_plugin(void) {
     }
     return EVIEWITF_OK;
 }
+
 /**
- * \fn eviewitf_get_seek_version
+ * \fn eviewitf_seek_get_seek_version
  * \brief Get seek library version
  *
  * \return seek library version. Return NULL if fail
  */
-char *eviewitf_get_seek_version(void) {
+char *eviewitf_seek_get_seek_version(void) {
     if (seek_version == NULL) {
         if (seek_plugin_handle.get_seek_lib_version != NULL) {
             seek_version = seek_plugin_handle.get_seek_lib_version();
@@ -846,12 +889,12 @@ char *eviewitf_get_seek_version(void) {
 }
 
 /**
- * \fn eviewitf_get_plugin_version
+ * \fn eviewitf_seek_get_plugin_version
  * \brief Get seek plugin library version
  *
  * \return seek plugin version. Return NULL if fail
  */
-char *eviewitf_get_plugin_version(void) {
+char *eviewitf_seek_get_plugin_version(void) {
     if (seek_plugin_version == NULL) {
         if (seek_plugin_handle.get_lib_version != NULL) {
             seek_plugin_version = seek_plugin_handle.get_lib_version();
@@ -864,17 +907,168 @@ char *eviewitf_get_plugin_version(void) {
 }
 
 /**
- * \fn eviewitf_get_camera_frame
- * \brief Get the latest frame from a Seek camera
+ * \fn eviewitf_seek_init_all_cameras
+ * \brief Find the available cameras and open them.
  *
- * \return 0 if everything is fine
+ * \param [in] nb_cam: Number of seek camera to initialize
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
  */
-int eviewitf_get_camera_frame(int camId, float** temperature_frame) {
+int eviewitf_seek_init_all_cameras(int nb_cam) {
+    int ret;
+
+    if (seek_plugin_handle.init_all_cameras != NULL) {
+        ret = seek_plugin_handle.init_all_cameras(nb_cam);
+    } else {
+        printf("[Error] no reference to init_all_cameras \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_deinit_all_cameras
+ * \brief Stop and close all the opened cameras.
+ *
+ * \param [in] nb_cam: Number of seek camera to de-initialize
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_deinit_all_cameras(int nb_cam) {
+    int ret;
+
+    if (seek_plugin_handle.deinit_all_cameras != NULL) {
+        ret = seek_plugin_handle.deinit_all_cameras(nb_cam);
+    } else {
+        printf("[Error] no reference to deinit_all_cameras \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_start_camera
+ * \brief Start (if not already started) one camera and start its background processing.
+ *
+ * \param [in] cam_id: Id of the seek camera to start
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_start_camera(int cam_id) {
+    int ret;
+
+    if (seek_plugin_handle.start_camera != NULL) {
+        ret = seek_plugin_handle.start_camera(cam_id);
+    } else {
+        printf("[Error] no reference to start_camera \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_stop_camera
+ * \brief Stop one camera and its background processing.
+ *
+ * \param [in] cam_id: Id of the seek camera to stop
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_stop_camera(int cam_id) {
+    int ret;
+
+    if (seek_plugin_handle.stop_camera != NULL) {
+        ret = seek_plugin_handle.stop_camera(cam_id);
+    } else {
+        printf("[Error] no reference to stop_camera \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_get_camera_setting
+ * \brief Get one setting of one camera.
+ *
+ * \param [in] cam_id: Id of the seek camera to get a setting from
+ * \param [in] setting_nb: Setting id to be read
+ * \param [out] setting_value: Pointer to the address to store the read setting
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int* setting_value) {
+    int ret;
+
+    if (seek_plugin_handle.get_camera_setting != NULL) {
+        ret = seek_plugin_handle.get_camera_setting(cam_id, setting_nb, setting_value);
+    } else {
+        printf("[Error] no reference to get_camera_setting \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_set_camera_setting
+ * \brief Set one setting of one camera.
+ *
+ * \param [in] cam_id: Id of the seek camera to set a setting to
+ * \param [in] setting_nb: Setting id to be written
+ * \param [in] setting_value: Value to be written
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_value) {
+    int ret;
+
+    if (seek_plugin_handle.set_camera_setting != NULL) {
+        ret = seek_plugin_handle.set_camera_setting(cam_id, setting_nb, setting_value);
+    } else {
+        printf("[Error] no reference to set_camera_setting \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_poll
+ * \brief Blocking function that returns when a new frame from one of all the running cameras become available.
+ *
+ * \param [in] nb_cam: Number of cameras on which the polling applies
+ * \param [out] event_return: Detected events for each camera, 0 if no frame, 1 if a frame is available
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_poll(int nb_cam, short *event_return) {
+    int ret;
+
+    if (seek_plugin_handle.poll != NULL) {
+        ret = seek_plugin_handle.poll(nb_cam, event_return);
+    } else {
+        printf("[Error] no reference to poll \n");
+        return EVIEWITF_FAIL;
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_seek_get_camera_frame
+ * \brief Get the latest frame of a Seek camera
+ *
+ * \param [in] cam_id: Id of the seek camera to get a frame from
+ * \param [inout] temperature: Pointer to retrieve the temperature frame
+ * \param [inout] display: Pointer to retrieve the display frame (ARGB8888 format)
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+int eviewitf_seek_get_camera_frame(int cam_id, float** temperature, uint32_t** display) {
+    int ret;
+
     if (seek_plugin_handle.get_camera_frame != NULL) {
-        seek_plugin_handle.get_camera_frame(camId, temperature_frame);
+        ret = seek_plugin_handle.get_camera_frame(cam_id, temperature, display);
     } else {
         printf("[Error] no reference to get_camera_frame \n");
-        return -1;
+        return EVIEWITF_FAIL;
     }
-    return 0;
+    return ret;
 }
