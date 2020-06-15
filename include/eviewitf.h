@@ -33,6 +33,7 @@ extern "C" {
  * \brief Max number of blender devices
  */
 #define EVIEWITF_MAX_BLENDER 2
+#define EVIEWITF_MONITORING_INFO_SIZE 6
 
 /**
  * \enum eviewitf_return_code
@@ -158,6 +159,7 @@ const char* eviewitf_get_eview_version(void);
  * \return returns a pointer on a string containing the eViewItf version number.
  */
 const char* eviewitf_get_eviewitf_version(void);
+int eviewitf_get_monitoring_info(uint32_t info[EVIEWITF_MONITORING_INFO_SIZE]);
 
 /**
  * \fn int eviewitf_camera_open(int cam_id)

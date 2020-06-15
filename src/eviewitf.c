@@ -27,6 +27,7 @@
 /******************************************************************************************
  * Private enumerations
  ******************************************************************************************/
+    FCT_MONITORING_INFO = 15,
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
@@ -468,6 +469,44 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
         ret = EVIEWITF_FAIL;
     }
 
+    return ret;
+}
+
+
+/**
+ * \fn eviewitf_get_monitoring_info
+ * \brief Request R7 to get monitoring info
+ *
+ * \param info: table of size EVIEWITF_MONITORING_INFO_SIZE where info will be stored
+ *              content is voluntary not explicitly described in this interface
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_get_monitoring_info(uint32_t info[EVIEWITF_MONITORING_INFO_SIZE]) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = FCT_MONITORING_INFO;
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+
+    if (ret < EVIEWITF_OK) {
+        ret = EVIEWITF_FAIL;
+    } else {
+        /* Check returned answer state */
+        if (rx_buffer[0] != FCT_MONITORING_INFO) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            ret = EVIEWITF_FAIL;
+        }
+        if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+            ret = EVIEWITF_BLOCKED;
+        }
+    }
+    memcpy(info, rx_buffer+1, EVIEWITF_MONITORING_INFO_SIZE);
     return ret;
 }
 
