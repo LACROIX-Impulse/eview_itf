@@ -121,7 +121,6 @@ int eviewitf_camera_close(int cam_id) {
  */
 int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
-    int cam_frame_id;
 
     // Test camera id
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -155,7 +154,6 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
-    short revents;
     struct pollfd pfd[nb_cam];
     int r_poll;
     int ret = EVIEWITF_OK;
@@ -204,7 +202,6 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_check_camera_on(int cam_id) {
-    int ret;
     if (cam_virtual_buffers == NULL) {
         printf("eviewitf_init_api never done\n");
         return EVIEWITF_FAIL;
@@ -229,7 +226,6 @@ int eviewitf_check_camera_on(int cam_id) {
  * \return size of the buffer. Return 0 if camera not available
  */
 uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
-    int ret;
     if (cam_virtual_buffers == NULL) {
         printf("eviewitf_init_api never done\n");
         return 0;
@@ -308,4 +304,6 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
             frame_metadata->frame_timestamp_msb = 0;
         }
     }
+
+    return EVIEWITF_OK;
 }

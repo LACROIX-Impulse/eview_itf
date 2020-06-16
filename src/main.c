@@ -41,25 +41,25 @@ static char args_doc[] =
 
 /* Program options */
 static struct argp_option options[] = {
-    {"camera", 'c', "ID", 0, "Select camera on which command occurs"},
-    {"display", 'd', 0, 0, "Select camera as display"},
-    {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)"},
+    {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
+    {"display", 'd', 0, 0, "Select camera as display", 0},
+    {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
     /* {"type", 't', "TYPE", 0, "Select camera type"}, not used for now */
-    {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write"},
-    {"value", 'v', "VALUE", 0, "VALUE to write in the register"},
-    {"read", 'R', 0, 0, "Read register"},
-    {"write", 'W', 0, 0, "Write register"},
-    {"reboot", 's', 0, 0, "Software reboot camera"},
-    {"fps", 'f', "FPS", 0, "Set camera FPS"},
-    {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera"},
-    {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display"},
-    {"no-blending", 'n', 0, 0, "Stop the blending"},
-    {"heartbeaton", 'H', 0, 0, "Activate R7 heartbeat"},
-    {"heartbeatoff", 'h', 0, 0, "Deactivate R7 heartbeat"},
-    {"boot", 'B', "MODE", 0, "Select R7 boot mode"},
-    {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs"},
-    {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates"},
-    {"cropping stop", 'u', 0, 0, "Stop the cropping according"},
+    {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
+    {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
+    {"read", 'R', 0, 0, "Read register", 0},
+    {"write", 'W', 0, 0, "Write register", 0},
+    {"reboot", 's', 0, 0, "Software reboot camera", 0},
+    {"fps", 'f', "FPS", 0, "Set camera FPS", 0},
+    {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
+    {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
+    {"no-blending", 'n', 0, 0, "Stop the blending", 0},
+    {"heartbeaton", 'H', 0, 0, "Activate R7 heartbeat", 0},
+    {"heartbeatoff", 'h', 0, 0, "Deactivate R7 heartbeat", 0},
+    {"boot", 'B', "MODE", 0, "Select R7 boot mode", 0},
+    {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
+    {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
+    {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
     {0},
 };
 
@@ -173,16 +173,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->cropping = 0;
             break;
         case ARGP_KEY_ARG:
-            if (state->arg_num >= 0) {
-                /* Too many arguments. */
-                argp_usage(state);
-            }
+            /* Too many arguments. */
+            argp_usage(state);
             break;
         case ARGP_KEY_END:
-            if (state->arg_num < 0) {
-                /* Not enough arguments. */
-                argp_usage(state);
-            }
+            /* Not enough arguments. */
             break;
         default:
             return ARGP_ERR_UNKNOWN;
@@ -191,7 +186,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 /* argp parser. */
-static struct argp argp = {options, parse_opt, args_doc, doc};
+static struct argp argp = {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int main(int argc, char **argv) {
     struct arguments arguments;

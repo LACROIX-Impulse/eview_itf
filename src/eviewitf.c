@@ -46,15 +46,15 @@ typedef struct {
 
 typedef struct {
     void *handle_plugin;
-    char *(*get_lib_version)      ();
-    char *(*get_seek_lib_version) ();
-    int  (*init_all_cameras)      (int nb_cam);
-    int  (*deinit_all_cameras)    (int nb_cam);
-    int  (*start_camera)          (int cam_id);
-    int  (*stop_camera)           (int cam_id);
-    int  (*get_camera_setting)    (int cam_id, int setting_nb, int* setting_value);
-    int  (*set_camera_setting)    (int cam_id, int setting_nb, int setting_value);
-    int  (*get_camera_frame)      (int cam_id, float** temperature, uint32_t** display);
+    char *(*get_lib_version)();
+    char *(*get_seek_lib_version)();
+    int (*init_all_cameras)(int nb_cam);
+    int (*deinit_all_cameras)(int nb_cam);
+    int (*start_camera)(int cam_id);
+    int (*stop_camera)(int cam_id);
+    int (*get_camera_setting)(int cam_id, int setting_nb, int *setting_value);
+    int (*set_camera_setting)(int cam_id, int setting_nb, int setting_value);
+    int (*get_camera_frame)(int cam_id, float **temperature, uint32_t **display);
 } eviewitf_seek_plugin_handle;
 char *seek_version = NULL;
 char *seek_plugin_version = NULL;
@@ -467,8 +467,6 @@ int eviewitf_stop_blending(void) {
  */
 int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
-    int file_cam = 0;
-    unsigned long int i;
 
     /* Test API has been initialized */
     if (cam_virtual_buffers == NULL) {
@@ -486,7 +484,7 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[i].buffer_size, fps, frames_dir);
+        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[cam_id].buffer_size, fps, frames_dir);
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot play the stream on the virtual camera\n");
         }
@@ -544,7 +542,6 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
  */
 int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     int ret = EVIEWITF_OK;
-    int file_cam = 0;
 
     /* Test API has been initialized */
     if (cam_virtual_buffers == NULL) {
@@ -720,13 +717,10 @@ const char *eviewitf_get_lib_version(void) { return VERSION; }
  */
 const char *eviewitf_get_eview_version(void) {
     int ret = EVIEWITF_OK;
-    int mem_dev;
     int i = 0;
     int j = 0;
     int size_div = 0;
     int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
-    int32_t *ptr = NULL;
-    char *tmp;
 
     if (strlen(eview_version) != 0) {
         return eview_version;
@@ -815,8 +809,8 @@ int eviewitf_import_seek_plugin(void) {
             return EVIEWITF_FAIL;
         }
     }
-    seek_plugin_handle.get_seek_lib_version = dlsym(seek_plugin_handle.handle_plugin,
-        "eviewitf_seek_get_seek_lib_version");
+    seek_plugin_handle.get_seek_lib_version =
+        dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_seek_lib_version");
     if (seek_plugin_handle.get_seek_lib_version == NULL) {
         printf("[Error] Issue while loading get_seek_lib_version in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
@@ -990,7 +984,7 @@ int eviewitf_seek_stop_camera(int cam_id) {
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int* setting_value) {
+int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int *setting_value) {
     int ret;
 
     if (seek_plugin_handle.get_camera_setting != NULL) {
@@ -1034,7 +1028,7 @@ int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_val
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-int eviewitf_seek_get_camera_frame(int cam_id, float** temperature, uint32_t** display) {
+int eviewitf_seek_get_camera_frame(int cam_id, float **temperature, uint32_t **display) {
     int ret;
 
     if (seek_plugin_handle.get_camera_frame != NULL) {
