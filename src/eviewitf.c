@@ -54,7 +54,6 @@ typedef struct {
     int  (*stop_camera)           (int cam_id);
     int  (*get_camera_setting)    (int cam_id, int setting_nb, int* setting_value);
     int  (*set_camera_setting)    (int cam_id, int setting_nb, int setting_value);
-    int  (*poll)                  (int nb_cam, short *event_return);
     int  (*get_camera_frame)      (int cam_id, float** temperature, uint32_t** display);
 } eviewitf_seek_plugin_handle;
 char *seek_version = NULL;
@@ -857,11 +856,6 @@ int eviewitf_import_seek_plugin(void) {
         printf("[Error] Issue while loading set_camera_setting in libeview_itf_seek.so, aborting \n");
         return EVIEWITF_FAIL;
     }
-    seek_plugin_handle.poll = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_poll");
-    if (seek_plugin_handle.poll == NULL) {
-        printf("[Error] Issue while loading poll in libeview_itf_seek.so, aborting \n");
-        return EVIEWITF_FAIL;
-    }
     seek_plugin_handle.get_camera_frame = dlsym(seek_plugin_handle.handle_plugin, "eviewitf_seek_get_camera_frame");
     if (seek_plugin_handle.get_camera_frame == NULL) {
         printf("[Error] Issue while loading get_camera_frame in libeview_itf_seek.so, aborting \n");
@@ -1025,27 +1019,6 @@ int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_val
         ret = seek_plugin_handle.set_camera_setting(cam_id, setting_nb, setting_value);
     } else {
         printf("[Error] no reference to set_camera_setting \n");
-        return EVIEWITF_FAIL;
-    }
-    return ret;
-}
-
-/**
- * \fn eviewitf_seek_poll
- * \brief Blocking function that returns when a new frame from one of all the running cameras become available.
- *
- * \param [in] nb_cam: Number of cameras on which the polling applies
- * \param [out] event_return: Detected events for each camera, 0 if no frame, 1 if a frame is available
- *
- * \return state of the function. Returns EVIEWITF_OK if okay
- */
-int eviewitf_seek_poll(int nb_cam, short *event_return) {
-    int ret;
-
-    if (seek_plugin_handle.poll != NULL) {
-        ret = seek_plugin_handle.poll(nb_cam, event_return);
-    } else {
-        printf("[Error] no reference to poll \n");
         return EVIEWITF_FAIL;
     }
     return ret;

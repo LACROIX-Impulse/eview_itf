@@ -104,6 +104,5 @@ int eviewitf_seek_start_camera(int cam_id);
 int eviewitf_seek_stop_camera(int cam_id);
 int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int* setting_value);
 int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_value);
-int eviewitf_seek_poll(int nb_cam, short *event_return);
 int eviewitf_seek_get_camera_frame(int cam_id, float** temperature, uint32_t** display);
 #endif /* EVIEWITF_H */
