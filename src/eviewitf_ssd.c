@@ -21,10 +21,10 @@
 #include <sys/ioctl.h>
 #include "eviewitf.h"
 #include "eviewitf_ssd.h"
+#include "eviewitf_priv.h"
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
 #define SSD_SIZE_MOUNT_POINT      9
-#define RD_VALUE                  _IOR('a', 2, int32_t *)
 #define ONE_SEC_NS                1000000000
 
 static const char *SSD_MOUNT_POINT = "/mnt/ssd/";

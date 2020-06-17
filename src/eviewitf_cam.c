@@ -35,8 +35,6 @@
  * Private variables
  ******************************************************************************************/
 static int file_cams[EVIEWITF_MAX_CAMERA] = {-1};
-mfis_camera_attributes *all_cameras_attributes;
-uint8_t global_init = 0;
 
 /******************************************************************************************
  * Functions
@@ -53,11 +51,8 @@ uint8_t global_init = 0;
 int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
 
-    /* Get the cameras attributes */
-    eviewitf_retrieve_cam_attributes(&all_cameras_attributes, &global_init);
-
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_is_initialized() == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -211,18 +206,16 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_check_camera_on(int cam_id) {
-    /* Get the cameras attributes */
-    eviewitf_retrieve_cam_attributes(&all_cameras_attributes, &global_init);
-
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_is_initialized() == 0) {
         printf("eviewitf_init_api never done\n");
         return EVIEWITF_FAIL;
     } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
         printf("Invalid camera id %d\n", cam_id);
         return EVIEWITF_FAIL;
     } else {
-        if (all_cameras_attributes[cam_id].buffer_size == 0) {
+        mfis_camera_attributes *camera_attrinutes = eviewitf_get_camera_attributes(cam_id);
+        if ((camera_attrinutes == NULL) || (camera_attrinutes->buffer_size == 0)) {
             return EVIEWITF_FAIL;
         } else {
             return EVIEWITF_OK;
@@ -240,18 +233,18 @@ int eviewitf_check_camera_on(int cam_id) {
  */
 uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
     /* Get the cameras attributes */
-    eviewitf_retrieve_cam_attributes(&all_cameras_attributes, &global_init);
+    mfis_camera_attributes *camera_attrinutes = eviewitf_get_camera_attributes(cam_id);
 
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_is_initialized() == 0) {
         printf("eviewitf_init_api never done\n");
         return 0;
-    } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+    } else if (camera_attrinutes == NULL) {
         printf("Invalid camera id %d\n", cam_id);
         return 0;
     }
 
-    return all_cameras_attributes[cam_id].buffer_size;
+    return camera_attrinutes->buffer_size;
 }
 
 /**

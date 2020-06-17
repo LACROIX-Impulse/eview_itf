@@ -29,9 +29,16 @@
  * Private definitions
  ******************************************************************************************/
 #define MAX_VERSION_SIZE 21
+
+static const char *blending_interface[EVIEWITF_MAX_BLENDING] = {
+    "/dev/mfis_O2",
+    "/dev/mfis_O3",
+};
+
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
+
 typedef struct {
     void *handle_plugin;
     char *(*get_lib_version)();
@@ -67,20 +74,12 @@ typedef enum {
 } fct_id_t;
 
 /* Cameras attributes */
-mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {
-    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
-    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
-    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
-    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
-};
+mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
 
 /* Blending attributes */
-mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-};
+mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
 
-uint8_t global_init = 0;
+uint8_t eviewitf_global_init = 0;
 char eview_version[MAX_VERSION_SIZE];
 eviewitf_seek_plugin_handle seek_plugin_handle;
 /******************************************************************************************
@@ -148,22 +147,30 @@ static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blending
 }
 
 /**
- * \fn eviewitf_retrieve_cam_attributes
- * \brief Transmit the cameras attributes
+ * \fn eviewitf_is_initialized
+ * \brief Check if initialization has been performed
  *
- * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
- * \param [inout] init: Flag to know if "eviewitf_init_api" has been done
- *
- * \return none
+ * \return 0 if not initialized
  */
-void eviewitf_retrieve_cam_attributes(mfis_camera_attributes **cameras_attributes, uint8_t *init) {
-    *cameras_attributes = all_cameras_attributes;
-    *init = global_init;
-}
+int eviewitf_is_initialized() { return eviewitf_global_init; }
 
+/**
+ * \fn eviewitf_get_cameras_attributes
+ * \brief Get a pointer on the cameras_attributes array
+ *
+ * \return pointer on camera attributes structure
+ */
+mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
+    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+        return NULL;
+    }
+    return &all_cameras_attributes[cam_id];
+}
 /**
  * \fn eviewitf_init_api
  * \brief Deinit MFIS driver on R7 side
+ *
+ * \param [in] camera id
  *
  * \return state of the function. Return 0 if okay
  */
@@ -177,7 +184,7 @@ int eviewitf_init_api(void) {
     mfis_init();
 
     /* Check if init has been done */
-    if (global_init != 0) {
+    if (eviewitf_global_init != 0) {
         printf("eviewitf_init_api already done\n");
         ret = EVIEWITF_FAIL;
     } else {
@@ -207,7 +214,7 @@ int eviewitf_init_api(void) {
         }
 
         if (ret == EVIEWITF_OK) {
-            global_init = 1;
+            eviewitf_global_init = 1;
         }
     }
 
@@ -228,7 +235,7 @@ int eviewitf_deinit_api(void) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     /* Check if init has been done */
-    if (global_init == 0) {
+    if (eviewitf_global_init == 0) {
         printf("eviewitf_init_api never done\n");
         ret = EVIEWITF_FAIL;
     } else {
@@ -343,6 +350,9 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
             if (rx_buffer[1] == FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
             if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
             }
@@ -391,6 +401,9 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
             }
             if (rx_buffer[1] == FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
             }
             if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
@@ -519,7 +532,7 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -558,7 +571,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
     int test_rw = 0;
 
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -594,7 +607,7 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -628,7 +641,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     int test_rw = 0;
 
     /* Test API has been initialized */
-    if (global_init == 0) {
+    if (eviewitf_global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -683,6 +696,9 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
             }
             if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
+            }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
             }
         }
     }

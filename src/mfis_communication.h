@@ -53,9 +53,9 @@ typedef struct {
 #define MFIS_MSG_SIZE 8
 
 /* IOCTL definitions */
-#define WR_VALUE _IOW('a', 1, int32_t*)
-#define RD_VALUE _IOR('a', 2, int32_t*)
-#define MFIS_CAM_ATTRIBUTES _IOR('a', 3, mfis_camera_attributes *)
+#define WR_VALUE              _IOW('a', 1, int32_t *)
+#define RD_VALUE              _IOR('a', 2, int32_t *)
+#define MFIS_CAM_ATTRIBUTES   _IOR('a', 3, mfis_camera_attributes *)
 #define MFIS_BLEND_ATTRIBUTES _IOR('a', 4, mfis_blending_attributes *)
 
 /******************************************************************************************
