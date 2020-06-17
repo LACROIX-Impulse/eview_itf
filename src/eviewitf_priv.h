@@ -8,6 +8,7 @@
 #define EVIEWITF_PRIV_H
 
 #include <stdint.h>
+#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private Definitions
@@ -30,24 +31,6 @@ typedef enum {
     FCT_RETURN_ERROR,
 } fct_ret_r;
 
-/**
- * \struct eviewitf_cam_buffers_virtual_t
- * \brief Buffer size and address in virtual memory
- */
-typedef struct {
-    uint32_t buffer_size;
-} eviewitf_cam_buffers_virtual_t;
-
-/**
- * \struct eviewitf_cam_buffers_a53_t
- * \brief Structure with buffers size and address in virtual memory of multiple devices
- */
-typedef struct {
-    eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_virtual_t O2;
-    eviewitf_cam_buffers_virtual_t O3;
-} eviewitf_cam_buffers_a53_t;
-
 /******************************************************************************************
  * Private Functions Prototypes
  ******************************************************************************************/
@@ -57,5 +40,6 @@ int eviewitf_reboot_cam(int cam_id);
 int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir);
 int eviewitf_set_blending_from_file(int blending_id, char *frame);
+void eviewitf_retrieve_cam_attributes(mfis_camera_attributes **cameras_attributes, uint8_t *init);
 
 #endif /* EVIEWITF_PRIV_H */

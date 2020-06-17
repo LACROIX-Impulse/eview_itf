@@ -148,6 +148,20 @@ static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blending
 }
 
 /**
+ * \fn eviewitf_retrieve_cam_attributes
+ * \brief Transmit the cameras attributes
+ *
+ * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
+ * \param [inout] init: Flag to know if "eviewitf_init_api" has been done
+ *
+ * \return none
+ */
+void eviewitf_retrieve_cam_attributes(mfis_camera_attributes **cameras_attributes, uint8_t *init) {
+    *cameras_attributes = all_cameras_attributes;
+    *init = global_init;
+}
+
+/**
  * \fn eviewitf_init_api
  * \brief Deinit MFIS driver on R7 side
  *
