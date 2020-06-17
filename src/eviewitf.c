@@ -78,7 +78,21 @@ typedef enum {
     FCT_GET_CAM_BUFFERS = 32,
 } fct_id_t;
 
-eviewitf_cam_buffers_a53_t *cam_virtual_buffers = NULL;
+/* Cameras attributes */
+mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {
+    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
+    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
+    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
+    {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0}, {CAM_TYPE_NONE, 0, 0, 0, 0},
+};
+
+/* Blending attributes */
+mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+};
+
+uint8_t global_init = 0;
 char eview_version[MAX_VERSION_SIZE];
 eviewitf_seek_plugin_handle seek_plugin_handle;
 /******************************************************************************************
@@ -87,38 +101,59 @@ eviewitf_seek_plugin_handle seek_plugin_handle;
 
 /* Private function used to retrieved cam buffer during api initialization.
  Doesn't need to be exposed in API */
-static int eviewitf_get_cam_buffers(eviewitf_cam_buffers_a53_t *virtual_buffers) {
-    int ret = EVIEWITF_OK, i;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
-    eviewitf_cam_buffers_r7_t *cam_buffers_r7;
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    /* Prepare TX buffer */
-    tx_buffer[0] = FCT_GET_CAM_BUFFERS;
+/**
+ * \fn eviewitf_mfis_get_cam_attributes
+ * \brief Get the cameras attributes
+ *
+ * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attributes) {
+    int ret = EVIEWITF_OK;
 
     /* Check input parameter */
-    if (virtual_buffers == NULL) {
-        printf("Error eviewitf_get_cam_buffers called with null parameter\n");
+    if (cameras_attributes == NULL) {
+        printf("Error eviewitf_mfis_get_cam_attributes called with a null parameter\n");
         ret = EVIEWITF_INVALID_PARAM;
-    } else {
-        /* Send request to R7 and check returned answer state */
-        ret = mfis_send_request(tx_buffer, rx_buffer);
-        if ((ret < 0) || (rx_buffer[0] != FCT_GET_CAM_BUFFERS) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    }
+
+    /* Get the cameras attributes */
+    if (ret == EVIEWITF_OK) {
+        ret = mfis_get_cam_attributes(cameras_attributes);
+        if (ret != EVIEWITF_OK) {
+            printf("Error while retrieving cameras attributes\n");
             ret = EVIEWITF_FAIL;
-            return ret;
         }
     }
-    cam_buffers_r7 =
-        (eviewitf_cam_buffers_r7_t *)mfis_get_virtual_address(rx_buffer[2], sizeof(eviewitf_cam_buffers_r7_t));
-    if (ret >= EVIEWITF_OK) {
-        /* Fill the A53 cam_buffer structure with value returned by R7*/
-        for (i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
-            virtual_buffers->cam[i].buffer_size = cam_buffers_r7->cam[i].buffer_size;
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_mfis_get_blend_attributes
+ * \brief Get the blendings attributes
+ *
+ * \param [inout] blendings_attributes: Pointer to a table of mfis_blending_attributes
+ *
+ * \return state of the function. Returns EVIEWITF_OK if okay
+ */
+static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blendings_attributes) {
+    int ret = EVIEWITF_OK;
+
+    /* Check input parameter */
+    if (blendings_attributes == NULL) {
+        printf("Error eviewitf_mfis_get_blend_attributes called with a null parameter\n");
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    /* Get the blendings attributes */
+    if (ret == EVIEWITF_OK) {
+        ret = mfis_get_blend_attributes(blendings_attributes);
+        if (ret != EVIEWITF_OK) {
+            printf("Error while retrieving blendings attributes\n");
+            ret = EVIEWITF_FAIL;
         }
-        virtual_buffers->O2.buffer_size = cam_buffers_r7->O2.buffer_size;
-        virtual_buffers->O3.buffer_size = cam_buffers_r7->O3.buffer_size;
     }
 
     return ret;
@@ -140,7 +175,7 @@ int eviewitf_init_api(void) {
     mfis_init();
 
     /* Check if init has been done */
-    if (cam_virtual_buffers != NULL) {
+    if (global_init != 0) {
         printf("eviewitf_init_api already done\n");
         ret = EVIEWITF_FAIL;
     } else {
@@ -151,10 +186,26 @@ int eviewitf_init_api(void) {
         ret = mfis_send_request(tx_buffer, rx_buffer);
         if ((ret < EVIEWITF_OK) || (rx_buffer[0] != FCT_INIT) || (rx_buffer[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
-        } else {
-            // Get pointers to the cameras frame buffers located in R7 memory
-            cam_virtual_buffers = malloc(sizeof(eviewitf_cam_buffers_a53_t));
-            ret = eviewitf_get_cam_buffers(cam_virtual_buffers);
+        }
+
+        /* Get the cameras attributes */
+        if (ret == EVIEWITF_OK) {
+            ret = eviewitf_mfis_get_cam_attributes(all_cameras_attributes);
+            if (ret != EVIEWITF_OK) {
+                printf("eviewitf_init_api: Error in eviewitf_mfis_get_cam_attributes\n");
+            }
+        }
+
+        /* Get the blendings attributes */
+        if (ret == EVIEWITF_OK) {
+            ret = eviewitf_mfis_get_blend_attributes(all_blendings_attributes);
+            if (ret != EVIEWITF_OK) {
+                printf("eviewitf_init_api: Error in eviewitf_mfis_get_blend_attributes\n");
+            }
+        }
+
+        if (ret == EVIEWITF_OK) {
+            global_init = 1;
         }
     }
 
@@ -175,13 +226,10 @@ int eviewitf_deinit_api(void) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     /* Check if init has been done */
-    if (cam_virtual_buffers == NULL) {
+    if (global_init == 0) {
         printf("eviewitf_init_api never done\n");
         ret = EVIEWITF_FAIL;
     } else {
-        free(cam_virtual_buffers);
-        cam_virtual_buffers = NULL;
-
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_DEINIT;
 
@@ -247,7 +295,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
     } else {
         ssd_get_output_directory(&record_dir);
         printf("SSD storage directory %s \n", record_dir);
-        ret = ssd_save_camera_stream(cam_id, delay, record_dir, cam_virtual_buffers->cam[cam_id].buffer_size);
+        ret = ssd_save_camera_stream(cam_id, delay, record_dir, all_cameras_attributes[cam_id].buffer_size);
         free(record_dir);
     }
     return ret;
@@ -469,7 +517,7 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (cam_virtual_buffers == NULL) {
+    if (global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -484,7 +532,7 @@ int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_virtual_camera_stream(cam_id, cam_virtual_buffers->cam[cam_id].buffer_size, fps, frames_dir);
+        ret = ssd_set_virtual_camera_stream(cam_id, all_cameras_attributes[cam_id].buffer_size, fps, frames_dir);
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot play the stream on the virtual camera\n");
         }
@@ -508,7 +556,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
     int test_rw = 0;
 
     /* Test API has been initialized */
-    if (cam_virtual_buffers == NULL) {
+    if (global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
@@ -544,25 +592,18 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (cam_virtual_buffers == NULL) {
+    if (global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
 
-    if (EVIEWITF_OK == ret) {
-        switch (blending_id) {
-            case 0:
-                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O2.buffer_size, frame);
-                break;
-            case 1:
-                ret = ssd_set_blending(blending_id, cam_virtual_buffers->O3.buffer_size, frame);
-                break;
-            default:
-                printf("Device %d not allowed for blending \n", blending_id);
-                ret = EVIEWITF_INVALID_PARAM;
-                break;
-        }
+    if ((blending_id < 0) || (blending_id > 1)) {
+        printf("Error: eviewitf_set_blending_from_file, bad blending_id\n");
+        ret = EVIEWITF_INVALID_PARAM;
+    }
 
+    if (EVIEWITF_OK == ret) {
+        ret = ssd_set_blending(blending_id, all_blendings_attributes[blending_id].buffer_size, frame);
         if (EVIEWITF_OK != ret) {
             printf("Error: Cannot set the blending\n");
         }
@@ -585,7 +626,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     int test_rw = 0;
 
     /* Test API has been initialized */
-    if (cam_virtual_buffers == NULL) {
+    if (global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_FAIL;
     }
