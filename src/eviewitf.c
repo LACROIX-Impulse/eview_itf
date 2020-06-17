@@ -148,23 +148,6 @@ int eviewitf_init_api(void) {
             // Get pointers to the cameras frame buffers located in R7 memory
             cam_virtual_buffers = malloc(sizeof(eviewitf_cam_buffers_a53_t));
             ret = eviewitf_get_cam_buffers(cam_virtual_buffers);
-            for (int i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
-                if (cam_virtual_buffers->cam[i].buffer_size > 0) {
-                    cam_virtual_buffers->cam[i].buffer = malloc(cam_virtual_buffers->cam[i].buffer_size);
-                } else {
-                    cam_virtual_buffers->cam[i].buffer = NULL;
-                }
-            }
-            if (cam_virtual_buffers->O2.buffer_size > 0) {
-                cam_virtual_buffers->O2.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
-            } else {
-                cam_virtual_buffers->O2.buffer = NULL;
-            }
-            if (cam_virtual_buffers->O3.buffer_size > 0) {
-                cam_virtual_buffers->O3.buffer = malloc(cam_virtual_buffers->O2.buffer_size);
-            } else {
-                cam_virtual_buffers->O3.buffer = NULL;
-            }
         }
     }
 
@@ -189,13 +172,6 @@ int eviewitf_deinit_api(void) {
         printf("eviewitf_init_api never done\n");
         ret = EVIEWITF_FAIL;
     } else {
-        /* Free allocated resources */
-        for (int i = 0; i < EVIEWITF_MAX_CAMERA; i++) {
-            if (cam_virtual_buffers->cam[i].buffer != NULL) {
-                free(cam_virtual_buffers->cam[i].buffer);
-                cam_virtual_buffers->cam[i].buffer = NULL;
-            }
-        }
         free(cam_virtual_buffers);
         cam_virtual_buffers = NULL;
 
