@@ -32,18 +32,6 @@
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
-/* Structures used for internal communication between A53 and R7.
- Doesn't need to be exposed in API */
-typedef struct {
-    uint32_t buffer_size;
-} eviewitf_cam_buffers_physical_r7_t;
-
-typedef struct {
-    eviewitf_cam_buffers_physical_r7_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_physical_r7_t O2;
-    eviewitf_cam_buffers_physical_r7_t O3;
-} eviewitf_cam_buffers_r7_t;
-
 typedef struct {
     void *handle_plugin;
     char *(*get_lib_version)();
