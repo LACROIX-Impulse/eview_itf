@@ -65,7 +65,7 @@ int eviewitf_camera_open(int cam_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        file_cams[cam_id] = open(mfis_device_filenames[cam_id], O_RDONLY);
+        file_cams[cam_id] = open(eviewitf_get_mfis_cam_devices(cam_id), O_RDONLY);
         if (file_cams[cam_id] == -1) {
             printf("Error opening camera file\n");
             ret = EVIEWITF_FAIL;

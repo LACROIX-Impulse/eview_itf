@@ -31,11 +31,6 @@ typedef enum {
     FCT_RETURN_ERROR,
 } fct_ret_r;
 
-static const char *mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
-    "/dev/mfis_cam0",  "/dev/mfis_cam1",  "/dev/mfis_cam2",  "/dev/mfis_cam3", "/dev/mfis_cam4",  "/dev/mfis_cam5",
-    "/dev/mfis_cam6",  "/dev/mfis_cam7",  "/dev/mfis_cam8",  "/dev/mfis_cam9", "/dev/mfis_cam10", "/dev/mfis_cam11",
-    "/dev/mfis_cam12", "/dev/mfis_cam13", "/dev/mfis_cam14", "/dev/mfis_cam15"};
-
 /******************************************************************************************
  * Private Functions Prototypes
  ******************************************************************************************/
@@ -46,6 +41,7 @@ int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir);
 int eviewitf_set_blending_from_file(int blending_id, char *frame);
 int eviewitf_is_initialized();
+const char *eviewitf_get_mfis_cam_devices(int cam_id);
 mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
 
 #endif /* EVIEWITF_PRIV_H */

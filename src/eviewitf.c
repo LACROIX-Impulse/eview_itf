@@ -30,6 +30,13 @@
  ******************************************************************************************/
 #define MAX_VERSION_SIZE 21
 
+/* mfis devices for the cameras */
+static const char *mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
+    "/dev/mfis_cam0",  "/dev/mfis_cam1",  "/dev/mfis_cam2",  "/dev/mfis_cam3", "/dev/mfis_cam4",  "/dev/mfis_cam5",
+    "/dev/mfis_cam6",  "/dev/mfis_cam7",  "/dev/mfis_cam8",  "/dev/mfis_cam9", "/dev/mfis_cam10", "/dev/mfis_cam11",
+    "/dev/mfis_cam12", "/dev/mfis_cam13", "/dev/mfis_cam14", "/dev/mfis_cam15"};
+
+/* mfis devices for the blendings */
 static const char *blending_interface[EVIEWITF_MAX_BLENDING] = {
     "/dev/mfis_O2",
     "/dev/mfis_O3",
@@ -38,7 +45,6 @@ static const char *blending_interface[EVIEWITF_MAX_BLENDING] = {
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
-
 typedef struct {
     void *handle_plugin;
     char *(*get_lib_version)();
@@ -53,6 +59,7 @@ typedef struct {
 } eviewitf_seek_plugin_handle;
 char *seek_version = NULL;
 char *seek_plugin_version = NULL;
+
 /******************************************************************************************
  * Private enumerations
  ******************************************************************************************/
@@ -79,13 +86,13 @@ mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
 /* Blending attributes */
 mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
 
-uint8_t eviewitf_global_init = 0;
+static uint8_t eviewitf_global_init = 0;
 char eview_version[MAX_VERSION_SIZE];
 eviewitf_seek_plugin_handle seek_plugin_handle;
+
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
-
 /* Private function used to retrieved cam buffer during api initialization.
  Doesn't need to be exposed in API */
 /**
@@ -158,6 +165,8 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
  * \fn eviewitf_get_cameras_attributes
  * \brief Get a pointer on the cameras_attributes array
  *
+ * \param [in] cam_id: Camera id
+ *
  * \return pointer on camera attributes structure
  */
 mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
@@ -166,6 +175,22 @@ mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
     }
     return &all_cameras_attributes[cam_id];
 }
+
+/**
+ * \fn eviewitf_get_mfis_cam_devices
+ * \brief Get an element of the mfis_device_filenames array
+ *
+ * \param [in] cam_id: Camera id
+ *
+ * \return Element of the mfis_device_filenames array
+ */
+const char *eviewitf_get_mfis_cam_devices(int cam_id) {
+    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+        return NULL;
+    }
+    return mfis_device_filenames[cam_id];
+}
+
 /**
  * \fn eviewitf_init_api
  * \brief Deinit MFIS driver on R7 side

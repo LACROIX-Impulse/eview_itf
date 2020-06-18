@@ -97,7 +97,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         return -1;
     }
     res_run = res_start;
-    cam_fd = open(mfis_device_filenames[camera_id], O_RDWR);
+    cam_fd = open(eviewitf_get_mfis_cam_devices(camera_id), O_RDWR);
     pfd.fd = cam_fd;
     pfd.events = POLLIN;
     while (difft.tv_sec < duration) {
