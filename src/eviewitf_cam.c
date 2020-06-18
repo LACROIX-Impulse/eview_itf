@@ -90,10 +90,13 @@ int eviewitf_camera_close(int cam_id) {
         printf("Invalid camera id\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
-    // Test camera has been opened
-    if (file_cams[cam_id] == -1) {
-        printf("Camera is not open\n");
-        ret = EVIEWITF_FAIL;
+
+    if (ret >= EVIEWITF_OK) {
+        // Test camera has been opened
+        if (file_cams[cam_id] == -1) {
+            printf("Camera is not open\n");
+            ret = EVIEWITF_FAIL;
+        }
     }
 
     if (ret >= EVIEWITF_OK) {
