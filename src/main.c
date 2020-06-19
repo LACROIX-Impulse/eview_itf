@@ -235,6 +235,8 @@ int main(int argc, char **argv) {
     if (arguments.camera && arguments.display) {
         if (eviewitf_set_display_cam(arguments.camera_id) >= 0) {
             fprintf(stdout, "Camera %d selected for display\n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Failed to select camera %d for display\n", arguments.camera_id);
         }
     }
     /* Select camera for record */

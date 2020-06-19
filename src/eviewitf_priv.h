@@ -36,7 +36,6 @@ typedef enum {
  */
 typedef struct {
     uint32_t buffer_size;
-    uint8_t *buffer;
 } eviewitf_cam_buffers_virtual_t;
 
 /**
