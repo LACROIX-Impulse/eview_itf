@@ -96,6 +96,13 @@ const char* eviewitf_get_lib_version(void);
 
 /* Specific SEEK */
 int eviewitf_import_seek_plugin(void);
-char* eviewitf_get_plugin_version(void);
-char* eviewitf_get_seek_version(void);
+char* eviewitf_seek_get_plugin_version(void);
+char* eviewitf_seek_get_seek_version(void);
+int eviewitf_seek_init_all_cameras(int nb_cam);
+int eviewitf_seek_deinit_all_cameras(int nb_cam);
+int eviewitf_seek_start_camera(int cam_id);
+int eviewitf_seek_stop_camera(int cam_id);
+int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int* setting_value);
+int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_value);
+int eviewitf_seek_get_camera_frame(int cam_id, float** temperature, uint32_t** display);
 #endif /* EVIEWITF_H */

@@ -131,7 +131,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     }
 
     close(cam_fd);
-    printf("Time elapsed %ds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
+    printf("Time elapsed %lds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     return 0;
 }
 
@@ -150,8 +150,7 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     int frame_id = 0;
     int file_ssd = 1;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
-    int cam_fd;
-    unsigned long int duration_ns;
+    long int duration_ns;
     struct timespec res_start;
     struct timespec res_run;
     struct timespec difft = {0};
