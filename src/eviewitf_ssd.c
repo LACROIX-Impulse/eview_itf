@@ -88,6 +88,8 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     short revents;
     struct pollfd pfd;
     int r_poll;
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+
     // Create frame directory if not existing (and it should not exist)
     if (stat(frames_directory, &st) == -1) {
         mkdir(frames_directory, 0777);
@@ -97,7 +99,8 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         return -1;
     }
     res_run = res_start;
-    cam_fd = open(eviewitf_get_mfis_cam_devices(camera_id), O_RDWR);
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, camera_id);
+    cam_fd = open(device_name, O_RDWR);
     pfd.fd = cam_fd;
     pfd.events = POLLIN;
     while (difft.tv_sec < duration) {

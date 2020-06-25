@@ -50,6 +50,7 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1};
  */
 int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -65,7 +66,8 @@ int eviewitf_camera_open(int cam_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        file_cams[cam_id] = open(eviewitf_get_mfis_cam_devices(cam_id), O_RDONLY);
+        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, cam_id);
+        file_cams[cam_id] = open(device_name, O_RDONLY);
         if (file_cams[cam_id] == -1) {
             printf("Error opening camera file\n");
             ret = EVIEWITF_FAIL;

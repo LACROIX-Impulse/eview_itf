@@ -30,18 +30,6 @@
  ******************************************************************************************/
 #define MAX_VERSION_SIZE 21
 
-/* mfis devices for the cameras */
-static const char *mfis_device_filenames[EVIEWITF_MAX_CAMERA] = {
-    "/dev/mfis_cam0",  "/dev/mfis_cam1",  "/dev/mfis_cam2",  "/dev/mfis_cam3", "/dev/mfis_cam4",  "/dev/mfis_cam5",
-    "/dev/mfis_cam6",  "/dev/mfis_cam7",  "/dev/mfis_cam8",  "/dev/mfis_cam9", "/dev/mfis_cam10", "/dev/mfis_cam11",
-    "/dev/mfis_cam12", "/dev/mfis_cam13", "/dev/mfis_cam14", "/dev/mfis_cam15"};
-
-/* mfis devices for the blendings */
-static const char *blending_interface[EVIEWITF_MAX_BLENDING] = {
-    "/dev/mfis_O2",
-    "/dev/mfis_O3",
-};
-
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
@@ -57,8 +45,8 @@ typedef struct {
     int (*set_camera_setting)(int cam_id, int setting_nb, int setting_value);
     int (*get_camera_frame)(int cam_id, float **temperature, uint32_t **display);
 } eviewitf_seek_plugin_handle;
-char *seek_version = NULL;
-char *seek_plugin_version = NULL;
+static char *seek_version = NULL;
+static char *seek_plugin_version = NULL;
 
 /******************************************************************************************
  * Private enumerations
@@ -81,14 +69,14 @@ typedef enum {
 } fct_id_t;
 
 /* Cameras attributes */
-mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
+static mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
 
 /* Blending attributes */
-mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
+static mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
 
 static uint8_t eviewitf_global_init = 0;
-char eview_version[MAX_VERSION_SIZE];
-eviewitf_seek_plugin_handle seek_plugin_handle;
+static char eview_version[MAX_VERSION_SIZE];
+static eviewitf_seek_plugin_handle seek_plugin_handle;
 
 /******************************************************************************************
  * Functions
@@ -174,21 +162,6 @@ mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
         return NULL;
     }
     return &all_cameras_attributes[cam_id];
-}
-
-/**
- * \fn eviewitf_get_mfis_cam_devices
- * \brief Get an element of the mfis_device_filenames array
- *
- * \param [in] cam_id: Camera id
- *
- * \return Element of the mfis_device_filenames array
- */
-const char *eviewitf_get_mfis_cam_devices(int cam_id) {
-    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
-        return NULL;
-    }
-    return mfis_device_filenames[cam_id];
 }
 
 /**
@@ -594,6 +567,7 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
     int ret = EVIEWITF_OK;
     int cam_fd;
     int test_rw = 0;
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
@@ -602,7 +576,8 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
     }
 
     /* Open the virtual camera to write in */
-    cam_fd = open(mfis_device_filenames[cam_id], O_WRONLY);
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, "/dev/mfis_cam%d", cam_id);
+    cam_fd = open(device_name, O_WRONLY);
     if (cam_fd == -1) {
         printf("Error opening camera file\n");
         ret = EVIEWITF_FAIL;
@@ -664,6 +639,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     int ret = EVIEWITF_OK;
     int blend_fd;
     int test_rw = 0;
+    char device_name[DEVICE_BLENDER_MAX_LENGTH];
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
@@ -672,7 +648,8 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
     }
 
     /* Open the blending device to write in */
-    blend_fd = open(blending_interface[blending_id], O_WRONLY);
+    snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blending_id + 2); /* named O2 and O3 */
+    blend_fd = open(device_name, O_WRONLY);
     if ((-1) == blend_fd) {
         printf("[Error] Opening the blendind device\n");
         return -1;
