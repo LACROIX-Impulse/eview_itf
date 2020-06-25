@@ -1,6 +1,6 @@
 /**
- * \file eviewitf_streamer.c
- * \brief Communication API between A53 and R7 CPUs for streamer devices
+ * \file eviewitf_blender.c
+ * \brief Communication API between A53 and R7 CPUs for blender devices
  * \author eSoftThings
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
@@ -31,21 +31,21 @@
 /******************************************************************************************
  * Private variables
  ******************************************************************************************/
-static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1};
+static int file_blenders[EVIEWITF_MAX_BLENDER] = {-1};
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
 /**
- * \fn int eviewitf_streamer_open(int streamer_id)
- * \brief Open a streamer device
+ * \fn int eviewitf_blender_open(int blender_id)
+ * \brief Open a blender device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_CAMERA
+ * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_CAMERA
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_streamer_open(int streamer_id) {
+int eviewitf_blender_open(int blender_id) {
     int ret = EVIEWITF_OK;
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
@@ -54,16 +54,16 @@ int eviewitf_streamer_open(int streamer_id) {
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
-    /* Test streamer id */
-    else if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+    /* Test blender id */
+    else if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, streamer_id + EVIEWITF_MAX_CAMERA);
-        file_streamers[streamer_id] = open(device_name, O_RDONLY);
-        if (file_streamers[streamer_id] == -1) {
+        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, blender_id + EVIEWITF_MAX_CAMERA);
+        file_blenders[blender_id] = open(device_name, O_RDONLY);
+        if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -72,34 +72,34 @@ int eviewitf_streamer_open(int streamer_id) {
 }
 
 /**
- * \fn int eviewitf_streamer_close(int streamer_id)
- * \brief Close a streamer device
+ * \fn int eviewitf_blender_close(int blender_id)
+ * \brief Close a blender device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_CAMERA
+ * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_CAMERA
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_streamer_close(int streamer_id) {
+int eviewitf_blender_close(int blender_id) {
     int ret = EVIEWITF_OK;
 
-    /* Test streamer id */
-    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+    /* Test blender id */
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (ret >= EVIEWITF_OK) {
-        // Test streamer has been opened
-        if (file_streamers[streamer_id] == -1) {
+        // Test blender has been opened
+        if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_NOT_OPENED;
         }
     }
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        if (close(file_streamers[streamer_id] != 0)) {
+        if (close(file_blenders[blender_id] != 0)) {
             ret = EVIEWITF_FAIL;
         } else {
-            file_streamers[streamer_id] = -1;
+            file_blenders[blender_id] = -1;
         }
     }
 
@@ -107,21 +107,21 @@ int eviewitf_streamer_close(int streamer_id) {
 }
 
 /**
- * \fn int eviewitf_streamer_get_attributes(int streamer_id)
- * \brief Get streamer attrubutes such as buffer size
+ * \fn int eviewitf_blender_get_attributes(int blender_id)
+ * \brief Get blender attrubutes such as buffer size
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
  * \param attributes: pointer on the structure to be filled
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes) {
+int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
-    /* Get the streamers attributes */
-    struct eviewitf_mfis_camera_attributes *streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
+    /* Get the blenders attributes */
+    struct eviewitf_mfis_camera_attributes *blender_attributes = eviewitf_get_camera_attributes(blender_id + EVIEWITF_MAX_CAMERA);
 
-    /* Test streamer id */
-    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+    /* Test blender id */
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
@@ -141,26 +141,26 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
 
     /* Copy attributes */
     if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = streamer_attributes->buffer_size;
-        attributes->width = streamer_attributes->width;
-        attributes->height = streamer_attributes->height;;
-        attributes->dt = streamer_attributes->dt;;
+        attributes->buffer_size = blender_attributes->buffer_size;
+        attributes->width = blender_attributes->width;
+        attributes->height = blender_attributes->height;;
+        attributes->dt = blender_attributes->dt;;
     }
 
     return ret;
 }
 
 /**
- * \fn eviewitf_streamer_write_frame
- * \brief Write a frame to a streamer
+ * \fn eviewitf_blender_write_frame
+ * \brief Write a frame to a blender
 
- * \param in streamer_id: id of the camera
+ * \param in blender_id: id of the camera
  * \param in buffer_size: size of the virtual camera buffer
  * \param in buffer: virtual camera buffer
  * 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char *buffer) {
+int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char *buffer) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
@@ -169,15 +169,15 @@ int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char *b
     }
 
     if (ret >= EVIEWITF_OK) {
-        // Test streamer has been opened
-        if (file_streamers[streamer_id] == -1) {
+        // Test blender has been opened
+        if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_NOT_OPENED;
         }
     }
 
     if (ret >= EVIEWITF_OK) {
         /* Write the frame in the virtual camera */
-        if (write(file_streamers[streamer_id], buffer, buffer_size) < 0) {
+        if (write(file_blenders[blender_id], buffer, buffer_size) < 0) {
             ret =  EVIEWITF_FAIL;
         }
     }

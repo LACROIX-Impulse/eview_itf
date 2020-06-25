@@ -295,7 +295,7 @@ int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
         return -1;
     }
 
-    ret = eviewitf_write_blending(blending_id, buffer_size, buff_f);
+    ret = eviewitf_blender_write_frame(blending_id, buffer_size, buff_f);
 
     close(file_ssd);
 

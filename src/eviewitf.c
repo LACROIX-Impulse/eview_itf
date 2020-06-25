@@ -72,7 +72,7 @@ typedef enum {
 static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
 /* Blending attributes */
-static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
+static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
@@ -563,46 +563,6 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
     if (EVIEWITF_OK == ret) {
         ret = ssd_set_blending(blending_id, all_blendings_attributes[blending_id].buffer_size, frame);
     }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_set_blending
- * \brief Set a blending buffer
-
- * \param in buffer_size: size of the blending buffer
- * \param in buffer: blending buffer
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer) {
-    int ret = EVIEWITF_OK;
-    int blend_fd;
-    int test_rw = 0;
-    char device_name[DEVICE_BLENDER_MAX_LENGTH];
-
-    /* Test API has been initialized */
-    if (eviewitf_global_init == 0) {
-        ret = EVIEWITF_NOT_INITIALIZED;
-    }
-
-    /* Open the blending device to write in */
-    snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blending_id + 2); /* named O2 and O3 */
-    blend_fd = open(device_name, O_WRONLY);
-    if ((-1) == blend_fd) {
-        printf("[Error] Opening the blendind device\n");
-        return -1;
-    }
-
-    /* Write the frame in the blending device */
-    test_rw = write(blend_fd, buffer, buffer_size);
-    if ((-1) == test_rw) {
-        printf("[Error] Write frame in the blending device\n");
-        close(blend_fd);
-        return -1;
-    }
-
-    close(blend_fd);
 
     return ret;
 }

@@ -14,7 +14,7 @@
  ******************************************************************************************/
 #define EVIEWITF_MAX_CAMERA      8
 #define EVIEWITF_MAX_STREAMER    8
-#define EVIEWITF_MAX_BLENDING    2
+#define EVIEWITF_MAX_BLENDER    2
 
 /******************************************************************************************
  * Public Structures
@@ -93,14 +93,17 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
 int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char* buffer);
 
 /* Blending */
-int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char* buffer);
-int eviewitf_start_blending(int blending_id);
-int eviewitf_stop_blending(void);
+int eviewitf_blender_open(int blender_id);
+int eviewitf_blender_close(int blender_id);
+int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes);
+int eviewitf_blender_write_frame(int blending_id, uint32_t buffer_size, char* buffer);
 
 /* Cropping */
 int eviewitf_set_display_cam(int cam_id);
 int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 int eviewitf_stop_cropping(void);
+int eviewitf_start_blending(int blending_id);
+int eviewitf_stop_blending(void);
 
 
 /* Specific SEEK */

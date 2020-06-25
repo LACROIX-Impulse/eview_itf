@@ -1,5 +1,5 @@
 /**
- * \file eviewitf-cam.c
+ * \file eviewitf_cam.c
  * \brief Communication API between A53 and R7 CPUs for camera devices
  * \author eSoftThings
  *
