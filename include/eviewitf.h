@@ -66,8 +66,8 @@ typedef struct {
  ******************************************************************************************/
 
 /* eView */
-int eviewitf_init_api(void);
-int eviewitf_deinit_api(void);
+int eviewitf_init(void);
+int eviewitf_deinit(void);
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
 int eviewitf_set_R7_boot_mode(uint32_t mode);
 const char* eviewitf_get_eview_version(void);

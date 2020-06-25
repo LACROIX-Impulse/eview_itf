@@ -165,14 +165,14 @@ struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_i
 }
 
 /**
- * \fn eviewitf_init_api
- * \brief Deinit MFIS driver on R7 side
+ * \fn eviewitf_init
+ * \brief Init MFIS driver on R7 side
  *
  * \param [in] camera id
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_init_api(void) {
+int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -183,7 +183,6 @@ int eviewitf_init_api(void) {
 
     /* Check if init has been done */
     if (eviewitf_global_init != 0) {
-        printf("eviewitf_init_api already done\n");
         ret = EVIEWITF_FAIL;
     } else {
         /* Prepare TX buffer */
@@ -198,17 +197,11 @@ int eviewitf_init_api(void) {
         /* Get the cameras attributes */
         if (ret == EVIEWITF_OK) {
             ret = eviewitf_mfis_get_cam_attributes(all_cameras_attributes);
-            if (ret != EVIEWITF_OK) {
-                printf("eviewitf_init_api: Error in eviewitf_mfis_get_cam_attributes\n");
-            }
         }
 
         /* Get the blendings attributes */
         if (ret == EVIEWITF_OK) {
             ret = eviewitf_mfis_get_blend_attributes(all_blendings_attributes);
-            if (ret != EVIEWITF_OK) {
-                printf("eviewitf_init_api: Error in eviewitf_mfis_get_blend_attributes\n");
-            }
         }
 
         if (ret == EVIEWITF_OK) {
@@ -220,12 +213,12 @@ int eviewitf_init_api(void) {
 }
 
 /**
- * \fn eviewitf_deinit_api
+ * \fn eviewitf_deinit
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_deinit_api(void) {
+int eviewitf_deinit(void) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -234,8 +227,7 @@ int eviewitf_deinit_api(void) {
 
     /* Check if init has been done */
     if (eviewitf_global_init == 0) {
-        printf("eviewitf_init_api never done\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     } else {
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_DEINIT;
@@ -532,23 +524,18 @@ int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     if (EVIEWITF_OK == ret) {
         /* Test camera id */
         if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
-            printf("Invalid streamer id\n");
             ret = EVIEWITF_INVALID_PARAM;
         }
     }
 
     if (EVIEWITF_OK == ret) {
         ret = ssd_set_streamer_stream(streamer_id, all_cameras_attributes[streamer_id + EVIEWITF_MAX_CAMERA].buffer_size, fps, frames_dir);
-        if (EVIEWITF_OK != ret) {
-            printf("Error: Cannot play the stream on the streamer\n");
-        }
     }
 
     return ret;
@@ -566,20 +553,15 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     if ((blending_id < 0) || (blending_id > 1)) {
-        printf("Error: eviewitf_set_blending_from_file, bad blending_id\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (EVIEWITF_OK == ret) {
         ret = ssd_set_blending(blending_id, all_blendings_attributes[blending_id].buffer_size, frame);
-        if (EVIEWITF_OK != ret) {
-            printf("Error: Cannot set the blending\n");
-        }
     }
 
     return ret;
@@ -601,8 +583,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     /* Open the blending device to write in */

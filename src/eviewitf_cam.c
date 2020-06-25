@@ -53,8 +53,7 @@ int eviewitf_camera_open(int cam_id) {
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     /* Test camera id */
@@ -209,8 +208,7 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
 int eviewitf_check_camera_on(int cam_id) {
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
-        printf("eviewitf_init_api never done\n");
-        return EVIEWITF_FAIL;
+        return EVIEWITF_NOT_INITIALIZED;
     } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
         printf("Invalid camera id %d\n", cam_id);
         return EVIEWITF_FAIL;
@@ -238,7 +236,6 @@ uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
-        printf("eviewitf_init_api never done\n");
         return 0;
     } else if (camera_attributes == NULL) {
         printf("Invalid camera id %d\n", cam_id);

@@ -251,13 +251,13 @@ int main(int argc, char **argv) {
     }
     /* Select camera for record */
     if ((arguments.camera_id >= 0) && arguments.record) {
-        eviewitf_init_api();
+        eviewitf_init();
         if (eviewitf_record_cam(arguments.camera_id, arguments.record_duration) >= 0) {
             fprintf(stdout, "Recorded %d s from camera %d\n", arguments.record_duration, arguments.camera_id);
         } else {
             fprintf(stdout, "Fail to record stream from camera %d\n", arguments.camera_id);
         }
-        eviewitf_deinit_api();
+        eviewitf_deinit();
     }
 
     /* Set camera register value */
@@ -320,7 +320,7 @@ int main(int argc, char **argv) {
 
     /* Playback on streamer */
     if ((arguments.streamer_id >= 0) && arguments.play) {
-        eviewitf_init_api();
+        eviewitf_init();
         if (arguments.set_fps) {
             ret = eviewitf_play_on_streamer(arguments.streamer_id, arguments.fps_value, arguments.path_frames_dir);
         } else {
@@ -333,12 +333,12 @@ int main(int argc, char **argv) {
         } else {
             fprintf(stdout, "Fail\n");
         }
-        eviewitf_deinit_api();
+        eviewitf_deinit();
     }
 
     /* Set a blending frame */
     if (arguments.blending && arguments.blend_interface) {
-        eviewitf_init_api();
+        eviewitf_init();
         ret = eviewitf_start_blending(arguments.blending_interface);
         if (ret >= EVIEWITF_OK) {
             ret = eviewitf_set_blending_from_file(arguments.blending_interface, arguments.path_blend_frame);
@@ -355,7 +355,7 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Start blending Fail\n");
         }
 
-        eviewitf_deinit_api();
+        eviewitf_deinit();
     }
 
     /* Stop the blending */
