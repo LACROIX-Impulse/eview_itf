@@ -245,12 +245,12 @@ int eviewitf_deinit(void) {
 }
 
 /**
- * \fn eviewitf_set_display_cam
- * \brief Request R7 to change camera used on display
+ * \fn eviewitf_display_select_camera
+ * \brief Request R7 to select camera as display input
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_display_cam(int cam_id) {
+int eviewitf_display_select_camera(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -272,6 +272,16 @@ int eviewitf_set_display_cam(int cam_id) {
     }
 
     return ret;
+}
+
+/**
+ * \fn eviewitf_display_select_streamer
+ * \brief Request R7 to select streamer as display input
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_display_select_streamer(int streamer_id) {
+    return eviewitf_display_select_camera(streamer_id + EVIEWITF_MAX_CAMERA);
 }
 
 /**
@@ -439,12 +449,12 @@ int eviewitf_reboot_cam(int cam_id) {
 }
 
 /**
- * \fn eviewitf_stop_blending
- * \brief Stop the blending
+ * \fn eviewitf_display_select_blender
+ * \brief Start / stop the blending (use -1) to stop
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_start_blending(int blending_id) {
+int eviewitf_display_select_blender(int blender_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -452,43 +462,12 @@ int eviewitf_start_blending(int blending_id) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     tx_buffer[0] = FCT_SET_BLENDING;
-    tx_buffer[1] = 1;
-    tx_buffer[2] = blending_id;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    if(blender_id < 0) {
+        tx_buffer[1] = 0;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_SET_BLENDING) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_INV_PARAM) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
+        tx_buffer[1] = 1;
+        tx_buffer[2] = blender_id;
     }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_stop_blending
- * \brief Stop the blending
- *
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_stop_blending(void) {
-    int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_SET_BLENDING;
-    tx_buffer[1] = 0;
     ret = mfis_send_request(tx_buffer, rx_buffer);
 
     if (ret < EVIEWITF_OK) {
@@ -548,7 +527,7 @@ int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending_from_file(int blending_id, char *frame) {
+int eviewitf_set_blending_from_file(int blender_id, char *frame) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
@@ -556,12 +535,12 @@ int eviewitf_set_blending_from_file(int blending_id, char *frame) {
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
-    if ((blending_id < 0) || (blending_id > 1)) {
+    if ((blender_id < 0) || (blender_id > 1)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_blending(blending_id, all_blendings_attributes[blending_id].buffer_size, frame);
+        ret = ssd_set_blending(blender_id, all_blendings_attributes[blender_id].buffer_size, frame);
     }
 
     return ret;
@@ -715,7 +694,7 @@ const char *eviewitf_get_eview_version(void) {
 }
 
 /**
- * \fn eviewitf_start_cropping
+ * \fn eviewitf_display_select_cropping
  * \brief Start the cropping with coordinates to R7
  *
  * \param in x1: set first coordinate X position
@@ -724,7 +703,7 @@ const char *eviewitf_get_eview_version(void) {
  * \param in y2: set second coordinate Y position
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -746,14 +725,6 @@ int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) 
 
     return ret;
 }
-
-/**
- * \fn eviewitf_stop_cropping
- * \brief Stop the cropping on R7
- *
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
 
 /**
  * \fn eviewitf_import_seek_plugin

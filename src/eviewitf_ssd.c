@@ -275,7 +275,7 @@ int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char
  * \param in frame: blending frame file
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
+int ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
     int ret = EVIEWITF_OK;
     int file_ssd;
     int test_rw = 0;
@@ -295,7 +295,7 @@ int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
         return -1;
     }
 
-    ret = eviewitf_blender_write_frame(blending_id, buffer_size, buff_f);
+    ret = eviewitf_blender_write_frame(blender_id, buffer_size, buff_f);
 
     close(file_ssd);
 

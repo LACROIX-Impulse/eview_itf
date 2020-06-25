@@ -23,7 +23,6 @@
  * \enum eviewitf_return_state
  * \brief Return Codes
  */
-
 typedef enum {
     EVIEWITF_OK,
     EVIEWITF_BLOCKED = -1,
@@ -92,29 +91,16 @@ int eviewitf_streamer_close(int streamer_id);
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes);
 int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char* buffer);
 
-/* Blending */
+/* Blender */
 int eviewitf_blender_open(int blender_id);
 int eviewitf_blender_close(int blender_id);
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes);
-int eviewitf_blender_write_frame(int blending_id, uint32_t buffer_size, char* buffer);
+int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char* buffer);
 
-/* Cropping */
-int eviewitf_set_display_cam(int cam_id);
-int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
-int eviewitf_stop_cropping(void);
-int eviewitf_start_blending(int blending_id);
-int eviewitf_stop_blending(void);
+/* Display */
+int eviewitf_display_select_camera(int cam_id);
+int eviewitf_display_select_streamer(int streamer_id);
+int eviewitf_display_select_blender(int blender_id);
+int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 
-
-/* Specific SEEK */
-int eviewitf_import_seek_plugin(void);
-char* eviewitf_seek_get_plugin_version(void);
-char* eviewitf_seek_get_seek_version(void);
-int eviewitf_seek_init_all_cameras(int nb_cam);
-int eviewitf_seek_deinit_all_cameras(int nb_cam);
-int eviewitf_seek_start_camera(int cam_id);
-int eviewitf_seek_stop_camera(int cam_id);
-int eviewitf_seek_get_camera_setting(int cam_id, int setting_nb, int* setting_value);
-int eviewitf_seek_set_camera_setting(int cam_id, int setting_nb, int setting_value);
-int eviewitf_seek_get_camera_frame(int cam_id, float** temperature, uint32_t** display);
 #endif /* EVIEWITF_H */

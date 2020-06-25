@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
 
     /* Select camera for display */
     if ((arguments.camera_id >= 0) && arguments.display) {
-        if (eviewitf_set_display_cam(arguments.camera_id) >= 0) {
+        if (eviewitf_display_select_camera(arguments.camera_id) >= 0) {
             fprintf(stdout, "Camera %d selected for display\n", arguments.camera_id);
         } else {
             fprintf(stdout, "Failed to select camera %d for display\n", arguments.camera_id);
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
     }
     /* Select streamer for display */
     if ((arguments.streamer_id >= 0) && arguments.display) {
-        if (eviewitf_set_display_cam(arguments.streamer_id + EVIEWITF_MAX_CAMERA) >= 0) {
+        if (eviewitf_display_select_streamer(arguments.streamer_id) >= 0) {
             fprintf(stdout, "Streamer %d selected for display\n", arguments.camera_id);
         } else {
             fprintf(stdout, "Failed to select sreamer %d for display\n", arguments.camera_id);
@@ -321,7 +321,7 @@ int main(int argc, char **argv) {
     /* Set a blending frame */
     if (arguments.blending && arguments.blend_interface) {
         eviewitf_init();
-        ret = eviewitf_start_blending(arguments.blending_interface);
+        ret = eviewitf_display_select_blender(arguments.blending_interface);
         if (ret >= EVIEWITF_OK) {
             ret = eviewitf_set_blending_from_file(arguments.blending_interface, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
@@ -342,7 +342,7 @@ int main(int argc, char **argv) {
 
     /* Stop the blending */
     if (arguments.stop_blending) {
-        ret = eviewitf_stop_blending();
+        ret = eviewitf_display_select_blender(-1);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {
@@ -415,13 +415,13 @@ int main(int argc, char **argv) {
             }
         }
         if (ret >= EVIEWITF_OK) {
-            eviewitf_start_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
+            eviewitf_display_select_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
         }
     }
 
     /* stop cropping  */
     if (arguments.cropping == 0) {
-        ret = eviewitf_stop_cropping();
+        ret = eviewitf_display_select_cropping(0, 0, 0, 0);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Cropping stopped\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {
