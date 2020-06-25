@@ -69,10 +69,10 @@ typedef enum {
 } fct_id_t;
 
 /* Cameras attributes */
-static mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
+static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
 
 /* Blending attributes */
-static mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
+static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
@@ -87,11 +87,11 @@ static eviewitf_seek_plugin_handle seek_plugin_handle;
  * \fn eviewitf_mfis_get_cam_attributes
  * \brief Get the cameras attributes
  *
- * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
+ * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attributes) {
+static int eviewitf_mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
     int ret = EVIEWITF_OK;
 
     /* Check input parameter */
@@ -116,11 +116,11 @@ static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attr
  * \fn eviewitf_mfis_get_blend_attributes
  * \brief Get the blendings attributes
  *
- * \param [inout] blendings_attributes: Pointer to a table of mfis_blending_attributes
+ * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blendings_attributes) {
+static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
     int ret = EVIEWITF_OK;
 
     /* Check input parameter */
@@ -157,7 +157,7 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
  *
  * \return pointer on camera attributes structure
  */
-mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
+struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
     if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
         return NULL;
     }
@@ -174,7 +174,7 @@ mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
  */
 int eviewitf_init_api(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -227,7 +227,7 @@ int eviewitf_init_api(void) {
  */
 int eviewitf_deinit_api(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -260,7 +260,7 @@ int eviewitf_deinit_api(void) {
  */
 int eviewitf_set_display_cam(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -320,7 +320,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
  */
 int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
@@ -371,7 +371,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
  */
 int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
@@ -413,7 +413,7 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
 
 int eviewitf_reboot_cam(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
@@ -454,7 +454,7 @@ int eviewitf_reboot_cam(int cam_id) {
  */
 int eviewitf_start_blending(int blending_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -490,7 +490,7 @@ int eviewitf_start_blending(int blending_id) {
  */
 int eviewitf_stop_blending(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -670,7 +670,7 @@ int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer)
 
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
@@ -716,7 +716,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
  */
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -743,7 +743,7 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
  */
 int eviewitf_set_R7_boot_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -781,7 +781,7 @@ const char *eviewitf_get_eview_version(void) {
     int i = 0;
     int j = 0;
     int size_div = 0;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     if (strlen(eview_version) != 0) {
         return eview_version;
@@ -827,7 +827,7 @@ const char *eviewitf_get_eview_version(void) {
  */
 int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));

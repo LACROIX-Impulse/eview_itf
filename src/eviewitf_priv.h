@@ -46,6 +46,6 @@ int eviewitf_record_cam(int cam_id, int delay);
 int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir);
 int eviewitf_set_blending_from_file(int blending_id, char *frame);
 int eviewitf_is_initialized();
-mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
 
 #endif /* EVIEWITF_PRIV_H */

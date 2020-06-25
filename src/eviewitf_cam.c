@@ -216,7 +216,7 @@ int eviewitf_check_camera_on(int cam_id) {
         printf("Invalid camera id %d\n", cam_id);
         return EVIEWITF_FAIL;
     } else {
-        mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
+        struct eviewitf_mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
         if ((camera_attributes == NULL) || (camera_attributes->buffer_size == 0)) {
             return EVIEWITF_FAIL;
         } else {
@@ -235,7 +235,7 @@ int eviewitf_check_camera_on(int cam_id) {
  */
 uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
     /* Get the cameras attributes */
-    mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
+    struct eviewitf_mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {

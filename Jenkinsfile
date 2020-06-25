@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'sdk-ecube-0.1'
+        label 'sdk-ecube-0.12'
     }
     environment {
         SYSROOTS = "${env.SYSROOTS_0_1}"

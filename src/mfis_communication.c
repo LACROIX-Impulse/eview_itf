@@ -55,14 +55,14 @@ int mfis_send_request(int32_t* send, int32_t* receive) {
     }
 
     /* Send message to MFIS */
-    ret = ioctl(fd, WR_VALUE, (int32_t*)send);
+    ret = ioctl(fd, EVIEWITF_MFIS_WR_VALUE, (int32_t*)send);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
         goto out_close;
     }
 
     /* Wait for MFIS answer from R7 */
-    ret = ioctl(fd, RD_VALUE, (int32_t*)receive);
+    ret = ioctl(fd, EVIEWITF_MFIS_RD_VALUE, (int32_t*)receive);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
         goto out_close;
@@ -76,14 +76,14 @@ out_ret:
 }
 
 /**
- * \fn void* mfis_get_cam_attributes(mfis_camera_attributes *cameras_attributes) {
+ * \fn void* mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
  * \brief Get cameras attributes from MFIS
  *
- * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
+ * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_cam_attributes(mfis_camera_attributes* cameras_attributes) {
+int mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes* cameras_attributes) {
     int fd;
     int ret;
     pthread_mutex_lock(&mfis_mutex);
@@ -97,7 +97,7 @@ int mfis_get_cam_attributes(mfis_camera_attributes* cameras_attributes) {
     }
 
     /* Call to the ioctl */
-    ret = ioctl(fd, MFIS_CAM_ATTRIBUTES, cameras_attributes);
+    ret = ioctl(fd, EVIEWITF_MFIS_CAMERA_ATTRIBUTES, cameras_attributes);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl error : %s\n", __FUNCTION__, strerror(errno));
         pthread_mutex_unlock(&mfis_mutex);
@@ -111,14 +111,14 @@ int mfis_get_cam_attributes(mfis_camera_attributes* cameras_attributes) {
 }
 
 /**
- * \fn void* mfis_get_blend_attributes(mfis_camera_attributes *blendings_attributes) {
+ * \fn void* mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
  * \brief Get blendings attributes from MFIS
  *
- * \param [inout] blendings_attributes: Pointer to a table of mfis_blending_attributes
+ * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_blend_attributes(mfis_blending_attributes* blendings_attributes) {
+int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes* blendings_attributes) {
     int fd;
     int ret;
     pthread_mutex_lock(&mfis_mutex);
@@ -132,7 +132,7 @@ int mfis_get_blend_attributes(mfis_blending_attributes* blendings_attributes) {
     }
 
     /* Call to the ioctl */
-    ret = ioctl(fd, MFIS_BLEND_ATTRIBUTES, blendings_attributes);
+    ret = ioctl(fd, EVIEWITF_MFIS_BLENDING_ATTRIBUTES, blendings_attributes);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl error : %s\n", __FUNCTION__, strerror(errno));
         pthread_mutex_unlock(&mfis_mutex);
