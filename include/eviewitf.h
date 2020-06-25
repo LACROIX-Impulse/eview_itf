@@ -70,7 +70,10 @@ int eviewitf_init(void);
 int eviewitf_deinit(void);
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
 int eviewitf_set_R7_boot_mode(uint32_t mode);
+
+/* Version */
 const char* eviewitf_get_eview_version(void);
+const char* eviewitf_get_eviewitf_version(void);
 
 /* Cameras */
 int eviewitf_camera_open(int cam_id);
@@ -100,8 +103,7 @@ int eviewitf_stop_blending(void);
 /* Cropping */
 int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 int eviewitf_stop_cropping(void);
-/* Infos */
-const char* eviewitf_get_lib_version(void);
+
 
 /* Specific SEEK */
 int eviewitf_import_seek_plugin(void);
