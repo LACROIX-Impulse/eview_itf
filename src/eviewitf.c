@@ -69,7 +69,7 @@ typedef enum {
 } fct_id_t;
 
 /* Cameras attributes */
-static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
+static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
 /* Blending attributes */
 static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
@@ -295,7 +295,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
     char *record_dir = NULL;
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the record\n");
         ret = EVIEWITF_INVALID_PARAM;
@@ -323,7 +323,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the get param\n");
         ret = EVIEWITF_INVALID_PARAM;
@@ -374,7 +374,7 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the set param\n");
         ret = EVIEWITF_INVALID_PARAM;
@@ -416,7 +416,7 @@ int eviewitf_reboot_cam(int cam_id) {
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the reboot\n");
         ret = EVIEWITF_INVALID_PARAM;
@@ -518,80 +518,38 @@ int eviewitf_stop_blending(void) {
 }
 
 /**
- * \fn eviewitf_play_on_virtual_cam
- * \brief Update the frames to be printed on a virtual camera
+ * \fn eviewitf_play_on_streamer
+ * \brief Update the frames to be printed on a streamer
 
- * \param in cam_id: id of the camera
+ * \param in streamer_id: id of the streamer
  * \param in fps: fps to apply on the recording
  * \param in frames_dir: path to the recording
+ * 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
+int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
         printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     if (EVIEWITF_OK == ret) {
         /* Test camera id */
-        if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-            printf("Invalid camera id\n");
-            printf("Please choose a virtual camera for the playback\n");
+        if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+            printf("Invalid streamer id\n");
             ret = EVIEWITF_INVALID_PARAM;
         }
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_virtual_camera_stream(cam_id, all_cameras_attributes[cam_id].buffer_size, fps, frames_dir);
+        ret = ssd_set_streamer_stream(streamer_id, all_cameras_attributes[streamer_id + EVIEWITF_MAX_CAMERA].buffer_size, fps, frames_dir);
         if (EVIEWITF_OK != ret) {
-            printf("Error: Cannot play the stream on the virtual camera\n");
+            printf("Error: Cannot play the stream on the streamer\n");
         }
     }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_set_virtual_cam
- * \brief Set a virtual camera frame
-
- * \param in cam_id: id of the camera
- * \param in buffer_size: size of the virtual camera buffer
- * \param in buffer: virtual camera buffer
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
-    int ret = EVIEWITF_OK;
-    int cam_fd;
-    int test_rw = 0;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
-
-    /* Test API has been initialized */
-    if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Open the virtual camera to write in */
-    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, "/dev/mfis_cam%d", cam_id);
-    cam_fd = open(device_name, O_WRONLY);
-    if (cam_fd == -1) {
-        printf("Error opening camera file\n");
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Write the frame in the virtual camera */
-    test_rw = write(cam_fd, buffer, buffer_size);
-    if ((-1) == test_rw) {
-        printf("[Error] Write frame in the virtual camera\n");
-        return EVIEWITF_FAIL;
-    }
-
-    /* Close the virtual camera file device */
-    close(cam_fd);
 
     return ret;
 }
@@ -673,7 +631,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the fps\n");
         ret = EVIEWITF_INVALID_PARAM;

@@ -24,9 +24,10 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 
 /* Arguments description */
 static char args_doc[] =
-    "change display:  -d -c [0-15]\n"
+    "change display:  -d -c [0-7]\n"
+    "change display:  -d -s [0-7]\n"
     "record:          -c [0-7] -r [???]\n"
-    "play recordings: -c [8-15] -f [5-?] -p [PATH]\n"
+    "play recordings: -s [0-7] -f [5-?] -p [PATH]\n"
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
@@ -42,6 +43,7 @@ static char args_doc[] =
 /* Program options */
 static struct argp_option options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
+    {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
     {"display", 'd', 0, 0, "Select camera as display", 0},
     {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
     /* {"type", 't', "TYPE", 0, "Select camera type"}, not used for now */
@@ -49,7 +51,7 @@ static struct argp_option options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
     {"read", 'R', 0, 0, "Read register", 0},
     {"write", 'W', 0, 0, "Write register", 0},
-    {"reboot", 's', 0, 0, "Software reboot camera", 0},
+    {"reboot", 'x', 0, 0, "Software reboot camera", 0},
     {"fps", 'f', "FPS", 0, "Set camera FPS", 0},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
@@ -65,8 +67,8 @@ static struct argp_option options[] = {
 
 /* Used by main to communicate with parse_opt. */
 struct arguments {
-    int camera;
     int camera_id;
+    int streamer_id;
     int display;
     int record;
     int record_duration;
@@ -115,7 +117,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->path_blend_frame = arg;
             break;
         case 'c':
-            arguments->camera = 1;
             arguments->camera_id = atoi(arg);
             if ((arguments->camera_id < 0) || (arguments->camera_id >= EVIEWITF_MAX_CAMERA)) {
                 argp_usage(state);
@@ -146,7 +147,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->path_frames_dir = arg;
             break;
         case 's':
-            arguments->reboot = 1;
+            arguments->streamer_id = atoi(arg);
+            if ((arguments->streamer_id < 0) || (arguments->streamer_id >= EVIEWITF_MAX_STREAMER)) {
+                argp_usage(state);
+            }
             break;
         case 'R':
             arguments->read = 1;
@@ -158,6 +162,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             break;
+        case 'U':
+            arguments->cropping = 1;
+            arguments->cropping_coord = arg;
+            break;
+        case 'u':
+            arguments->cropping = 0;
+            break;
         case 'v':
             arguments->val = 1;
             arguments->reg_value = (int)strtol(arg, NULL, 16);
@@ -165,12 +176,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'W':
             arguments->write = 1;
             break;
-        case 'U':
-            arguments->cropping = 1;
-            arguments->cropping_coord = arg;
-            break;
-        case 'u':
-            arguments->cropping = 0;
+        case 'x':
+            arguments->reboot = 1;
             break;
         case ARGP_KEY_ARG:
             /* Too many arguments. */
@@ -196,8 +203,8 @@ int main(int argc, char **argv) {
     char *cropping_args;
     uint32_t cropp_x1, cropp_y1, cropp_x2, cropp_y2;
     /* Default values. */
-    arguments.camera = 0;
-    arguments.camera_id = 0;
+    arguments.camera_id = -1;
+    arguments.streamer_id = -1;
     arguments.display = 0;
     arguments.record = 0;
     arguments.record_duration = 0;
@@ -227,15 +234,23 @@ int main(int argc, char **argv) {
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     /* Select camera for display */
-    if (arguments.camera && arguments.display) {
+    if ((arguments.camera_id >= 0) && arguments.display) {
         if (eviewitf_set_display_cam(arguments.camera_id) >= 0) {
             fprintf(stdout, "Camera %d selected for display\n", arguments.camera_id);
         } else {
             fprintf(stdout, "Failed to select camera %d for display\n", arguments.camera_id);
         }
     }
+    /* Select streamer for display */
+    if ((arguments.streamer_id >= 0) && arguments.display) {
+        if (eviewitf_set_display_cam(arguments.streamer_id + EVIEWITF_MAX_CAMERA) >= 0) {
+            fprintf(stdout, "Streamer %d selected for display\n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Failed to select sreamer %d for display\n", arguments.camera_id);
+        }
+    }
     /* Select camera for record */
-    if (arguments.camera && arguments.record) {
+    if ((arguments.camera_id >= 0) && arguments.record) {
         eviewitf_init_api();
         if (eviewitf_record_cam(arguments.camera_id, arguments.record_duration) >= 0) {
             fprintf(stdout, "Recorded %d s from camera %d\n", arguments.record_duration, arguments.camera_id);
@@ -246,7 +261,7 @@ int main(int argc, char **argv) {
     }
 
     /* Set camera register value */
-    if (arguments.camera && arguments.type && arguments.reg && arguments.val && arguments.write) {
+    if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.val && arguments.write) {
         ret = eviewitf_set_camera_param(arguments.camera_id, arguments.camera_type, arguments.reg_address,
                                         arguments.reg_value);
         if (ret >= EVIEWITF_OK) {
@@ -260,7 +275,7 @@ int main(int argc, char **argv) {
         }
     }
     /* Get camera register value*/
-    if (arguments.camera && arguments.type && arguments.reg && arguments.read) {
+    if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.read) {
         ret = eviewitf_get_camera_param(arguments.camera_id, arguments.camera_type, arguments.reg_address,
                                         &register_value);
         if (ret >= EVIEWITF_OK) {
@@ -274,7 +289,7 @@ int main(int argc, char **argv) {
         }
     }
     /* reboot a camera */
-    if (arguments.camera && arguments.reboot) {
+    if ((arguments.camera_id >= 0) && arguments.reboot) {
         ret = eviewitf_reboot_cam(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {
@@ -287,7 +302,7 @@ int main(int argc, char **argv) {
     }
 
     /* change camera fps */
-    if (arguments.camera && arguments.set_fps && !arguments.play) {
+    if ((arguments.camera_id >= 0) && arguments.set_fps && !arguments.play) {
         if (arguments.set_fps < 0) {
             fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
         } else {
@@ -303,16 +318,16 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* Play a stream as a virtual camera */
-    if (arguments.camera && arguments.play) {
+    /* Playback on streamer */
+    if ((arguments.streamer_id >= 0) && arguments.play) {
         eviewitf_init_api();
         if (arguments.set_fps) {
-            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, arguments.fps_value, arguments.path_frames_dir);
+            ret = eviewitf_play_on_streamer(arguments.streamer_id, arguments.fps_value, arguments.path_frames_dir);
         } else {
-            ret = eviewitf_play_on_virtual_cam(arguments.camera_id, DEFAULT_FPS, arguments.path_frames_dir);
+            ret = eviewitf_play_on_streamer(arguments.streamer_id, DEFAULT_FPS, arguments.path_frames_dir);
         }
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Recording played on camera %d\n", arguments.camera_id);
+            fprintf(stdout, "Recording played on camera %d\n", arguments.streamer_id);
         } else if (ret == EVIEWITF_INVALID_PARAM) {
             fprintf(stdout, "You sent a wrong parameter\n");
         } else {
