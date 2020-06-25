@@ -78,16 +78,13 @@ const char* eviewitf_get_eviewitf_version(void);
 /* Cameras */
 int eviewitf_camera_open(int cam_id);
 int eviewitf_camera_close(int cam_id);
-int eviewitf_check_camera_on(int cam_id);
-uint32_t eviewitf_camera_get_buffer_size(int cam_id);
+int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *attributes);
 int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer_size);
-int eviewitf_poll(int* cam_id, int nb_cam, short* event_return);
-int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t* reg_value);
-int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value);
-int eviewitf_set_camera_fps(int cam_id, uint32_t fps);
 int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t* frame_metadata);
-int eviewitf_set_display_cam(int cam_id);
+int eviewitf_camera_poll(int* cam_id, int nb_cam, short* event_return);
+int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t* reg_value);
+int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value);
 
 /* Streamer */
 int eviewitf_streamer_open(int streamer_id);
@@ -101,6 +98,7 @@ int eviewitf_start_blending(int blending_id);
 int eviewitf_stop_blending(void);
 
 /* Cropping */
+int eviewitf_set_display_cam(int cam_id);
 int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 int eviewitf_stop_cropping(void);
 

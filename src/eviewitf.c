@@ -301,7 +301,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
 }
 
 /**
- * \fn eviewitf_get_camera_param
+ * \fn eviewitf_camera_get_parameter
  * \brief Request R7 to get a register value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
@@ -310,7 +310,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
  * \param *reg_value: Register Value
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t *reg_value) {
+int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -352,7 +352,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
     return ret;
 }
 /**
- * \fn eviewitf_set_camera_param
+ * \fn eviewitf_camera_set_parameter
  * \brief Request R7 to set a register to a value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
@@ -361,7 +361,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
  * \param reg_value: Register Value to set
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value) {
+int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 

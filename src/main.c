@@ -31,7 +31,6 @@ static char args_doc[] =
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
     "read register:   -c [0-7] -Ra [0x????]\n"
     "reboot a camera: -s -c [0-7]\n"
-    "change the fps:  -f [0-60] -c [0-7]\n"
     "set blending:    -b [PATH] -o [0-1]\n"
     "stop blending:   -n\n"
     "activate R7 heartbeat: -H\n"
@@ -52,7 +51,7 @@ static struct argp_option options[] = {
     {"read", 'R', 0, 0, "Read register", 0},
     {"write", 'W', 0, 0, "Write register", 0},
     {"reboot", 'x', 0, 0, "Software reboot camera", 0},
-    {"fps", 'f', "FPS", 0, "Set camera FPS", 0},
+    {"fps", 'f', "FPS", 0, "Set playback FPS", 0},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
     {"no-blending", 'n', 0, 0, "Stop the blending", 0},
@@ -262,7 +261,7 @@ int main(int argc, char **argv) {
 
     /* Set camera register value */
     if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.val && arguments.write) {
-        ret = eviewitf_set_camera_param(arguments.camera_id, arguments.camera_type, arguments.reg_address,
+        ret = eviewitf_camera_set_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
                                         arguments.reg_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "0X%hhX written in register 0X%X of camera id %d \n", arguments.reg_value,
@@ -276,7 +275,7 @@ int main(int argc, char **argv) {
     }
     /* Get camera register value*/
     if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.read) {
-        ret = eviewitf_get_camera_param(arguments.camera_id, arguments.camera_type, arguments.reg_address,
+        ret = eviewitf_camera_get_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
                                         &register_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Register 0X%X Value: 0X%hhX, of camera id %d \n", arguments.reg_address, register_value,
@@ -298,23 +297,6 @@ int main(int argc, char **argv) {
             fprintf(stdout, "You send a wrong camera Id\n");
         } else {
             fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
-        }
-    }
-
-    /* change camera fps */
-    if ((arguments.camera_id >= 0) && arguments.set_fps && !arguments.play) {
-        if (arguments.set_fps < 0) {
-            fprintf(stdout, "Camera %d negative values not allowed \n", arguments.camera_id);
-        } else {
-            ret = eviewitf_set_camera_fps(arguments.camera_id, (uint32_t)arguments.fps_value);
-
-            if (ret >= EVIEWITF_OK) {
-                fprintf(stdout, "Camera %d new fps %d \n", arguments.camera_id, arguments.fps_value);
-            } else if (ret == EVIEWITF_INVALID_PARAM) {
-                fprintf(stdout, "You send a wrong camera Id or a wrong FPS value\n");
-            } else {
-                fprintf(stdout, "Fail to set camera %d fps: %d \n", arguments.camera_id, arguments.fps_value);
-            }
         }
     }
 
