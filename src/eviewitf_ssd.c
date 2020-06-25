@@ -146,7 +146,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
  * \param in buffer_size: size of the streamer buffer
  * \param in fps: fps to apply on the recording
  * \param in frames_directory: path to the recording
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char *frames_directory) {
@@ -193,7 +193,7 @@ int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char
         return -1;
     }
 
-    if(eviewitf_streamer_open(streamer_id) != EVIEWITF_OK) {
+    if (eviewitf_streamer_open(streamer_id) != EVIEWITF_OK) {
         printf("Error opening device\n");
         return -1;
     }
@@ -259,7 +259,7 @@ int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char
         }
     }
 
-    if(eviewitf_streamer_close(streamer_id) != EVIEWITF_OK) {
+    if (eviewitf_streamer_close(streamer_id) != EVIEWITF_OK) {
         printf("Error closing device\n");
         return -1;
     }

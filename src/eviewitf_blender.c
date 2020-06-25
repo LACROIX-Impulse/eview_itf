@@ -118,7 +118,8 @@ int eviewitf_blender_close(int blender_id) {
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the blenders attributes */
-    struct eviewitf_mfis_camera_attributes *blender_attributes = eviewitf_get_camera_attributes(blender_id + EVIEWITF_MAX_CAMERA);
+    struct eviewitf_mfis_camera_attributes *blender_attributes =
+        eviewitf_get_camera_attributes(blender_id + EVIEWITF_MAX_CAMERA);
 
     /* Test blender id */
     if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
@@ -143,8 +144,8 @@ int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t
     if (ret >= EVIEWITF_OK) {
         attributes->buffer_size = blender_attributes->buffer_size;
         attributes->width = blender_attributes->width;
-        attributes->height = blender_attributes->height;;
-        attributes->dt = blender_attributes->dt;;
+        attributes->height = blender_attributes->height;
+        attributes->dt = blender_attributes->dt;
     }
 
     return ret;
@@ -157,7 +158,7 @@ int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t
  * \param in blender_id: id of the camera
  * \param in buffer_size: size of the virtual camera buffer
  * \param in buffer: virtual camera buffer
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char *buffer) {
@@ -178,7 +179,7 @@ int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char *buf
     if (ret >= EVIEWITF_OK) {
         /* Write the frame in the virtual camera */
         if (write(file_blenders[blender_id], buffer, buffer_size) < 0) {
-            ret =  EVIEWITF_FAIL;
+            ret = EVIEWITF_FAIL;
         }
     }
 

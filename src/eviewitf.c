@@ -462,7 +462,7 @@ int eviewitf_display_select_blender(int blender_id) {
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     tx_buffer[0] = FCT_SET_BLENDING;
-    if(blender_id < 0) {
+    if (blender_id < 0) {
         tx_buffer[1] = 0;
     } else {
         tx_buffer[1] = 1;
@@ -495,7 +495,7 @@ int eviewitf_display_select_blender(int blender_id) {
  * \param in streamer_id: id of the streamer
  * \param in fps: fps to apply on the recording
  * \param in frames_dir: path to the recording
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
@@ -514,7 +514,8 @@ int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_streamer_stream(streamer_id, all_cameras_attributes[streamer_id + EVIEWITF_MAX_CAMERA].buffer_size, fps, frames_dir);
+        ret = ssd_set_streamer_stream(
+            streamer_id, all_cameras_attributes[streamer_id + EVIEWITF_MAX_CAMERA].buffer_size, fps, frames_dir);
     }
 
     return ret;

@@ -118,7 +118,8 @@ int eviewitf_streamer_close(int streamer_id) {
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the streamers attributes */
-    struct eviewitf_mfis_camera_attributes *streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
+    struct eviewitf_mfis_camera_attributes *streamer_attributes =
+        eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
 
     /* Test streamer id */
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
@@ -143,8 +144,8 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
     if (ret >= EVIEWITF_OK) {
         attributes->buffer_size = streamer_attributes->buffer_size;
         attributes->width = streamer_attributes->width;
-        attributes->height = streamer_attributes->height;;
-        attributes->dt = streamer_attributes->dt;;
+        attributes->height = streamer_attributes->height;
+        attributes->dt = streamer_attributes->dt;
     }
 
     return ret;
@@ -157,7 +158,7 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
  * \param in streamer_id: id of the camera
  * \param in buffer_size: size of the virtual camera buffer
  * \param in buffer: virtual camera buffer
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char *buffer) {
@@ -178,7 +179,7 @@ int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char *b
     if (ret >= EVIEWITF_OK) {
         /* Write the frame in the virtual camera */
         if (write(file_streamers[streamer_id], buffer, buffer_size) < 0) {
-            ret =  EVIEWITF_FAIL;
+            ret = EVIEWITF_FAIL;
         }
     }
 

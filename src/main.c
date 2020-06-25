@@ -262,7 +262,7 @@ int main(int argc, char **argv) {
     /* Set camera register value */
     if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.val && arguments.write) {
         ret = eviewitf_camera_set_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
-                                        arguments.reg_value);
+                                            arguments.reg_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "0X%hhX written in register 0X%X of camera id %d \n", arguments.reg_value,
                     arguments.reg_address, arguments.camera_id);
@@ -276,7 +276,7 @@ int main(int argc, char **argv) {
     /* Get camera register value*/
     if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.read) {
         ret = eviewitf_camera_get_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
-                                        &register_value);
+                                            &register_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Register 0X%X Value: 0X%hhX, of camera id %d \n", arguments.reg_address, register_value,
                     arguments.camera_id);

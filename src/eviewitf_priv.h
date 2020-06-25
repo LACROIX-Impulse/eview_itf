@@ -17,9 +17,9 @@
 /* Magic number used to check metadata presence */
 #define FRAME_MAGIC_NUMBER 0xD1CECA5F
 
-#define DEVICE_CAMERA_NAME "/dev/mfis_cam%d"
-#define DEVICE_BLENDER_NAME "/dev/mfis_O%d"
-#define DEVICE_CAMERA_MAX_LENGTH 20
+#define DEVICE_CAMERA_NAME        "/dev/mfis_cam%d"
+#define DEVICE_BLENDER_NAME       "/dev/mfis_O%d"
+#define DEVICE_CAMERA_MAX_LENGTH  20
 #define DEVICE_BLENDER_MAX_LENGTH 20
 
 /******************************************************************************************

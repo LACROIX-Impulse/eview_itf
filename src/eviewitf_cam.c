@@ -221,8 +221,8 @@ int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *att
     if (ret >= EVIEWITF_OK) {
         attributes->buffer_size = camera_attributes->buffer_size;
         attributes->width = camera_attributes->width;
-        attributes->height = camera_attributes->height;;
-        attributes->dt = camera_attributes->dt;;
+        attributes->height = camera_attributes->height;
+        attributes->dt = camera_attributes->dt;
     }
 
     return ret;
