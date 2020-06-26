@@ -20,7 +20,7 @@
  * Public Structures
  ******************************************************************************************/
 /**
- * \enum eviewitf_return_state
+ * \enum eviewitf_return_code
  * \brief Return Codes
  */
 typedef enum {
@@ -30,7 +30,7 @@ typedef enum {
     EVIEWITF_NOT_INITIALIZED = -3,
     EVIEWITF_NOT_OPENED = -4,
     EVIEWITF_FAIL = -5,
-} eviewitf_return_state;
+} eviewitf_return_code;
 
 /**
  * \struct eviewitf_frame_metadata_info_t
