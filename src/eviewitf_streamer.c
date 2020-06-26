@@ -48,6 +48,7 @@ static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1};
 int eviewitf_streamer_open(int streamer_id) {
     int ret = EVIEWITF_OK;
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
+    struct eviewitf_mfis_camera_attributes *streamer_attributes;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -59,10 +60,18 @@ int eviewitf_streamer_open(int streamer_id) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
+    /* Test streamer is active */
+    else {
+        streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
+        if (streamer_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
+            ret = EVIEWITF_FAIL;
+        }
+    }
+
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
         snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, streamer_id + EVIEWITF_MAX_CAMERA);
-        file_streamers[streamer_id] = open(device_name, O_RDONLY);
+        file_streamers[streamer_id] = open(device_name, O_WRONLY);
         if (file_streamers[streamer_id] == -1) {
             ret = EVIEWITF_FAIL;
         }

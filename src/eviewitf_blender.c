@@ -47,7 +47,7 @@ static int file_blenders[EVIEWITF_MAX_BLENDER] = {-1};
  */
 int eviewitf_blender_open(int blender_id) {
     int ret = EVIEWITF_OK;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+    char device_name[DEVICE_BLENDER_MAX_LENGTH];
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -61,8 +61,9 @@ int eviewitf_blender_open(int blender_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, blender_id + EVIEWITF_MAX_CAMERA);
-        file_blenders[blender_id] = open(device_name, O_RDONLY);
+        snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blender_id + 2); /* O2 and O3 */
+        printf("open %s\n", device_name);
+        file_blenders[blender_id] = open(device_name, O_WRONLY);
         if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_FAIL;
         }
@@ -118,8 +119,8 @@ int eviewitf_blender_close(int blender_id) {
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the blenders attributes */
-    struct eviewitf_mfis_camera_attributes *blender_attributes =
-        eviewitf_get_camera_attributes(blender_id + EVIEWITF_MAX_CAMERA);
+    struct eviewitf_mfis_blending_attributes *blender_attributes =
+        eviewitf_get_blender_attributes(blender_id);
 
     /* Test blender id */
     if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {

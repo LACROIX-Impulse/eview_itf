@@ -49,6 +49,7 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1};
 int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
+    struct eviewitf_mfis_camera_attributes *camera_attributes;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -58,6 +59,14 @@ int eviewitf_camera_open(int cam_id) {
     /* Test camera id */
     else if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    /* Test camera is active */
+    else {
+        camera_attributes = eviewitf_get_camera_attributes(cam_id);
+        if (camera_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
+            ret = EVIEWITF_FAIL;
+        }
     }
 
     if (ret >= EVIEWITF_OK) {

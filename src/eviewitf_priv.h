@@ -50,5 +50,6 @@ int eviewitf_play_on_streamer(int cam_id, int fps, char *frames_dir);
 int eviewitf_set_blending_from_file(int blender_id, char *frame);
 int eviewitf_is_initialized();
 struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
 
 #endif /* EVIEWITF_PRIV_H */

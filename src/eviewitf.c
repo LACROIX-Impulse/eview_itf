@@ -151,17 +151,32 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
 
 /**
  * \fn eviewitf_get_cameras_attributes
- * \brief Get a pointer on the cameras_attributes array
+ * \brief Get a pointer on the camera attributes
  *
  * \param [in] cam_id: Camera id
  *
  * \return pointer on camera attributes structure
  */
 struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
-    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER) {
         return NULL;
     }
     return &all_cameras_attributes[cam_id];
+}
+
+/**
+ * \fn eviewitf_get_blender_attributes
+ * \brief Get a pointer on the blender attributes
+ *
+ * \param [in] cam_id: Camera id
+ *
+ * \return pointer on blender attributes structure
+ */
+struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int blender_id) {
+    if (blender_id < 0 || blender_id >= EVIEWITF_MAX_CAMERA) {
+        return NULL;
+    }
+    return &all_blendings_attributes[blender_id];
 }
 
 /**
