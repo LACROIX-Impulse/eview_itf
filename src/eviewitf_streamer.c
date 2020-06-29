@@ -184,6 +184,12 @@ int eviewitf_streamer_write_frame(int streamer_id, uint8_t* frame_buffer, uint32
     }
 
     if (ret >= EVIEWITF_OK) {
+        if (frame_buffer == NULL) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    if (ret >= EVIEWITF_OK) {
         // Test streamer has been opened
         if (file_streamers[streamer_id] == -1) {
             ret = EVIEWITF_NOT_OPENED;

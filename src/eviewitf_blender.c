@@ -175,6 +175,12 @@ int eviewitf_blender_write_frame(int blender_id, uint8_t* frame_buffer, uint32_t
     }
 
     if (ret >= EVIEWITF_OK) {
+        if (frame_buffer == NULL) {
+            ret = EVIEWITF_INVALID_PARAM;
+        }
+    }
+
+    if (ret >= EVIEWITF_OK) {
         // Test blender has been opened
         if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_NOT_OPENED;
