@@ -169,9 +169,14 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
     int ret = EVIEWITF_OK;
     int i;
 
-    for (i = 0; i < nb_cam; i++) {
-        if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
-            ret = EVIEWITF_INVALID_PARAM;
+    if((cam_id == NULL) || (event_return == NULL)){
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+    else {
+        for (i = 0; i < nb_cam; i++) {
+            if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
         }
     }
     for (i = 0; i < nb_cam; i++) {
