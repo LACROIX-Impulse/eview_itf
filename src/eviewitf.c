@@ -96,7 +96,6 @@ static int eviewitf_mfis_get_cam_attributes(struct eviewitf_mfis_camera_attribut
 
     /* Check input parameter */
     if (cameras_attributes == NULL) {
-        printf("Error eviewitf_mfis_get_cam_attributes called with a null parameter\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
@@ -104,7 +103,6 @@ static int eviewitf_mfis_get_cam_attributes(struct eviewitf_mfis_camera_attribut
     if (ret == EVIEWITF_OK) {
         ret = mfis_get_cam_attributes(cameras_attributes);
         if (ret != EVIEWITF_OK) {
-            printf("Error while retrieving cameras attributes\n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -125,7 +123,6 @@ static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attr
 
     /* Check input parameter */
     if (blendings_attributes == NULL) {
-        printf("Error eviewitf_mfis_get_blend_attributes called with a null parameter\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
@@ -133,7 +130,6 @@ static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attr
     if (ret == EVIEWITF_OK) {
         ret = mfis_get_blend_attributes(blendings_attributes);
         if (ret != EVIEWITF_OK) {
-            printf("Error while retrieving blendings attributes\n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -345,8 +341,6 @@ int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the get param\n");
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -396,8 +390,6 @@ int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the set param\n");
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -438,8 +430,6 @@ int eviewitf_reboot_cam(int cam_id) {
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the reboot\n");
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -572,8 +562,6 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the fps\n");
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));

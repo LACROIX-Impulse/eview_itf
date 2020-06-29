@@ -67,7 +67,6 @@ int eviewitf_blender_open(int blender_id) {
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
         snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blender_id + 2); /* O2 and O3 */
-        printf("open %s\n", device_name);
         file_blenders[blender_id] = open(device_name, O_WRONLY);
         if (file_blenders[blender_id] == -1) {
             ret = EVIEWITF_FAIL;

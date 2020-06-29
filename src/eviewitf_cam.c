@@ -262,9 +262,9 @@ int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *att
  */
 int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t *frame_metadata) {
+    int ret = EVIEWITF_OK;
     uint8_t *ptr_metadata;
     eviewitf_frame_metadata_info_t *metadata = NULL;
-    int ismetadata = 1;
 
     if ((buf == NULL) || (frame_metadata == NULL)) {
         return EVIEWITF_INVALID_PARAM;
@@ -280,13 +280,13 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
     if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
         if (metadata->frame_size > buffer_size) {
             /* Special case where frame's data looks like a magic number */
-            ismetadata = 0;
+            ret = EVIEWITF_FAIL;
         } else {
             if ((metadata->frame_width * metadata->frame_height * metadata->frame_bpp) != metadata->frame_size) {
                 /* Special case where:                      */
                 /* - frame's data looks like a magic number */
                 /* - frame_size is lower than buffer_size   */
-                ismetadata = 0;
+                ret = EVIEWITF_FAIL;
             } else {
                 /* Metadata are present and valid */
                 if (frame_metadata != NULL) {
@@ -296,15 +296,17 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                     frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
                     frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
                     frame_metadata->frame_sync = metadata->frame_sync;
+                    frame_metadata->frame_size = metadata->frame_size;
+                    frame_metadata->magic_number = metadata->magic_number;
                 }
             }
         }
     } else {
         /* Magic number not found, no metadata */
-        ismetadata = 0;
+        ret = EVIEWITF_FAIL;
     }
 
-    if (ismetadata == 0) {
+    if (ret != EVIEWITF_OK) {
         /* No metadata available */
         if (frame_metadata != NULL) {
             frame_metadata->frame_width = 0;
@@ -312,8 +314,11 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
             frame_metadata->frame_bpp = 0;
             frame_metadata->frame_timestamp_lsb = 0;
             frame_metadata->frame_timestamp_msb = 0;
+            frame_metadata->frame_sync = 0;
+            frame_metadata->frame_size = 0;
+            frame_metadata->magic_number = 0;
         }
     }
 
-    return EVIEWITF_OK;
+    return ret;
 }
