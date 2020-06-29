@@ -82,8 +82,8 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer
 int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t* frame_metadata);
 int eviewitf_camera_poll(int* cam_id, int nb_cam, short* event_return);
-int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t* reg_value);
-int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value);
+int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t* reg_value);
+int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value);
 
 /* Streamer */
 int eviewitf_streamer_open(int streamer_id);

@@ -330,12 +330,11 @@ int eviewitf_record_cam(int cam_id, int delay) {
  * \brief Request R7 to get a register value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param cam_type: Camera type (ie: OV2311)
  * \param reg_adress: Register address
  * \param *reg_value: Register Value
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t *reg_value) {
+int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -349,7 +348,7 @@ int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_CAM_GET_REGISTER;
         tx_buffer[1] = cam_id;
-        tx_buffer[2] = cam_type;
+        tx_buffer[2] = 0;
         tx_buffer[3] = reg_address;
         ret = mfis_send_request(tx_buffer, rx_buffer);
 
@@ -379,12 +378,11 @@ int eviewitf_camera_get_parameter(int cam_id, int cam_type, uint32_t reg_address
  * \brief Request R7 to set a register to a value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param cam_type: Camera type (ie: OV2311)
  * \param reg_adress: Register address
  * \param reg_value: Register Value to set
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value) {
+int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -398,7 +396,7 @@ int eviewitf_camera_set_parameter(int cam_id, int cam_type, uint32_t reg_address
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_CAM_SET_REGISTER;
         tx_buffer[1] = cam_id;
-        tx_buffer[2] = cam_type;
+        tx_buffer[2] = 0;
         tx_buffer[3] = reg_address;
         tx_buffer[4] = (int32_t)reg_value;
         ret = mfis_send_request(tx_buffer, rx_buffer);

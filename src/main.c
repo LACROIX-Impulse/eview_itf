@@ -45,7 +45,6 @@ static struct argp_option options[] = {
     {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
     {"display", 'd', 0, 0, "Select camera as display", 0},
     {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
-    /* {"type", 't', "TYPE", 0, "Select camera type"}, not used for now */
     {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
     {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
     {"read", 'R', 0, 0, "Read register", 0},
@@ -71,8 +70,6 @@ struct arguments {
     int display;
     int record;
     int record_duration;
-    int type;
-    int camera_type;
     int reg;
     uint32_t reg_address;
     int val;
@@ -207,8 +204,6 @@ int main(int argc, char **argv) {
     arguments.display = 0;
     arguments.record = 0;
     arguments.record_duration = 0;
-    arguments.type = 1;        /* not used for now default value*/
-    arguments.camera_type = 0; /* not used for now default value*/
     arguments.reg = 0;
     arguments.reg_address = 0;
     arguments.val = 0;
@@ -260,8 +255,8 @@ int main(int argc, char **argv) {
     }
 
     /* Set camera register value */
-    if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.val && arguments.write) {
-        ret = eviewitf_camera_set_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
+    if ((arguments.camera_id >= 0) && arguments.reg && arguments.val && arguments.write) {
+        ret = eviewitf_camera_set_parameter(arguments.camera_id, arguments.reg_address,
                                             arguments.reg_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "0X%hhX written in register 0X%X of camera id %d \n", arguments.reg_value,
@@ -274,8 +269,8 @@ int main(int argc, char **argv) {
         }
     }
     /* Get camera register value*/
-    if ((arguments.camera_id >= 0) && arguments.type && arguments.reg && arguments.read) {
-        ret = eviewitf_camera_get_parameter(arguments.camera_id, arguments.camera_type, arguments.reg_address,
+    if ((arguments.camera_id >= 0) && arguments.reg && arguments.read) {
+        ret = eviewitf_camera_get_parameter(arguments.camera_id, arguments.reg_address,
                                             &register_value);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Register 0X%X Value: 0X%hhX, of camera id %d \n", arguments.reg_address, register_value,
