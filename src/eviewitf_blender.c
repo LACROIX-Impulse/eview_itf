@@ -166,7 +166,7 @@ int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char *buffer) {
+int eviewitf_blender_write_frame(int blender_id, uint8_t* frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
@@ -183,7 +183,7 @@ int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char *buf
 
     if (ret >= EVIEWITF_OK) {
         /* Write the frame in the virtual camera */
-        if (write(file_blenders[blender_id], buffer, buffer_size) < 0) {
+        if (write(file_blenders[blender_id], frame_buffer, buffer_size) < 0) {
             ret = EVIEWITF_FAIL;
         }
     }

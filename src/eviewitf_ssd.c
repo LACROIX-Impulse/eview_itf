@@ -245,7 +245,7 @@ int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char
                 }
 
                 /* Write the frame in the virtual camera */
-                if (EVIEWITF_OK != eviewitf_streamer_write_frame(streamer_id, buffer_size, buff_f)) {
+                if (EVIEWITF_OK != eviewitf_streamer_write_frame(streamer_id, buff_f, buffer_size)) {
                     printf("[Error] Set a frame in the virtual camera\n");
                     return -1;
                 }
@@ -295,7 +295,7 @@ int ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
         return -1;
     }
 
-    ret = eviewitf_blender_write_frame(blender_id, buffer_size, buff_f);
+    ret = eviewitf_blender_write_frame(blender_id, buff_f, buffer_size);
 
     close(file_ssd);
 

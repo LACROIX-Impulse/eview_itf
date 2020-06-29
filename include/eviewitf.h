@@ -89,13 +89,13 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
 int eviewitf_streamer_open(int streamer_id);
 int eviewitf_streamer_close(int streamer_id);
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t* attributes);
-int eviewitf_streamer_write_frame(int streamer_id, uint32_t buffer_size, char* buffer);
+int eviewitf_streamer_write_frame(int streamer_id, uint8_t* frame_buffer, uint32_t buffer_size);
 
 /* Blender */
 int eviewitf_blender_open(int blender_id);
 int eviewitf_blender_close(int blender_id);
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t* attributes);
-int eviewitf_blender_write_frame(int blender_id, uint32_t buffer_size, char* buffer);
+int eviewitf_blender_write_frame(int blender_id, uint8_t* frame_buffer, uint32_t buffer_size);
 
 /* Display */
 int eviewitf_display_select_camera(int cam_id);
