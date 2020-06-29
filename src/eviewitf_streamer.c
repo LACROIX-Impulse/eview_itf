@@ -60,6 +60,11 @@ int eviewitf_streamer_open(int streamer_id) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
+    /* Test already open */
+    else if (file_streamers[streamer_id] != -1) {
+        ret = EVIEWITF_FAIL;
+    }
+
     /* Test streamer is active */
     else {
         streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
@@ -105,7 +110,7 @@ int eviewitf_streamer_close(int streamer_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        if (close(file_streamers[streamer_id] != 0)) {
+        if (close(file_streamers[streamer_id]) != 0) {
             ret = EVIEWITF_FAIL;
         } else {
             file_streamers[streamer_id] = -1;

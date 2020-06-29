@@ -59,6 +59,11 @@ int eviewitf_blender_open(int blender_id) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
+    /* Test already open */
+    else if (file_blenders[blender_id] != -1) {
+        ret = EVIEWITF_FAIL;
+    }
+
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
         snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blender_id + 2); /* O2 and O3 */
@@ -97,7 +102,7 @@ int eviewitf_blender_close(int blender_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        if (close(file_blenders[blender_id] != 0)) {
+        if (close(file_blenders[blender_id]) != 0) {
             ret = EVIEWITF_FAIL;
         } else {
             file_blenders[blender_id] = -1;

@@ -61,6 +61,11 @@ int eviewitf_camera_open(int cam_id) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
+    /* Test already open */
+    else if (file_cams[cam_id] != -1) {
+        ret = EVIEWITF_FAIL;
+    }
+
     /* Test camera is active */
     else {
         camera_attributes = eviewitf_get_camera_attributes(cam_id);
@@ -106,7 +111,7 @@ int eviewitf_camera_close(int cam_id) {
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        if (close(file_cams[cam_id] != 0)) {
+        if (close(file_cams[cam_id]) != 0) {
             ret = EVIEWITF_FAIL;
         } else {
             file_cams[cam_id] = -1;
