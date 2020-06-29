@@ -137,6 +137,8 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
+    } else if (frame_buffer == NULL) {
+        ret = EVIEWITF_INVALID_PARAM;
     } else if (file_cams[cam_id] == -1) {
         ret = EVIEWITF_NOT_OPENED;
     }
