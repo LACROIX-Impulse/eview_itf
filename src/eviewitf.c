@@ -254,6 +254,10 @@ int eviewitf_deinit(void) {
         }
     }
 
+    if (ret == EVIEWITF_OK) {
+        eviewitf_global_init = 0;
+    }
+
     mfis_deinit();
 
     return ret;
