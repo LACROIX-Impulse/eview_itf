@@ -341,7 +341,9 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
-    } else {
+    } else if (reg_value == NULL) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
