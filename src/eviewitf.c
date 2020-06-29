@@ -260,12 +260,12 @@ int eviewitf_deinit(void) {
 }
 
 /**
- * \fn eviewitf_display_select_camera
- * \brief Request R7 to select camera as display input
+ * \fn _eviewitf_display_select_camera
+ * \brief Request R7 to select camera device as display input
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_display_select_camera(int cam_id) {
+static int _eviewitf_display_select_camera(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -290,13 +290,43 @@ int eviewitf_display_select_camera(int cam_id) {
 }
 
 /**
+ * \fn eviewitf_display_select_camera
+ * \brief Request R7 to select camera as display input
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_display_select_camera(int cam_id) {
+    int ret = EVIEWITF_OK;
+
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    if (ret == EVIEWITF_OK) {
+        ret = _eviewitf_display_select_camera(cam_id);
+    }
+
+    return ret;
+}
+
+/**
  * \fn eviewitf_display_select_streamer
  * \brief Request R7 to select streamer as display input
  *
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_display_select_streamer(int streamer_id) {
-    return eviewitf_display_select_camera(streamer_id + EVIEWITF_MAX_CAMERA);
+    int ret = EVIEWITF_OK;
+
+    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    if (ret == EVIEWITF_OK) {
+        ret = _eviewitf_display_select_camera(streamer_id + EVIEWITF_MAX_CAMERA);
+    }
+
+    return ret;
 }
 
 /**
