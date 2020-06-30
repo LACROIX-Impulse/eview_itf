@@ -424,5 +424,5 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Cropping stopped failure\n");
         }
     }
-    exit(0);
+    exit(-ret);
 }
