@@ -139,16 +139,17 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
 }
 
 /**
- * \fn ssd_set_virtual_camera_stream
- * \brief Play a recording on a virtual camera
+ * \fn ssd_set_streamer_stream
+ * \brief Play a recording on a streamer
 
- * \param in camera_id: id of the camera
- * \param in buffer_size: size of the virtual camera buffer
+ * \param in streamer_id: id of the streamer
+ * \param in buffer_size: size of the streamer buffer
  * \param in fps: fps to apply on the recording
  * \param in frames_directory: path to the recording
+ *
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, char *frames_directory) {
+int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char *frames_directory) {
     int ret = EVIEWITF_OK;
     int frame_id = 0;
     int file_ssd = 1;
@@ -159,7 +160,7 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     struct timespec difft = {0};
     char pre_read = 1;
     int test_rw = 0;
-    char buff_f[buffer_size];
+    uint8_t buff_f[buffer_size];
     DIR *dir;
 
     /* Test the fps value */
@@ -189,6 +190,11 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
     /* First time value */
     if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
         printf("Got an issue with system clock aborting \n");
+        return -1;
+    }
+
+    if (eviewitf_streamer_open(streamer_id) != EVIEWITF_OK) {
+        printf("Error opening device\n");
         return -1;
     }
 
@@ -239,7 +245,7 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
                 }
 
                 /* Write the frame in the virtual camera */
-                if (EVIEWITF_OK != eviewitf_set_virtual_cam(camera_id, buffer_size, buff_f)) {
+                if (EVIEWITF_OK != eviewitf_streamer_write_frame(streamer_id, buff_f, buffer_size)) {
                     printf("[Error] Set a frame in the virtual camera\n");
                     return -1;
                 }
@@ -253,22 +259,27 @@ int ssd_set_virtual_camera_stream(int camera_id, uint32_t buffer_size, int fps, 
         }
     }
 
+    if (eviewitf_streamer_close(streamer_id) != EVIEWITF_OK) {
+        printf("Error closing device\n");
+        return -1;
+    }
+
     return ret;
 }
 
 /**
- * \fn ssd_set_virtual_camera_stream
+ * \fn ssd_set_blending
  * \brief Set a blending frame from a file
 
  * \param in buffer_size: size of the blending frame
  * \param in frame: blending frame file
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
+int ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
     int ret = EVIEWITF_OK;
     int file_ssd;
     int test_rw = 0;
-    char buff_f[buffer_size];
+    uint8_t buff_f[buffer_size];
 
     file_ssd = open(frame, O_RDONLY);
     if ((-1) == file_ssd) {
@@ -284,7 +295,13 @@ int ssd_set_blending(int blending_id, uint32_t buffer_size, char *frame) {
         return -1;
     }
 
-    ret = eviewitf_write_blending(blending_id, buffer_size, buff_f);
+    ret = eviewitf_blender_open(blender_id);
+    if (ret == EVIEWITF_OK) {
+        ret = eviewitf_blender_write_frame(blender_id, buff_f, buffer_size);
+    }
+    if (ret == EVIEWITF_OK) {
+        ret = eviewitf_blender_close(blender_id);
+    }
 
     close(file_ssd);
 

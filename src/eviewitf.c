@@ -69,10 +69,10 @@ typedef enum {
 } fct_id_t;
 
 /* Cameras attributes */
-static mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA] = {0};
+static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
 /* Blending attributes */
-static mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDING] = {0};
+static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
@@ -87,16 +87,15 @@ static eviewitf_seek_plugin_handle seek_plugin_handle;
  * \fn eviewitf_mfis_get_cam_attributes
  * \brief Get the cameras attributes
  *
- * \param [inout] cameras_attributes: Pointer to a table of mfis_camera_attributes
+ * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attributes) {
+static int eviewitf_mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
     int ret = EVIEWITF_OK;
 
     /* Check input parameter */
     if (cameras_attributes == NULL) {
-        printf("Error eviewitf_mfis_get_cam_attributes called with a null parameter\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
@@ -104,7 +103,6 @@ static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attr
     if (ret == EVIEWITF_OK) {
         ret = mfis_get_cam_attributes(cameras_attributes);
         if (ret != EVIEWITF_OK) {
-            printf("Error while retrieving cameras attributes\n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -116,16 +114,15 @@ static int eviewitf_mfis_get_cam_attributes(mfis_camera_attributes *cameras_attr
  * \fn eviewitf_mfis_get_blend_attributes
  * \brief Get the blendings attributes
  *
- * \param [inout] blendings_attributes: Pointer to a table of mfis_blending_attributes
+ * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
  *
  * \return state of the function. Returns EVIEWITF_OK if okay
  */
-static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blendings_attributes) {
+static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
     int ret = EVIEWITF_OK;
 
     /* Check input parameter */
     if (blendings_attributes == NULL) {
-        printf("Error eviewitf_mfis_get_blend_attributes called with a null parameter\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
@@ -133,7 +130,6 @@ static int eviewitf_mfis_get_blend_attributes(mfis_blending_attributes *blending
     if (ret == EVIEWITF_OK) {
         ret = mfis_get_blend_attributes(blendings_attributes);
         if (ret != EVIEWITF_OK) {
-            printf("Error while retrieving blendings attributes\n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -151,30 +147,45 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
 
 /**
  * \fn eviewitf_get_cameras_attributes
- * \brief Get a pointer on the cameras_attributes array
+ * \brief Get a pointer on the camera attributes
  *
  * \param [in] cam_id: Camera id
  *
  * \return pointer on camera attributes structure
  */
-mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
-    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
+struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
+    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER) {
         return NULL;
     }
     return &all_cameras_attributes[cam_id];
 }
 
 /**
- * \fn eviewitf_init_api
- * \brief Deinit MFIS driver on R7 side
+ * \fn eviewitf_get_blender_attributes
+ * \brief Get a pointer on the blender attributes
+ *
+ * \param [in] blender_id: Blender id
+ *
+ * \return pointer on blender attributes structure
+ */
+struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int blender_id) {
+    if (blender_id < 0 || blender_id >= EVIEWITF_MAX_BLENDER) {
+        return NULL;
+    }
+    return &all_blendings_attributes[blender_id];
+}
+
+/**
+ * \fn eviewitf_init
+ * \brief Init MFIS driver on R7 side
  *
  * \param [in] camera id
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_init_api(void) {
+int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -183,7 +194,6 @@ int eviewitf_init_api(void) {
 
     /* Check if init has been done */
     if (eviewitf_global_init != 0) {
-        printf("eviewitf_init_api already done\n");
         ret = EVIEWITF_FAIL;
     } else {
         /* Prepare TX buffer */
@@ -198,17 +208,11 @@ int eviewitf_init_api(void) {
         /* Get the cameras attributes */
         if (ret == EVIEWITF_OK) {
             ret = eviewitf_mfis_get_cam_attributes(all_cameras_attributes);
-            if (ret != EVIEWITF_OK) {
-                printf("eviewitf_init_api: Error in eviewitf_mfis_get_cam_attributes\n");
-            }
         }
 
         /* Get the blendings attributes */
         if (ret == EVIEWITF_OK) {
             ret = eviewitf_mfis_get_blend_attributes(all_blendings_attributes);
-            if (ret != EVIEWITF_OK) {
-                printf("eviewitf_init_api: Error in eviewitf_mfis_get_blend_attributes\n");
-            }
         }
 
         if (ret == EVIEWITF_OK) {
@@ -220,22 +224,21 @@ int eviewitf_init_api(void) {
 }
 
 /**
- * \fn eviewitf_deinit_api
+ * \fn eviewitf_deinit
  * \brief Deinit MFIS driver on R7 side
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_deinit_api(void) {
+int eviewitf_deinit(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
 
     /* Check if init has been done */
     if (eviewitf_global_init == 0) {
-        printf("eviewitf_init_api never done\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     } else {
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_DEINIT;
@@ -247,20 +250,24 @@ int eviewitf_deinit_api(void) {
         }
     }
 
+    if (ret == EVIEWITF_OK) {
+        eviewitf_global_init = 0;
+    }
+
     mfis_deinit();
 
     return ret;
 }
 
 /**
- * \fn eviewitf_set_display_cam
- * \brief Request R7 to change camera used on display
+ * \fn _eviewitf_display_select_camera
+ * \brief Request R7 to select camera device as display input
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_display_cam(int cam_id) {
+static int _eviewitf_display_select_camera(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -283,6 +290,46 @@ int eviewitf_set_display_cam(int cam_id) {
 }
 
 /**
+ * \fn eviewitf_display_select_camera
+ * \brief Request R7 to select camera as display input
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_display_select_camera(int cam_id) {
+    int ret = EVIEWITF_OK;
+
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    if (ret == EVIEWITF_OK) {
+        ret = _eviewitf_display_select_camera(cam_id);
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_display_select_streamer
+ * \brief Request R7 to select streamer as display input
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_display_select_streamer(int streamer_id) {
+    int ret = EVIEWITF_OK;
+
+    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    if (ret == EVIEWITF_OK) {
+        ret = _eviewitf_display_select_camera(streamer_id + EVIEWITF_MAX_CAMERA);
+    }
+
+    return ret;
+}
+
+/**
  * \fn eviewitf_record_cam
  * \brief Request R7 to change camera used on display
  *
@@ -295,7 +342,7 @@ int eviewitf_record_cam(int cam_id, int delay) {
     char *record_dir = NULL;
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         printf("Invalid camera id\n");
         printf("Please choose a real camera for the record\n");
         ret = EVIEWITF_INVALID_PARAM;
@@ -309,23 +356,22 @@ int eviewitf_record_cam(int cam_id, int delay) {
 }
 
 /**
- * \fn eviewitf_get_camera_param
+ * \fn eviewitf_camera_get_parameter
  * \brief Request R7 to get a register value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param cam_type: Camera type (ie: OV2311)
  * \param reg_adress: Register address
  * \param *reg_value: Register Value
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t *reg_value) {
+int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the get param\n");
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else if (reg_value == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -334,7 +380,7 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_CAM_GET_REGISTER;
         tx_buffer[1] = cam_id;
-        tx_buffer[2] = cam_type;
+        tx_buffer[2] = 0;
         tx_buffer[3] = reg_address;
         ret = mfis_send_request(tx_buffer, rx_buffer);
 
@@ -360,23 +406,20 @@ int eviewitf_get_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
     return ret;
 }
 /**
- * \fn eviewitf_set_camera_param
+ * \fn eviewitf_camera_set_parameter
  * \brief Request R7 to set a register to a value
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param cam_type: Camera type (ie: OV2311)
  * \param reg_adress: Register address
  * \param reg_value: Register Value to set
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, uint32_t reg_value) {
+int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the set param\n");
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -385,7 +428,7 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
         /* Prepare TX buffer */
         tx_buffer[0] = FCT_CAM_SET_REGISTER;
         tx_buffer[1] = cam_id;
-        tx_buffer[2] = cam_type;
+        tx_buffer[2] = 0;
         tx_buffer[3] = reg_address;
         tx_buffer[4] = (int32_t)reg_value;
         ret = mfis_send_request(tx_buffer, rx_buffer);
@@ -413,12 +456,10 @@ int eviewitf_set_camera_param(int cam_id, int cam_type, uint32_t reg_address, ui
 
 int eviewitf_reboot_cam(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the reboot\n");
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -447,35 +488,44 @@ int eviewitf_reboot_cam(int cam_id) {
 }
 
 /**
- * \fn eviewitf_stop_blending
- * \brief Stop the blending
+ * \fn eviewitf_display_select_blender
+ * \brief Start / stop the blending (use -1) to stop
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_start_blending(int blending_id) {
+int eviewitf_display_select_blender(int blender_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_SET_BLENDING;
-    tx_buffer[1] = 1;
-    tx_buffer[2] = blending_id;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
+    /* Test blender id */
+    if ((blender_id < -1) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_SET_BLENDING) {
-            ret = EVIEWITF_FAIL;
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        tx_buffer[0] = FCT_SET_BLENDING;
+        if (blender_id < 0) {
+            tx_buffer[1] = 0;
+        } else {
+            tx_buffer[1] = 1;
+            tx_buffer[2] = blender_id;
         }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_INV_PARAM) {
-            ret = EVIEWITF_INVALID_PARAM;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_SET_BLENDING) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
         }
     }
 
@@ -483,115 +533,34 @@ int eviewitf_start_blending(int blending_id) {
 }
 
 /**
- * \fn eviewitf_stop_blending
- * \brief Stop the blending
- *
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_stop_blending(void) {
-    int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+ * \fn eviewitf_play_on_streamer
+ * \brief Update the frames to be printed on a streamer
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_SET_BLENDING;
-    tx_buffer[1] = 0;
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
-    } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_SET_BLENDING) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
-            ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_INV_PARAM) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_play_on_virtual_cam
- * \brief Update the frames to be printed on a virtual camera
-
- * \param in cam_id: id of the camera
+ * \param in streamer_id: id of the streamer
  * \param in fps: fps to apply on the recording
  * \param in frames_dir: path to the recording
+ *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir) {
+int eviewitf_play_on_streamer(int streamer_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     if (EVIEWITF_OK == ret) {
         /* Test camera id */
-        if ((cam_id < EVIEWITF_MAX_REAL_CAMERA) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-            printf("Invalid camera id\n");
-            printf("Please choose a virtual camera for the playback\n");
+        if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
             ret = EVIEWITF_INVALID_PARAM;
         }
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_virtual_camera_stream(cam_id, all_cameras_attributes[cam_id].buffer_size, fps, frames_dir);
-        if (EVIEWITF_OK != ret) {
-            printf("Error: Cannot play the stream on the virtual camera\n");
-        }
+        ret = ssd_set_streamer_stream(
+            streamer_id, all_cameras_attributes[streamer_id + EVIEWITF_MAX_CAMERA].buffer_size, fps, frames_dir);
     }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_set_virtual_cam
- * \brief Set a virtual camera frame
-
- * \param in cam_id: id of the camera
- * \param in buffer_size: size of the virtual camera buffer
- * \param in buffer: virtual camera buffer
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
-    int ret = EVIEWITF_OK;
-    int cam_fd;
-    int test_rw = 0;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
-
-    /* Test API has been initialized */
-    if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Open the virtual camera to write in */
-    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, "/dev/mfis_cam%d", cam_id);
-    cam_fd = open(device_name, O_WRONLY);
-    if (cam_fd == -1) {
-        printf("Error opening camera file\n");
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Write the frame in the virtual camera */
-    test_rw = write(cam_fd, buffer, buffer_size);
-    if ((-1) == test_rw) {
-        printf("[Error] Write frame in the virtual camera\n");
-        return EVIEWITF_FAIL;
-    }
-
-    /* Close the virtual camera file device */
-    close(cam_fd);
 
     return ret;
 }
@@ -603,79 +572,31 @@ int eviewitf_set_virtual_cam(int cam_id, uint32_t buffer_size, char *buffer) {
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_set_blending_from_file(int blending_id, char *frame) {
+int eviewitf_set_blending_from_file(int blender_id, char *frame) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
     if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
-    if ((blending_id < 0) || (blending_id > 1)) {
-        printf("Error: eviewitf_set_blending_from_file, bad blending_id\n");
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = ssd_set_blending(blending_id, all_blendings_attributes[blending_id].buffer_size, frame);
-        if (EVIEWITF_OK != ret) {
-            printf("Error: Cannot set the blending\n");
-        }
+        ret = ssd_set_blending(blender_id, all_blendings_attributes[blender_id].buffer_size, frame);
     }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_set_blending
- * \brief Set a blending buffer
-
- * \param in buffer_size: size of the blending buffer
- * \param in buffer: blending buffer
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_write_blending(int blending_id, uint32_t buffer_size, char *buffer) {
-    int ret = EVIEWITF_OK;
-    int blend_fd;
-    int test_rw = 0;
-    char device_name[DEVICE_BLENDER_MAX_LENGTH];
-
-    /* Test API has been initialized */
-    if (eviewitf_global_init == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Open the blending device to write in */
-    snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blending_id + 2); /* named O2 and O3 */
-    blend_fd = open(device_name, O_WRONLY);
-    if ((-1) == blend_fd) {
-        printf("[Error] Opening the blendind device\n");
-        return -1;
-    }
-
-    /* Write the frame in the blending device */
-    test_rw = write(blend_fd, buffer, buffer_size);
-    if ((-1) == test_rw) {
-        printf("[Error] Write frame in the blending device\n");
-        close(blend_fd);
-        return -1;
-    }
-
-    close(blend_fd);
 
     return ret;
 }
 
 int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_REAL_CAMERA)) {
-        printf("Invalid camera id\n");
-        printf("Please choose a real camera for the fps\n");
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
@@ -716,7 +637,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
  */
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -743,7 +664,7 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
  */
 int eviewitf_set_R7_boot_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -762,12 +683,12 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 }
 
 /**
- * \fn eviewitf_get_version
+ * \fn eviewitf_get_eviewitf_version
  * \brief Return the eViewitf lib version
  *
  * \return state of the function. Return version if okay, NULL if fail
  */
-const char *eviewitf_get_lib_version(void) { return VERSION; }
+const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
 
 /**
  * \fn eviewitf_get_eview_version
@@ -781,7 +702,7 @@ const char *eviewitf_get_eview_version(void) {
     int i = 0;
     int j = 0;
     int size_div = 0;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     if (strlen(eview_version) != 0) {
         return eview_version;
@@ -816,7 +737,7 @@ const char *eviewitf_get_eview_version(void) {
 }
 
 /**
- * \fn eviewitf_start_cropping
+ * \fn eviewitf_display_select_cropping
  * \brief Start the cropping with coordinates to R7
  *
  * \param in x1: set first coordinate X position
@@ -825,9 +746,9 @@ const char *eviewitf_get_eview_version(void) {
  * \param in y2: set second coordinate Y position
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[MFIS_MSG_SIZE], rx_buffer[MFIS_MSG_SIZE];
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -847,14 +768,6 @@ int eviewitf_start_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) 
 
     return ret;
 }
-
-/**
- * \fn eviewitf_stop_cropping
- * \brief Stop the cropping on R7
- *
- * \return state of the function. Return 0 if okay
- */
-int eviewitf_stop_cropping(void) { return eviewitf_start_cropping(0, 0, 0, 0); }
 
 /**
  * \fn eviewitf_import_seek_plugin

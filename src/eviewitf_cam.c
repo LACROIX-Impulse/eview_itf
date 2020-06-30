@@ -1,5 +1,5 @@
 /**
- * \file eviewitf-cam.c
+ * \file eviewitf_cam.c
  * \brief Communication API between A53 and R7 CPUs for camera devices
  * \author eSoftThings
  *
@@ -20,8 +20,6 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
-/* Magic number used to check metadata presence */
-#define FRAME_MAGIC_NUMBER 0xD1CECA5F
 
 /******************************************************************************************
  * Private structures
@@ -51,17 +49,29 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1};
 int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
+    struct eviewitf_mfis_camera_attributes *camera_attributes;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
-        printf("Please call eviewitf_init_api first\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_INITIALIZED;
     }
 
     /* Test camera id */
     else if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
         ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    /* Test already open */
+    else if (file_cams[cam_id] != -1) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    /* Test camera is active */
+    else {
+        camera_attributes = eviewitf_get_camera_attributes(cam_id);
+        if (camera_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
+            ret = EVIEWITF_FAIL;
+        }
     }
 
     if (ret >= EVIEWITF_OK) {
@@ -69,7 +79,6 @@ int eviewitf_camera_open(int cam_id) {
         snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, cam_id);
         file_cams[cam_id] = open(device_name, O_RDONLY);
         if (file_cams[cam_id] == -1) {
-            printf("Error opening camera file\n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -90,22 +99,19 @@ int eviewitf_camera_close(int cam_id) {
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (ret >= EVIEWITF_OK) {
         // Test camera has been opened
         if (file_cams[cam_id] == -1) {
-            printf("Camera is not open\n");
-            ret = EVIEWITF_FAIL;
+            ret = EVIEWITF_NOT_OPENED;
         }
     }
 
     if (ret >= EVIEWITF_OK) {
         /* Get mfis device filename */
-        if (close(file_cams[cam_id] != 0)) {
-            printf("Error closing camera file\n");
+        if (close(file_cams[cam_id]) != 0) {
             ret = EVIEWITF_FAIL;
         } else {
             file_cams[cam_id] = -1;
@@ -130,18 +136,16 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        printf("Invalid camera id\n");
+        ret = EVIEWITF_INVALID_PARAM;
+    } else if (frame_buffer == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
     } else if (file_cams[cam_id] == -1) {
-        printf("Camera is not open\n");
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_NOT_OPENED;
     }
 
     if (ret >= EVIEWITF_OK) {
         /* Read file content */
-        ret = read(file_cams[cam_id], frame_buffer, buffer_size);
-        if (ret < EVIEWITF_OK) {
-            printf("Error reading camera file\n");
+        if (read(file_cams[cam_id], frame_buffer, buffer_size) < 0) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -150,7 +154,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
 }
 
 /**
- * \fn int eviewitf_poll(int *cam_id, int nb_cam, short *event_return)
+ * \fn int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return)
  * \brief Poll on multiple cameras to check a new frame is available
  *
  * \param cam_id: table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
@@ -159,23 +163,25 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
+int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
     struct pollfd pfd[nb_cam];
     int r_poll;
     int ret = EVIEWITF_OK;
     int i;
 
-    for (i = 0; i < nb_cam; i++) {
-        if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
-            printf("Invalid camera id %d\n", cam_id[i]);
-            ret = EVIEWITF_INVALID_PARAM;
+    if ((cam_id == NULL) || (event_return == NULL)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        for (i = 0; i < nb_cam; i++) {
+            if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
         }
     }
     for (i = 0; i < nb_cam; i++) {
         if (ret >= EVIEWITF_OK) {
             if (file_cams[cam_id[i]] == -1) {
-                printf("Camera is not open\n");
-                ret = EVIEWITF_FAIL;
+                ret = EVIEWITF_NOT_OPENED;
             }
             pfd[i].fd = file_cams[cam_id[i]];
             pfd[i].events = POLLIN;
@@ -185,7 +191,6 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
     if (ret >= EVIEWITF_OK) {
         r_poll = poll(pfd, nb_cam, -1);
         if (r_poll == -1) {
-            printf("POLL ERROR \n");
             ret = EVIEWITF_FAIL;
         }
     }
@@ -200,53 +205,47 @@ int eviewitf_poll(int *cam_id, int nb_cam, short *event_return) {
 }
 
 /**
- * \fn int eviewitf_check_camera_on(int cam_id)
- * \brief Check if the camera is available
+ * \fn int eviewitf_camera_get_attributes(int cam_id)
+ * \brief Get camera attributes such as buffer size
  *
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param attributes: pointer on the structure to be filled
 
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_check_camera_on(int cam_id) {
-    /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        printf("eviewitf_init_api never done\n");
-        return EVIEWITF_FAIL;
-    } else if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA) {
-        printf("Invalid camera id %d\n", cam_id);
-        return EVIEWITF_FAIL;
-    } else {
-        mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
-        if ((camera_attributes == NULL) || (camera_attributes->buffer_size == 0)) {
-            return EVIEWITF_FAIL;
-        } else {
-            return EVIEWITF_OK;
+int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *attributes) {
+    int ret = EVIEWITF_OK;
+    /* Get the camera attributes */
+    struct eviewitf_mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+    /* Test attributes */
+    if (ret >= EVIEWITF_OK) {
+        if (attributes == NULL) {
+            ret = EVIEWITF_INVALID_PARAM;
         }
     }
-}
-
-/**
- * \fn int eviewitf_camera_get_buffer_size(int cam_id)
- * \brief Check the buffer size to be allocated to read frames
- *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
-
- * \return size of the buffer. Return 0 if camera not available
- */
-uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
-    /* Get the cameras attributes */
-    mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
 
     /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        printf("eviewitf_init_api never done\n");
-        return 0;
-    } else if (camera_attributes == NULL) {
-        printf("Invalid camera id %d\n", cam_id);
-        return 0;
+    if (ret >= EVIEWITF_OK) {
+        if (eviewitf_is_initialized() == 0) {
+            ret = EVIEWITF_NOT_INITIALIZED;
+        }
     }
 
-    return camera_attributes->buffer_size;
+    /* Copy attributes */
+    if (ret >= EVIEWITF_OK) {
+        attributes->buffer_size = camera_attributes->buffer_size;
+        attributes->width = camera_attributes->width;
+        attributes->height = camera_attributes->height;
+        attributes->dt = camera_attributes->dt;
+    }
+
+    return ret;
 }
 
 /**
@@ -262,17 +261,15 @@ uint32_t eviewitf_camera_get_buffer_size(int cam_id) {
  */
 int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t *frame_metadata) {
+    int ret = EVIEWITF_OK;
     uint8_t *ptr_metadata;
     eviewitf_frame_metadata_info_t *metadata = NULL;
-    int ismetadata = 1;
 
     if ((buf == NULL) || (frame_metadata == NULL)) {
-        printf("Invalid buffer to extract metadata\n");
         return EVIEWITF_INVALID_PARAM;
     }
 
     if (buffer_size < sizeof(eviewitf_frame_metadata_info_t)) {
-        printf("Invalid size to extract metadata\n");
         return EVIEWITF_INVALID_PARAM;
     }
 
@@ -282,13 +279,13 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
     if (metadata->magic_number == FRAME_MAGIC_NUMBER) {
         if (metadata->frame_size > buffer_size) {
             /* Special case where frame's data looks like a magic number */
-            ismetadata = 0;
+            ret = EVIEWITF_FAIL;
         } else {
             if ((metadata->frame_width * metadata->frame_height * metadata->frame_bpp) != metadata->frame_size) {
                 /* Special case where:                      */
                 /* - frame's data looks like a magic number */
                 /* - frame_size is lower than buffer_size   */
-                ismetadata = 0;
+                ret = EVIEWITF_FAIL;
             } else {
                 /* Metadata are present and valid */
                 if (frame_metadata != NULL) {
@@ -298,15 +295,17 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                     frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
                     frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
                     frame_metadata->frame_sync = metadata->frame_sync;
+                    frame_metadata->frame_size = metadata->frame_size;
+                    frame_metadata->magic_number = metadata->magic_number;
                 }
             }
         }
     } else {
         /* Magic number not found, no metadata */
-        ismetadata = 0;
+        ret = EVIEWITF_FAIL;
     }
 
-    if (ismetadata == 0) {
+    if (ret != EVIEWITF_OK) {
         /* No metadata available */
         if (frame_metadata != NULL) {
             frame_metadata->frame_width = 0;
@@ -314,8 +313,11 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
             frame_metadata->frame_bpp = 0;
             frame_metadata->frame_timestamp_lsb = 0;
             frame_metadata->frame_timestamp_msb = 0;
+            frame_metadata->frame_sync = 0;
+            frame_metadata->frame_size = 0;
+            frame_metadata->magic_number = 0;
         }
     }
 
-    return EVIEWITF_OK;
+    return ret;
 }

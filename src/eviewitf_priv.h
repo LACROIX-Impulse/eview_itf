@@ -14,9 +14,12 @@
  * Private Definitions
  ******************************************************************************************/
 
-#define DEVICE_CAMERA_NAME "/dev/mfis_cam%d"
-#define DEVICE_BLENDER_NAME "/dev/mfis_O%d"
-#define DEVICE_CAMERA_MAX_LENGTH 20
+/* Magic number used to check metadata presence */
+#define FRAME_MAGIC_NUMBER 0xD1CECA5F
+
+#define DEVICE_CAMERA_NAME        "/dev/mfis_cam%d"
+#define DEVICE_BLENDER_NAME       "/dev/mfis_O%d"
+#define DEVICE_CAMERA_MAX_LENGTH  20
 #define DEVICE_BLENDER_MAX_LENGTH 20
 
 /******************************************************************************************
@@ -43,9 +46,10 @@ typedef enum {
 /* Cameras */
 int eviewitf_reboot_cam(int cam_id);
 int eviewitf_record_cam(int cam_id, int delay);
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir);
-int eviewitf_set_blending_from_file(int blending_id, char *frame);
+int eviewitf_play_on_streamer(int cam_id, int fps, char *frames_dir);
+int eviewitf_set_blending_from_file(int blender_id, char *frame);
 int eviewitf_is_initialized();
-mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
 
 #endif /* EVIEWITF_PRIV_H */

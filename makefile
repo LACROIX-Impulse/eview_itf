@@ -17,8 +17,15 @@ all: eviewitf
 eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -ldl -L$(BUILDDIR)
 
+LIBDEPS = $(BUILDDIR)/src/eviewitf.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_blender.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_cam.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
+LIBDEPS += $(BUILDDIR)/src/mfis_communication.o
+
 .PHONY: libewiewitf
-libewiewitf: $(BUILDDIR)/src/mfis_communication.o $(BUILDDIR)/src/eviewitf.o $(BUILDDIR)/src/eviewitf_cam.o $(BUILDDIR)/src/eviewitf_ssd.o
+libewiewitf: $(LIBDEPS)
 	@mkdir -p $(BUILDDIR)
 	$(AR) rcs $(BUILDDIR)/libeviewitf.a $^
 
