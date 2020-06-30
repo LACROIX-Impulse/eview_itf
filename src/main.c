@@ -84,8 +84,7 @@ struct arguments {
     int blending;
     char *path_blend_frame;
     int stop_blending;
-    int blend_interface;
-    int blending_interface;
+    int blender_id;
     int boot_mode;
     int heartbeat;
     int cropping;
@@ -135,8 +134,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->stop_blending = 1;
             break;
         case 'o':
-            arguments->blend_interface = 1;
-            arguments->blending_interface = atoi(arg);
+            arguments->blender_id = atoi(arg);
+            if ((arguments->blender_id < 0) || (arguments->blender_id >= EVIEWITF_MAX_BLENDER)) {
+                argp_usage(state);
+            }
             break;
         case 'p':
             arguments->play = 1;
@@ -215,7 +216,7 @@ int main(int argc, char **argv) {
     arguments.play = 0;
     arguments.fps_value = 0;
     arguments.path_frames_dir = NULL;
-    arguments.blending = 0;
+    arguments.blender_id = -1;
     arguments.path_blend_frame = NULL;
     arguments.stop_blending = 0;
     arguments.boot_mode = -1;
@@ -238,9 +239,9 @@ int main(int argc, char **argv) {
     /* Select streamer for display */
     if ((arguments.streamer_id >= 0) && arguments.display) {
         if (eviewitf_display_select_streamer(arguments.streamer_id) >= 0) {
-            fprintf(stdout, "Streamer %d selected for display\n", arguments.camera_id);
+            fprintf(stdout, "Streamer %d selected for display\n", arguments.streamer_id);
         } else {
-            fprintf(stdout, "Failed to select sreamer %d for display\n", arguments.camera_id);
+            fprintf(stdout, "Failed to select streamer %d for display\n", arguments.streamer_id);
         }
     }
     /* Select camera for record */
@@ -314,17 +315,17 @@ int main(int argc, char **argv) {
     }
 
     /* Set a blending frame */
-    if (arguments.blending && arguments.blend_interface) {
+    if (arguments.blender_id >= 0) {
         eviewitf_init();
-        ret = eviewitf_display_select_blender(arguments.blending_interface);
+        ret = eviewitf_display_select_blender(arguments.blender_id);
         if (ret >= EVIEWITF_OK) {
-            ret = eviewitf_set_blending_from_file(arguments.blending_interface, arguments.path_blend_frame);
+            ret = eviewitf_set_blending_from_file(arguments.blender_id, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Blending applied\n");
             } else if (ret == EVIEWITF_INVALID_PARAM) {
                 fprintf(stdout, "You sent a wrong parameter\n");
             } else {
-                fprintf(stdout, "Fail\n");
+                fprintf(stdout, "Fail to set blending\n");
             }
         } else if (ret == EVIEWITF_INVALID_PARAM) {
             fprintf(stdout, "You sent a wrong parameter to Start blending\n");
