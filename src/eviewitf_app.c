@@ -128,7 +128,7 @@ int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (!eviewitf_is_initialized()) {
+    if (eviewitf_is_initialized() == 0) {
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
@@ -158,7 +158,7 @@ int eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
-    if (eviewitf_is_initialized()) {
+    if (eviewitf_is_initialized() == 0) {
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
