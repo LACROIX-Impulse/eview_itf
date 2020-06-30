@@ -169,10 +169,9 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
     int ret = EVIEWITF_OK;
     int i;
 
-    if((cam_id == NULL) || (event_return == NULL)){
+    if ((cam_id == NULL) || (event_return == NULL)) {
         ret = EVIEWITF_INVALID_PARAM;
-    }
-    else {
+    } else {
         for (i = 0; i < nb_cam; i++) {
             if ((cam_id[i] < 0) || (cam_id[i] >= EVIEWITF_MAX_CAMERA)) {
                 ret = EVIEWITF_INVALID_PARAM;
@@ -209,18 +208,18 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
  * \fn int eviewitf_camera_get_attributes(int cam_id)
  * \brief Get camera attributes such as buffer size
  *
- * \param cam_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \param attributes: pointer on the structure to be filled
 
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
-    /* Get the streamers attributes */
+    /* Get the camera attributes */
     struct eviewitf_mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
 
-    /* Test streamer id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_STREAMER)) {
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 

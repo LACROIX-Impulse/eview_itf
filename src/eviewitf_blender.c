@@ -41,7 +41,7 @@ static int file_blenders[EVIEWITF_MAX_BLENDER] = {-1};
  * \fn int eviewitf_blender_open(int blender_id)
  * \brief Open a blender device
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_CAMERA
+ * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
 
  * \return state of the function. Return 0 if okay
  */
@@ -80,7 +80,7 @@ int eviewitf_blender_open(int blender_id) {
  * \fn int eviewitf_blender_close(int blender_id)
  * \brief Close a blender device
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_CAMERA
+ * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
 
  * \return state of the function. Return 0 if okay
  */
@@ -123,8 +123,7 @@ int eviewitf_blender_close(int blender_id) {
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the blenders attributes */
-    struct eviewitf_mfis_blending_attributes *blender_attributes =
-        eviewitf_get_blender_attributes(blender_id);
+    struct eviewitf_mfis_blending_attributes *blender_attributes = eviewitf_get_blender_attributes(blender_id);
 
     /* Test blender id */
     if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
@@ -161,12 +160,12 @@ int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t
  * \brief Write a frame to a blender
 
  * \param in blender_id: id of the camera
- * \param in buffer_size: size of the virtual camera buffer
- * \param in buffer: virtual camera buffer
+ * \param in buffer_size: size of the blender frame buffer
+ * \param in buffer: blender frame buffer
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_blender_write_frame(int blender_id, uint8_t* frame_buffer, uint32_t buffer_size) {
+int eviewitf_blender_write_frame(int blender_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */

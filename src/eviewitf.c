@@ -164,12 +164,12 @@ struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_i
  * \fn eviewitf_get_blender_attributes
  * \brief Get a pointer on the blender attributes
  *
- * \param [in] cam_id: Camera id
+ * \param [in] blender_id: Blender id
  *
  * \return pointer on blender attributes structure
  */
 struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int blender_id) {
-    if (blender_id < 0 || blender_id >= EVIEWITF_MAX_CAMERA) {
+    if (blender_id < 0 || blender_id >= EVIEWITF_MAX_BLENDER) {
         return NULL;
     }
     return &all_blendings_attributes[blender_id];
@@ -373,7 +373,7 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
         ret = EVIEWITF_INVALID_PARAM;
     } else if (reg_value == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
-    }else {
+    } else {
         memset(tx_buffer, 0, sizeof(tx_buffer));
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
@@ -497,30 +497,35 @@ int eviewitf_display_select_blender(int blender_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
-
-    tx_buffer[0] = FCT_SET_BLENDING;
-    if (blender_id < 0) {
-        tx_buffer[1] = 0;
+    /* Test blender id */
+    if ((blender_id < -1) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
+        ret = EVIEWITF_INVALID_PARAM;
     } else {
-        tx_buffer[1] = 1;
-        tx_buffer[2] = blender_id;
-    }
-    ret = mfis_send_request(tx_buffer, rx_buffer);
+        memset(tx_buffer, 0, sizeof(tx_buffer));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
 
-    if (ret < EVIEWITF_OK) {
-        ret = EVIEWITF_FAIL;
-    } else {
-        /* Check returned answer state */
-        if (rx_buffer[0] != FCT_SET_BLENDING) {
-            ret = EVIEWITF_FAIL;
+        tx_buffer[0] = FCT_SET_BLENDING;
+        if (blender_id < 0) {
+            tx_buffer[1] = 0;
+        } else {
+            tx_buffer[1] = 1;
+            tx_buffer[2] = blender_id;
         }
-        if (rx_buffer[1] == FCT_RETURN_ERROR) {
+        ret = mfis_send_request(tx_buffer, rx_buffer);
+
+        if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
-        }
-        if (rx_buffer[1] == FCT_INV_PARAM) {
-            ret = EVIEWITF_INVALID_PARAM;
+        } else {
+            /* Check returned answer state */
+            if (rx_buffer[0] != FCT_SET_BLENDING) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+                ret = EVIEWITF_FAIL;
+            }
+            if (rx_buffer[1] == FCT_INV_PARAM) {
+                ret = EVIEWITF_INVALID_PARAM;
+            }
         }
     }
 
@@ -575,7 +580,7 @@ int eviewitf_set_blending_from_file(int blender_id, char *frame) {
         ret = EVIEWITF_NOT_INITIALIZED;
     }
 
-    if ((blender_id < 0) || (blender_id > 1)) {
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 

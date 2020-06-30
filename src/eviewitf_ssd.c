@@ -296,10 +296,10 @@ int ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
     }
 
     ret = eviewitf_blender_open(blender_id);
-    if(ret == EVIEWITF_OK) {
+    if (ret == EVIEWITF_OK) {
         ret = eviewitf_blender_write_frame(blender_id, buff_f, buffer_size);
     }
-    if(ret == EVIEWITF_OK) {
+    if (ret == EVIEWITF_OK) {
         ret = eviewitf_blender_close(blender_id);
     }
 

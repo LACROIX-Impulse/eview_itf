@@ -3,7 +3,7 @@ pipeline {
         label 'sdk-ecube-0.12'
     }
     environment {
-        SYSROOTS = "${env.SYSROOTS_0_1}"
+        SYSROOTS = "${env.SYSROOTS_0_12}"
     }
     triggers {
         bitbucketPush()

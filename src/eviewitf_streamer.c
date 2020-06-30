@@ -41,7 +41,7 @@ static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1};
  * \fn int eviewitf_streamer_open(int streamer_id)
  * \brief Open a streamer device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_CAMERA
+ * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
 
  * \return state of the function. Return 0 if okay
  */
@@ -89,7 +89,7 @@ int eviewitf_streamer_open(int streamer_id) {
  * \fn int eviewitf_streamer_close(int streamer_id)
  * \brief Close a streamer device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_CAMERA
+ * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
 
  * \return state of the function. Return 0 if okay
  */
@@ -175,7 +175,7 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_streamer_write_frame(int streamer_id, uint8_t* frame_buffer, uint32_t buffer_size) {
+int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
