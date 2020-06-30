@@ -59,15 +59,15 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
         printf("Please choose a real camera for the record\n");
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        if(record_path == NULL) {
+        if (record_path == NULL) {
             eviewitf_ssd_get_output_directory(&record_dir);
-        }
-        else {
+        } else {
             record_dir = record_path;
         }
         printf("SSD storage directory %s \n", record_dir);
-        ret = eviewitf_ssd_record_stream(cam_id, delay, record_dir, (eviewitf_get_camera_attributes(cam_id))->buffer_size);
-        if(record_path == NULL) {
+        ret = eviewitf_ssd_record_stream(cam_id, delay, record_dir,
+                                         (eviewitf_get_camera_attributes(cam_id))->buffer_size);
+        if (record_path == NULL) {
             free(record_dir);
         }
     }
@@ -141,7 +141,8 @@ int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
 
     if (EVIEWITF_OK == ret) {
         ret = eviewitf_ssd_streamer_play(
-            streamer_id, (eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA))->buffer_size, fps, frames_dir);
+            streamer_id, (eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA))->buffer_size, fps,
+            frames_dir);
     }
 
     return ret;

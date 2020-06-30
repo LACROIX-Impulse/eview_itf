@@ -581,7 +581,8 @@ const char *eviewitf_get_eview_version(void) {
 
     /* Send request to R7 */
     ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION) ||
+        (rx_buffer[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
         return NULL;
     } else {
