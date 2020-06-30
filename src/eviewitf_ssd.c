@@ -30,7 +30,7 @@
 static const char *SSD_MOUNT_POINT = "/mnt/ssd/";
 static const char *SSD_DIR_NAME_PATTERN = "frames_";
 
-int ssd_get_output_directory(char **storage_directory) {
+int eviewitf_ssd_get_output_directory(char **storage_directory) {
     DIR *dir;
     struct dirent *dirp;
     struct stat statbuf;
@@ -75,7 +75,7 @@ int ssd_get_output_directory(char **storage_directory) {
     return 0;
 }
 
-int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, uint32_t size) {
+int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directory, uint32_t size) {
     int frame_id = 0;
     int file_ssd = 0;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
@@ -139,7 +139,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
 }
 
 /**
- * \fn ssd_set_streamer_stream
+ * \fn eviewitf_ssd_streamer_play
  * \brief Play a recording on a streamer
 
  * \param in streamer_id: id of the streamer
@@ -149,7 +149,7 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
  *
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char *frames_directory) {
+int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, char *frames_directory) {
     int ret = EVIEWITF_OK;
     int frame_id = 0;
     int file_ssd = 1;
@@ -268,14 +268,14 @@ int ssd_set_streamer_stream(int streamer_id, uint32_t buffer_size, int fps, char
 }
 
 /**
- * \fn ssd_set_blending
+ * \fn eviewitf_ssd_set_blending
  * \brief Set a blending frame from a file
 
  * \param in buffer_size: size of the blending frame
  * \param in frame: blending frame file
  * \return state of the function. Return 0 if okay
  */
-int ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
+int eviewitf_ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame) {
     int ret = EVIEWITF_OK;
     int file_ssd;
     int test_rw = 0;
