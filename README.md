@@ -28,6 +28,15 @@ Both program and lib are deployed in the RootFS of eCube:
 * /usr/lib/libeviewitf.a
 * /usr/include/eviewitf.h
 
+To deploy eViewItf in the eCube, the following commands can be used:
+```
+$ export TARGETIP=192.168.0.80
+$ make deploy
+```
+
+"192.168.0.80" is to be replaced by the IP of the eCube connected through SSH.
+
+
 To get the version of the lib deployed in your board:
 ```
 $ eviewitf -V

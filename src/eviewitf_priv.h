@@ -8,10 +8,19 @@
 #define EVIEWITF_PRIV_H
 
 #include <stdint.h>
+#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private Definitions
  ******************************************************************************************/
+
+/* Magic number used to check metadata presence */
+#define FRAME_MAGIC_NUMBER 0xD1CECA5F
+
+#define DEVICE_CAMERA_NAME        "/dev/mfis_cam%d"
+#define DEVICE_BLENDER_NAME       "/dev/mfis_O%d"
+#define DEVICE_CAMERA_MAX_LENGTH  20
+#define DEVICE_BLENDER_MAX_LENGTH 20
 
 /******************************************************************************************
  * Private Structures
@@ -30,33 +39,19 @@ typedef enum {
     FCT_RETURN_ERROR,
 } fct_ret_r;
 
-/**
- * \struct eviewitf_cam_buffers_virtual_t
- * \brief Buffer size and address in virtual memory
- */
-typedef struct {
-    uint32_t buffer_size;
-    uint8_t *buffer;
-} eviewitf_cam_buffers_virtual_t;
-
-/**
- * \struct eviewitf_cam_buffers_a53_t
- * \brief Structure with buffers size and address in virtual memory of multiple devices
- */
-typedef struct {
-    eviewitf_cam_buffers_virtual_t cam[EVIEWITF_MAX_CAMERA];
-    eviewitf_cam_buffers_virtual_t O2;
-    eviewitf_cam_buffers_virtual_t O3;
-} eviewitf_cam_buffers_a53_t;
-
 /******************************************************************************************
  * Private Functions Prototypes
  ******************************************************************************************/
 
-/* Cameras */
-int eviewitf_reboot_cam(int cam_id);
-int eviewitf_record_cam(int cam_id, int delay);
-int eviewitf_play_on_virtual_cam(int cam_id, int fps, char *frames_dir);
-int eviewitf_set_blending_from_file(int blending_id, char *frame);
+/* App eViewItf */
+int eviewitf_app_reset_camera(int cam_id);
+int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
+int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
+int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
+
+/* Common */
+int eviewitf_is_initialized();
+struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
 
 #endif /* EVIEWITF_PRIV_H */

@@ -17,15 +17,13 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <pthread.h>
+
+#include "eviewitf.h"
 #include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
-/* IOCTL definitions */
-#define WR_VALUE _IOW('a', 1, int32_t*)
-#define RD_VALUE _IOR('a', 2, int32_t*)
-
 pthread_mutex_t mfis_mutex;
 
 /******************************************************************************************
@@ -57,14 +55,14 @@ int mfis_send_request(int32_t* send, int32_t* receive) {
     }
 
     /* Send message to MFIS */
-    ret = ioctl(fd, WR_VALUE, (int32_t*)send);
+    ret = ioctl(fd, EVIEWITF_MFIS_WR_VALUE, (int32_t*)send);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
         goto out_close;
     }
 
     /* Wait for MFIS answer from R7 */
-    ret = ioctl(fd, RD_VALUE, (int32_t*)receive);
+    ret = ioctl(fd, EVIEWITF_MFIS_RD_VALUE, (int32_t*)receive);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
         goto out_close;
@@ -75,6 +73,76 @@ out_close:
 out_ret:
     pthread_mutex_unlock(&mfis_mutex);
     return ret;
+}
+
+/**
+ * \fn void* mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
+ * \brief Get cameras attributes from MFIS
+ *
+ * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
+ *
+ * \return pointer to virtual address (return NULL if error).
+ */
+int mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes* cameras_attributes) {
+    int fd;
+    int ret;
+    pthread_mutex_lock(&mfis_mutex);
+
+    /* Open the mfis device */
+    fd = open("/dev/mfis_ioctl", O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "%s() error cannot open ioctl file : %s\n", __FUNCTION__, strerror(errno));
+        pthread_mutex_unlock(&mfis_mutex);
+        return EVIEWITF_FAIL;
+    }
+
+    /* Call to the ioctl */
+    ret = ioctl(fd, EVIEWITF_MFIS_CAMERA_ATTRIBUTES, cameras_attributes);
+    if (ret < 0) {
+        fprintf(stderr, "%s() ioctl error : %s\n", __FUNCTION__, strerror(errno));
+        pthread_mutex_unlock(&mfis_mutex);
+        return EVIEWITF_FAIL;
+    }
+
+    /* Close the file descriptor and release the mutex */
+    close(fd);
+    pthread_mutex_unlock(&mfis_mutex);
+    return EVIEWITF_OK;
+}
+
+/**
+ * \fn void* mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
+ * \brief Get blendings attributes from MFIS
+ *
+ * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
+ *
+ * \return pointer to virtual address (return NULL if error).
+ */
+int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes* blendings_attributes) {
+    int fd;
+    int ret;
+    pthread_mutex_lock(&mfis_mutex);
+
+    /* Open the mfis device */
+    fd = open("/dev/mfis_ioctl", O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "%s() error cannot open ioctl file : %s\n", __FUNCTION__, strerror(errno));
+        pthread_mutex_unlock(&mfis_mutex);
+        return EVIEWITF_FAIL;
+    }
+
+    /* Call to the ioctl */
+    ret = ioctl(fd, EVIEWITF_MFIS_BLENDING_ATTRIBUTES, blendings_attributes);
+    if (ret < 0) {
+        fprintf(stderr, "%s() ioctl error : %s\n", __FUNCTION__, strerror(errno));
+        pthread_mutex_unlock(&mfis_mutex);
+        return EVIEWITF_FAIL;
+    }
+
+    /* Close the file descriptor and release the mutex */
+    close(fd);
+    pthread_mutex_unlock(&mfis_mutex);
+    return EVIEWITF_OK;
 }
 
 /**
