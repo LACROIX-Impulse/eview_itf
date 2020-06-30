@@ -21,10 +21,10 @@
 #include <sys/ioctl.h>
 #include "eviewitf.h"
 #include "eviewitf_ssd.h"
+#include "eviewitf_priv.h"
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
 #define SSD_SIZE_MOUNT_POINT      9
-#define RD_VALUE                  _IOR('a', 2, int32_t *)
 #define ONE_SEC_NS                1000000000
 
 static const char *SSD_MOUNT_POINT = "/mnt/ssd/";
@@ -88,6 +88,8 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
     short revents;
     struct pollfd pfd;
     int r_poll;
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+
     // Create frame directory if not existing (and it should not exist)
     if (stat(frames_directory, &st) == -1) {
         mkdir(frames_directory, 0777);
@@ -97,7 +99,8 @@ int ssd_save_camera_stream(int camera_id, int duration, char *frames_directory, 
         return -1;
     }
     res_run = res_start;
-    cam_fd = open(mfis_device_filenames[camera_id], O_RDWR);
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, camera_id);
+    cam_fd = open(device_name, O_RDWR);
     pfd.fd = cam_fd;
     pfd.events = POLLIN;
     while (difft.tv_sec < duration) {
