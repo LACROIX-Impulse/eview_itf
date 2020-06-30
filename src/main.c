@@ -14,7 +14,9 @@
 #include "eviewitf.h"
 #include "eviewitf_priv.h"
 
-#define DEFAULT_FPS 30
+#define FPS_MIN_VALUE     5
+#define FPS_DEFAULT_VALUE 30
+#define FPS_MAX_VALUE     60
 
 const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
@@ -26,11 +28,11 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 static char args_doc[] =
     "change display:  -d -c [0-7]\n"
     "change display:  -d -s [0-7]\n"
-    "record:          -c [0-7] -r [???]\n"
-    "play recordings: -s [0-7] -f [5-?] -p [PATH]\n"
+    "record:          -c [0-7] -r [???] (-p [PATH])\n"
+    "play recordings: -s [0-7] -f [5-60] -p [PATH]\n"
     "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
     "read register:   -c [0-7] -Ra [0x????]\n"
-    "reboot a camera: -s -c [0-7]\n"
+    "reboot a camera: -x -c [0-7]\n"
     "set blending:    -b [PATH] -o [0-1]\n"
     "stop blending:   -n\n"
     "activate R7 heartbeat: -H\n"
@@ -77,7 +79,6 @@ struct arguments {
     int read;
     int write;
     int reboot;
-    int set_fps;
     int fps_value;
     int play;
     char *path_frames_dir;
@@ -121,8 +122,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->display = 1;
             break;
         case 'f':
-            arguments->set_fps = 1;
             arguments->fps_value = atoi(arg);
+            if ((arguments->fps_value < FPS_MIN_VALUE) || (arguments->fps_value > FPS_MAX_VALUE)) {
+                argp_usage(state);
+            }
             break;
         case 'H':
             arguments->heartbeat = 1;
@@ -153,7 +156,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->read = 1;
             break;
         case 'r':
-            arguments->record = 1;
             arguments->record_duration = atoi(arg);
             if (arguments->record_duration < 0) {
                 argp_usage(state);
@@ -203,8 +205,7 @@ int main(int argc, char **argv) {
     arguments.camera_id = -1;
     arguments.streamer_id = -1;
     arguments.display = 0;
-    arguments.record = 0;
-    arguments.record_duration = 0;
+    arguments.record_duration = -1;
     arguments.reg = 0;
     arguments.reg_address = 0;
     arguments.val = 0;
@@ -212,9 +213,8 @@ int main(int argc, char **argv) {
     arguments.read = 0;
     arguments.write = 0;
     arguments.reboot = 0;
-    arguments.set_fps = 0;
     arguments.play = 0;
-    arguments.fps_value = 0;
+    arguments.fps_value = -1;
     arguments.path_frames_dir = NULL;
     arguments.blender_id = -1;
     arguments.path_blend_frame = NULL;
@@ -245,9 +245,9 @@ int main(int argc, char **argv) {
         }
     }
     /* Select camera for record */
-    if ((arguments.camera_id >= 0) && arguments.record) {
+    if ((arguments.camera_id >= 0) && (arguments.record_duration > 0)) {
         eviewitf_init();
-        if (eviewitf_record_cam(arguments.camera_id, arguments.record_duration) >= 0) {
+        if (eviewitf_app_record_cam(arguments.camera_id, arguments.record_duration, arguments.path_frames_dir) >= 0) {
             fprintf(stdout, "Recorded %d s from camera %d\n", arguments.record_duration, arguments.camera_id);
         } else {
             fprintf(stdout, "Fail to record stream from camera %d\n", arguments.camera_id);
@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
     }
     /* reboot a camera */
     if ((arguments.camera_id >= 0) && arguments.reboot) {
-        ret = eviewitf_reboot_cam(arguments.camera_id);
+        ret = eviewitf_app_reset_camera(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
@@ -297,10 +297,10 @@ int main(int argc, char **argv) {
     /* Playback on streamer */
     if ((arguments.streamer_id >= 0) && arguments.play) {
         eviewitf_init();
-        if (arguments.set_fps) {
-            ret = eviewitf_play_on_streamer(arguments.streamer_id, arguments.fps_value, arguments.path_frames_dir);
+        if (arguments.fps_value > 0) {
+            ret = eviewitf_app_streamer_play(arguments.streamer_id, arguments.fps_value, arguments.path_frames_dir);
         } else {
-            ret = eviewitf_play_on_streamer(arguments.streamer_id, DEFAULT_FPS, arguments.path_frames_dir);
+            ret = eviewitf_app_streamer_play(arguments.streamer_id, FPS_DEFAULT_VALUE, arguments.path_frames_dir);
         }
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Recording played on camera %d\n", arguments.streamer_id);
@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
         eviewitf_init();
         ret = eviewitf_display_select_blender(arguments.blender_id);
         if (ret >= EVIEWITF_OK) {
-            ret = eviewitf_set_blending_from_file(arguments.blender_id, arguments.path_blend_frame);
+            ret = eviewitf_app_set_blending_from_file(arguments.blender_id, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Blending applied\n");
             } else if (ret == EVIEWITF_INVALID_PARAM) {
@@ -424,5 +424,5 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Cropping stopped failure\n");
         }
     }
-    exit(0);
+    exit(-ret);
 }

@@ -43,11 +43,13 @@ typedef enum {
  * Private Functions Prototypes
  ******************************************************************************************/
 
-/* Cameras */
-int eviewitf_reboot_cam(int cam_id);
-int eviewitf_record_cam(int cam_id, int delay);
-int eviewitf_play_on_streamer(int cam_id, int fps, char *frames_dir);
-int eviewitf_set_blending_from_file(int blender_id, char *frame);
+/* App eViewItf */
+int eviewitf_app_reset_camera(int cam_id);
+int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
+int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
+int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
+
+/* Common */
 int eviewitf_is_initialized();
 struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
 struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
