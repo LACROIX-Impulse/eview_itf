@@ -15,7 +15,7 @@ all: eviewitf
 
 .PHONY: eviewitf
 eviewitf: $(BUILDDIR)/src/main.o libewiewitf
-	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -ldl -L$(BUILDDIR)
+	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -L$(BUILDDIR)
 
 LIBDEPS = $(BUILDDIR)/src/eviewitf.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_app.o
