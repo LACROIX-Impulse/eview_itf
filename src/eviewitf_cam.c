@@ -38,6 +38,22 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1, -1, -1, -1, -1, -1, -1, -1};
  * Functions
  ******************************************************************************************/
 
+int camera_generic_open(int cam_id) {
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+
+    /* Get mfis device filename */
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, cam_id);
+    return open(device_name, O_RDONLY);
+}
+
+int camera_generic_close(int file_descriptor) {
+    return close(file_descriptor);
+}
+
+int camera_generic_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
+    return read(file_descriptor, frame_buffer, buffer_size);
+}
+
 /**
  * \fn int eviewitf_camera_open(int cam_id)
  * \brief Open a camera device
@@ -48,8 +64,7 @@ static int file_cams[EVIEWITF_MAX_CAMERA] = {-1, -1, -1, -1, -1, -1, -1, -1};
  */
 int eviewitf_camera_open(int cam_id) {
     int ret = EVIEWITF_OK;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
-    struct eviewitf_mfis_camera_attributes *camera_attributes;
+    struct eviewitf_camera_object *camera_object;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -68,18 +83,15 @@ int eviewitf_camera_open(int cam_id) {
 
     /* Test camera is active */
     else {
-        camera_attributes = eviewitf_get_camera_attributes(cam_id);
-        if (camera_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
+        camera_object = eviewitf_get_camera_object(cam_id);
+        if (camera_object->camera_operations.open == NULL) {
             ret = EVIEWITF_FAIL;
         }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, cam_id);
-        file_cams[cam_id] = open(device_name, O_RDONLY);
-        if (file_cams[cam_id] == -1) {
-            ret = EVIEWITF_FAIL;
+        else {
+            file_cams[cam_id] = camera_object->camera_operations.open(cam_id);
+            if (file_cams[cam_id] == -1) {
+                return EVIEWITF_FAIL;
+            }
         }
     }
 
@@ -96,6 +108,7 @@ int eviewitf_camera_open(int cam_id) {
  */
 int eviewitf_camera_close(int cam_id) {
     int ret = EVIEWITF_OK;
+    struct eviewitf_camera_object *camera_object;
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -110,11 +123,16 @@ int eviewitf_camera_close(int cam_id) {
     }
 
     if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        if (close(file_cams[cam_id]) != 0) {
+        camera_object = eviewitf_get_camera_object(cam_id);
+        if (camera_object->camera_operations.close == NULL) {
             ret = EVIEWITF_FAIL;
-        } else {
-            file_cams[cam_id] = -1;
+        }
+        else {
+            if(camera_object->camera_operations.close(file_cams[cam_id]) != 0) {;
+                ret = EVIEWITF_FAIL;
+            } else {
+                file_cams[cam_id] = -1;
+            }
         }
     }
 
@@ -145,7 +163,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
 
     if (ret >= EVIEWITF_OK) {
         /* Read file content */
-        if (read(file_cams[cam_id], frame_buffer, buffer_size) < 0) {
+        if (camera_generic_read(file_cams[cam_id], frame_buffer, buffer_size) < 0) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -216,7 +234,7 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
 int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the camera attributes */
-    struct eviewitf_mfis_camera_attributes *camera_attributes = eviewitf_get_camera_attributes(cam_id);
+    struct eviewitf_camera_object *camera_object = eviewitf_get_camera_object(cam_id);
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -239,10 +257,10 @@ int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *att
 
     /* Copy attributes */
     if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = camera_attributes->buffer_size;
-        attributes->width = camera_attributes->width;
-        attributes->height = camera_attributes->height;
-        attributes->dt = camera_attributes->dt;
+        attributes->buffer_size = camera_object->camera_attributes.buffer_size;
+        attributes->width = camera_object->camera_attributes.width;
+        attributes->height = camera_object->camera_attributes.height;
+        attributes->dt = camera_object->camera_attributes.dt;
     }
 
     return ret;

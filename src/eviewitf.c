@@ -38,11 +38,11 @@
  * Private enumerations
  ******************************************************************************************/
 
-/* Cameras attributes */
-static struct eviewitf_mfis_camera_attributes all_cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
-
 /* Blending attributes */
 static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
+
+/* Camera objects */
+static struct eviewitf_camera_object all_cameras_objects[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
@@ -115,18 +115,18 @@ static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attr
 int eviewitf_is_initialized() { return eviewitf_global_init; }
 
 /**
- * \fn eviewitf_get_cameras_attributes
- * \brief Get a pointer on the camera attributes
+ * \fn eviewitf_get_camera_object
+ * \brief Get a pointer on the camera object
  *
  * \param [in] cam_id: Camera id
  *
- * \return pointer on camera attributes structure
+ * \return pointer on camera object structure
  */
-struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id) {
+struct eviewitf_camera_object *eviewitf_get_camera_object(int cam_id) {
     if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER) {
         return NULL;
     }
-    return &all_cameras_attributes[cam_id];
+    return &all_cameras_objects[cam_id];
 }
 
 /**
@@ -155,6 +155,7 @@ struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int bl
 int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    struct eviewitf_mfis_camera_attributes cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -176,8 +177,51 @@ int eviewitf_init(void) {
 
         /* Get the cameras attributes */
         if (ret == EVIEWITF_OK) {
-            ret = eviewitf_mfis_get_cam_attributes(all_cameras_attributes);
+            ret = eviewitf_mfis_get_cam_attributes(cameras_attributes);
         }
+        /* Fill camera objects structure */
+        if (ret == EVIEWITF_OK) {
+            /* Set camera operations */
+            for (int i = 0; i < EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER; i++) {
+                /* Copy attributes */
+                memcpy(&all_cameras_objects[i].camera_attributes, &cameras_attributes[i], sizeof(struct eviewitf_mfis_camera_attributes));
+                /* Set operations */
+                switch (cameras_attributes[i].cam_type)
+                {
+                    case EVIEWITF_MFIS_CAM_TYPE_GENERIC:
+                        all_cameras_objects[i].camera_operations.open = camera_generic_open;
+                        all_cameras_objects[i].camera_operations.close = camera_generic_close;
+                        all_cameras_objects[i].camera_operations.write = NULL;
+                        all_cameras_objects[i].camera_operations.read = camera_generic_read;
+                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
+                        break;
+                    case EVIEWITF_MFIS_CAM_TYPE_VIRTUAL:
+                        all_cameras_objects[i].camera_operations.open = camera_streamer_open;
+                        all_cameras_objects[i].camera_operations.close = camera_streamer_close;
+                        all_cameras_objects[i].camera_operations.write = camera_streamer_write;
+                        all_cameras_objects[i].camera_operations.read = NULL;
+                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
+                        break;
+                    case EVIEWITF_MFIS_CAM_TYPE_SEEK:
+                        all_cameras_objects[i].camera_operations.open = camera_generic_open;
+                        all_cameras_objects[i].camera_operations.close = camera_generic_close;
+                        all_cameras_objects[i].camera_operations.write = NULL;
+                        all_cameras_objects[i].camera_operations.read = camera_generic_read;
+                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
+                        break;
+                    
+                    default:
+                        all_cameras_objects[i].camera_operations.open = NULL;
+                        all_cameras_objects[i].camera_operations.close = NULL;
+                        all_cameras_objects[i].camera_operations.write = NULL;
+                        all_cameras_objects[i].camera_operations.read = NULL;
+                        all_cameras_objects[i].camera_operations.display = NULL;
+
+                        break;
+                }
+            }
+        }
+
 
         /* Get the blendings attributes */
         if (ret == EVIEWITF_OK) {
@@ -229,12 +273,12 @@ int eviewitf_deinit(void) {
 }
 
 /**
- * \fn _eviewitf_display_select_camera
+ * \fn generic_camera_display
  * \brief Request R7 to select camera device as display input
  *
  * \return state of the function. Return 0 if okay
  */
-static int _eviewitf_display_select_camera(int cam_id) {
+int generic_camera_display(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -272,7 +316,12 @@ int eviewitf_display_select_camera(int cam_id) {
     }
 
     if (ret == EVIEWITF_OK) {
-        ret = _eviewitf_display_select_camera(cam_id);
+        if (all_cameras_objects[cam_id].camera_operations.display == NULL) {
+            ret = EVIEWITF_FAIL;
+        }
+        else  {
+            ret = generic_camera_display(cam_id);
+        }
     }
 
     return ret;
@@ -292,7 +341,12 @@ int eviewitf_display_select_streamer(int streamer_id) {
     }
 
     if (ret == EVIEWITF_OK) {
-        ret = _eviewitf_display_select_camera(streamer_id + EVIEWITF_MAX_CAMERA);
+        if (all_cameras_objects[streamer_id + EVIEWITF_MAX_CAMERA].camera_operations.display == NULL) {
+            ret = EVIEWITF_FAIL;
+        }
+        else  {
+            ret = generic_camera_display(streamer_id + EVIEWITF_MAX_CAMERA);
+        }
     }
 
     return ret;

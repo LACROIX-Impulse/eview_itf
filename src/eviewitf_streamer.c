@@ -37,6 +37,22 @@ static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1, -1, -1, -1, -1, -1, -1, 
  * Functions
  ******************************************************************************************/
 
+int camera_streamer_open(int cam_id) {
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+
+    /* Get mfis device filename */
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, cam_id);
+    return open(device_name, O_WRONLY);
+}
+
+int camera_streamer_close(int file_descriptor) {
+    return close(file_descriptor);
+}
+
+int camera_streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
+    return write(file_descriptor, frame_buffer, buffer_size);
+}
+
 /**
  * \fn int eviewitf_streamer_open(int streamer_id)
  * \brief Open a streamer device
@@ -47,8 +63,7 @@ static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1, -1, -1, -1, -1, -1, -1, 
  */
 int eviewitf_streamer_open(int streamer_id) {
     int ret = EVIEWITF_OK;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
-    struct eviewitf_mfis_camera_attributes *streamer_attributes;
+    struct eviewitf_camera_object *streamer_object;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -67,18 +82,15 @@ int eviewitf_streamer_open(int streamer_id) {
 
     /* Test streamer is active */
     else {
-        streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
-        if (streamer_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
+        streamer_object = eviewitf_get_camera_object(streamer_id + EVIEWITF_MAX_CAMERA);
+        if (streamer_object->camera_operations.open == NULL) {
             ret = EVIEWITF_FAIL;
         }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, streamer_id + EVIEWITF_MAX_CAMERA);
-        file_streamers[streamer_id] = open(device_name, O_WRONLY);
-        if (file_streamers[streamer_id] == -1) {
-            ret = EVIEWITF_FAIL;
+        else {
+            file_streamers[streamer_id] = streamer_object->camera_operations.open(streamer_id + EVIEWITF_MAX_CAMERA);
+            if (file_streamers[streamer_id] == -1) {
+                return EVIEWITF_FAIL;
+            }
         }
     }
 
@@ -95,6 +107,7 @@ int eviewitf_streamer_open(int streamer_id) {
  */
 int eviewitf_streamer_close(int streamer_id) {
     int ret = EVIEWITF_OK;
+    struct eviewitf_camera_object *streamer_object;
 
     /* Test streamer id */
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
@@ -109,11 +122,16 @@ int eviewitf_streamer_close(int streamer_id) {
     }
 
     if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        if (close(file_streamers[streamer_id]) != 0) {
+        streamer_object = eviewitf_get_camera_object(streamer_id + EVIEWITF_MAX_CAMERA);
+        if (streamer_object->camera_operations.close == NULL) {
             ret = EVIEWITF_FAIL;
-        } else {
-            file_streamers[streamer_id] = -1;
+        }
+        else {
+            if(streamer_object->camera_operations.close(file_streamers[streamer_id]) != 0) {;
+                ret = EVIEWITF_FAIL;
+            } else {
+                file_streamers[streamer_id] = -1;
+            }
         }
     }
 
@@ -132,8 +150,8 @@ int eviewitf_streamer_close(int streamer_id) {
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the streamers attributes */
-    struct eviewitf_mfis_camera_attributes *streamer_attributes =
-        eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
+    struct eviewitf_camera_object *streamer_object =
+        eviewitf_get_camera_object(streamer_id + EVIEWITF_MAX_CAMERA);
 
     /* Test streamer id */
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
@@ -156,10 +174,10 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
 
     /* Copy attributes */
     if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = streamer_attributes->buffer_size;
-        attributes->width = streamer_attributes->width;
-        attributes->height = streamer_attributes->height;
-        attributes->dt = streamer_attributes->dt;
+        attributes->buffer_size = streamer_object->camera_attributes.buffer_size;
+        attributes->width = streamer_object->camera_attributes.width;
+        attributes->height = streamer_object->camera_attributes.height;
+        attributes->dt = streamer_object->camera_attributes.dt;
     }
 
     return ret;
@@ -177,6 +195,8 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
  */
 int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
+    /* Get the streamers attributes */
+    struct eviewitf_camera_object *streamer_object;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -198,8 +218,14 @@ int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32
 
     if (ret >= EVIEWITF_OK) {
         /* Write the frame in the virtual camera */
-        if (write(file_streamers[streamer_id], frame_buffer, buffer_size) < 0) {
+        streamer_object = eviewitf_get_camera_object(streamer_id + EVIEWITF_MAX_CAMERA);
+        if (streamer_object->camera_operations.write == NULL) {
             ret = EVIEWITF_FAIL;
+        }
+        else {
+            if(streamer_object->camera_operations.write(file_streamers[streamer_id], frame_buffer, buffer_size ) < 0) {
+                ret = EVIEWITF_FAIL;
+            }
         }
     }
 

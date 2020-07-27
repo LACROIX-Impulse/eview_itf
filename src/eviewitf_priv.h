@@ -39,6 +39,39 @@ typedef enum {
     FCT_RETURN_ERROR,
 } fct_ret_r;
 
+/**
+ * @brief Camera operation
+ * Defines some operation that could be customized according to the camera type
+ */
+typedef struct eviewitf_camera_operations {
+    /* Operation to be performed on open request */
+    int (*open)(int cam_id);
+
+    /* Operation to be performed on close request */
+    int (*close)(int file_descriptor);
+
+    /* Called when a frame is written to a camera */
+    int (*write)(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+
+    /* Called when a frame is read fro ma camera */
+    int (*read)(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+
+    /* Called when the camera is selected for display */
+    int (*display)(int cam_id);
+} eviewitf_camera_operations_t;
+
+/**
+ * @brief Camera definition
+ * Contains both attributes and operations for a camera
+ */
+typedef struct eviewitf_camera_object {
+    /* Camera attributes from MFIS */
+    struct eviewitf_mfis_camera_attributes camera_attributes;
+
+    /* Camera operations related tio camera type */
+    struct eviewitf_camera_operations camera_operations;
+} eviewitf_camera_object_t;
+
 /******************************************************************************************
  * Private Functions Prototypes
  ******************************************************************************************/
@@ -51,7 +84,18 @@ int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
 
 /* Common */
 int eviewitf_is_initialized();
-struct eviewitf_mfis_camera_attributes *eviewitf_get_camera_attributes(int cam_id);
+struct eviewitf_camera_object *eviewitf_get_camera_object(int cam_id);
 struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
+
+/* To be moved ? */
+int camera_generic_open(int cam_id);
+int camera_generic_close(int file_descriptor);
+int camera_generic_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+int generic_camera_display(int cam_id);
+
+int camera_streamer_open(int cam_id);
+int camera_streamer_close(int file_descriptor);
+int camera_streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+
 
 #endif /* EVIEWITF_PRIV_H */
