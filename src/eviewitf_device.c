@@ -79,11 +79,11 @@ int device_objects_init() {
                     break;
                 case EVIEWITF_MFIS_CAM_TYPE_SEEK:
                     device_objects[i].attributes.type = DEVICE_TYPE_CAMERA_SEEK;
-                    device_objects[i].operations.open = camera_open;
-                    device_objects[i].operations.close = camera_close;
+                    device_objects[i].operations.open = camera_seek_open;
+                    device_objects[i].operations.close = camera_seek_close;
                     device_objects[i].operations.write = NULL;
-                    device_objects[i].operations.read = camera_read;
-                    device_objects[i].operations.display = camera_display;
+                    device_objects[i].operations.read = camera_seek_read;
+                    device_objects[i].operations.display = camera_seek_display;
                     break;
 
                 default:

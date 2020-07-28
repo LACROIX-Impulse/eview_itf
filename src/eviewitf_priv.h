@@ -140,4 +140,10 @@ int streamer_open(int device_id);
 int streamer_close(int file_descriptor);
 int streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
 
+/* Camera Seek */
+int camera_seek_open(int device_id);
+int camera_seek_close(int file_descriptor);
+int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+int camera_seek_display(int device_id);
+
 #endif /* EVIEWITF_PRIV_H */
