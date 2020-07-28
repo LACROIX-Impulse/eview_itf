@@ -27,14 +27,14 @@
 #define SEEK_FRAME_WIDTH 200
 #define SEEK_FRAME_HEIGH 150
 
-#define SEEK_NB_CAMERAS 4
-#define SEEK_STRING_MAX_LENGTH 64
-#define SEEK_CONFIG_MESSAGE_SIZE 2
-#define SEEK_SOCKET_CONFIG "/var/seek/seek_config"
-#define SEEK_SOCKET_CAMERA "/var/seek/seek_camera_%d"
-#define SEEK_SEM_MUTEX_CAMERA "/seek-mutex-camera-%d"
+#define SEEK_NB_CAMERAS           4
+#define SEEK_STRING_MAX_LENGTH    64
+#define SEEK_CONFIG_MESSAGE_SIZE  2
+#define SEEK_SOCKET_CONFIG        "/var/seek/seek_config"
+#define SEEK_SOCKET_CAMERA        "/var/seek/seek_camera_%d"
+#define SEEK_SEM_MUTEX_CAMERA     "/seek-mutex-camera-%d"
 #define SEEK_SHARED_MEMORY_CAMERA "/seek-shared-mem-camera-%d"
-#define SEEK_STREAMER_ID 7
+#define SEEK_STREAMER_ID          7
 
 #define SEEK_CONFIG_START_DISPLAY_CAMERA 1
 #define SEEK_CONFIG_STOP_DISPLAY_CAMERA  2
@@ -55,7 +55,6 @@ typedef struct {
     seek_shared_memory *ptr_shm;
     int sock;
 } seek_handler;
-
 
 /******************************************************************************************
  * Private enumerations
@@ -126,20 +125,21 @@ int camera_seek_open(int cam_id) {
 
     /* Open mutual exclusion semaphores */
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SEM_MUTEX_CAMERA, seek_id);
-    seek_handlers[seek_id].mutex_sem = sem_open (tmp_string, 0);
+    seek_handlers[seek_id].mutex_sem = sem_open(tmp_string, 0);
     if (seek_handlers[seek_id].mutex_sem == SEM_FAILED) {
         return -1;
     }
 
     /* Open shared memory */
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SHARED_MEMORY_CAMERA, seek_id);
-    seek_handlers[seek_id].fd_shm = shm_open (tmp_string, O_RDONLY, S_IRUSR | S_IWUSR);
+    seek_handlers[seek_id].fd_shm = shm_open(tmp_string, O_RDONLY, S_IRUSR | S_IWUSR);
     if (seek_handlers[seek_id].fd_shm == -1) {
         return -1;
     }
 
     /* Map shared memory */
-    seek_handlers[seek_id].ptr_shm = mmap (NULL, sizeof (seek_shared_memory), PROT_READ , MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
+    seek_handlers[seek_id].ptr_shm =
+        mmap(NULL, sizeof(seek_shared_memory), PROT_READ, MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
     if (seek_handlers[seek_id].ptr_shm == MAP_FAILED) {
         return -1;
     }
@@ -155,7 +155,7 @@ int camera_seek_open(int cam_id) {
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SOCKET_CAMERA, seek_id);
     strcpy(server_camera.sun_path, tmp_string);
 
-    if (connect(seek_handlers[seek_id].sock, (struct sockaddr *) &server_camera, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(seek_handlers[seek_id].sock, (struct sockaddr *)&server_camera, sizeof(struct sockaddr_un)) < 0) {
         close(seek_handlers[seek_id].sock);
         seek_handlers[seek_id].sock = -1;
         return -1;
@@ -196,7 +196,7 @@ int camera_seek_close(int file_descriptor) {
  */
 int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
-    int min_size = MIN(buffer_size, sizeof (seek_shared_memory));
+    int min_size = MIN(buffer_size, sizeof(seek_shared_memory));
 
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].sock == file_descriptor) {
@@ -232,7 +232,7 @@ int camera_seek_display(int cam_id) {
     strcpy(server_config.sun_path, SEEK_SOCKET_CONFIG);
 
     /* Establish connection */
-    if (connect(sock_config, (struct sockaddr *) &server_config, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(sock_config, (struct sockaddr *)&server_config, sizeof(struct sockaddr_un)) < 0) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }
@@ -240,12 +240,12 @@ int camera_seek_display(int cam_id) {
     /* Send display message */
     msg[0] = SEEK_CONFIG_START_DISPLAY_CAMERA;
     msg[1] = camera_seek_get_seek_id(cam_id);
-    if (write(sock_config, msg, SEEK_CONFIG_MESSAGE_SIZE) !=  SEEK_CONFIG_MESSAGE_SIZE) {
+    if (write(sock_config, msg, SEEK_CONFIG_MESSAGE_SIZE) != SEEK_CONFIG_MESSAGE_SIZE) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }
     /* Check answer */
-    if (read(sock_config, msg, SEEK_CONFIG_MESSAGE_SIZE) !=  SEEK_CONFIG_MESSAGE_SIZE) {
+    if (read(sock_config, msg, SEEK_CONFIG_MESSAGE_SIZE) != SEEK_CONFIG_MESSAGE_SIZE) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }
