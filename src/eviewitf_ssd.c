@@ -5,23 +5,19 @@
  *      Author: root
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/dir.h>
-#include <dirent.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <eviewitf.h>
 #include <poll.h>
-#include <sys/mman.h>
-#include <time.h>
-#include <sys/ioctl.h>
-#include "eviewitf.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/dir.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "eviewitf_ssd.h"
 #include "eviewitf_priv.h"
+
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
 #define SSD_SIZE_MOUNT_POINT      9

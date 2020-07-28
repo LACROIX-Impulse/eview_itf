@@ -7,14 +7,12 @@
  *
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
-#include "eviewitf.h"
+
 #include "eviewitf_priv.h"
-#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions

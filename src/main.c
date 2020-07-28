@@ -7,11 +7,11 @@
  *
  */
 
-#include <stdlib.h>
 #include <argp.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
-#include "eviewitf.h"
+#include <unistd.h>
+
 #include "eviewitf_priv.h"
 
 #define FPS_MIN_VALUE     5

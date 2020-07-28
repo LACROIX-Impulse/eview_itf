@@ -8,7 +8,8 @@
 #define EVIEWITF_PRIV_H
 
 #include <stdint.h>
-#include "mfis_communication.h"
+
+#include "eviewitf.h"
 
 /******************************************************************************************
  * Private Definitions
