@@ -45,9 +45,7 @@ int camera_open(int cam_id) {
     return open(device_name, O_RDONLY);
 }
 
-int camera_close(int file_descriptor) {
-    return close(file_descriptor);
-}
+int camera_close(int file_descriptor) { return close(file_descriptor); }
 
 int camera_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     return read(file_descriptor, frame_buffer, buffer_size);
@@ -103,7 +101,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         return EVIEWITF_INVALID_PARAM;
     }
-    
+
     return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, frame_buffer, buffer_size);
 }
 
@@ -118,7 +116,6 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
-
     if (cam_id == NULL) {
         return EVIEWITF_INVALID_PARAM;
     } else {

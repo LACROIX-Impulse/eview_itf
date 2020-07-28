@@ -179,8 +179,7 @@ int eviewitf_display_select_camera(int cam_id) {
     if (ret == EVIEWITF_OK) {
         if (device->operations.display == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else  {
+        } else {
             ret = device->operations.display(cam_id + EVIEWITF_OFFSET_CAMERA);
         }
     }
@@ -205,8 +204,7 @@ int eviewitf_display_select_streamer(int streamer_id) {
     if (ret == EVIEWITF_OK) {
         if (device->operations.display == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else  {
+        } else {
             ret = device->operations.display(streamer_id + EVIEWITF_OFFSET_STREAMER);
         }
     }

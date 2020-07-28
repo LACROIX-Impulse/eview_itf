@@ -72,8 +72,7 @@ int device_objects_init() {
             device_objects[i].attributes.height = cameras_attributes[i].height;
             device_objects[i].attributes.width = cameras_attributes[i].width;
             /* Set operations */
-            switch (cameras_attributes[i].cam_type)
-            {
+            switch (cameras_attributes[i].cam_type) {
                 case EVIEWITF_MFIS_CAM_TYPE_GENERIC:
                     device_objects[i].attributes.type = DEVICE_TYPE_CAMERA;
                     device_objects[i].operations.open = camera_open;
@@ -98,7 +97,7 @@ int device_objects_init() {
                     device_objects[i].operations.read = camera_read;
                     device_objects[i].operations.display = camera_display;
                     break;
-                
+
                 default:
                     device_objects[i].attributes.type = DEVICE_TYPE_NONE;
                     device_objects[i].operations.open = NULL;
@@ -161,7 +160,7 @@ device_object *get_device_object(int device_id) {
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int device_open(int device_id) {
@@ -183,8 +182,7 @@ int device_open(int device_id) {
         device = get_device_object(device_id);
         if (device->operations.open == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else {
+        } else {
             file_descriptors[device_id] = device->operations.open(device_id);
             if (file_descriptors[device_id] == -1) {
                 return EVIEWITF_FAIL;
@@ -201,7 +199,7 @@ int device_open(int device_id) {
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
- * 
+ *
  * \return state of the function. Return 0 if okay
  */
 int device_close(int device_id) {
@@ -217,9 +215,9 @@ int device_close(int device_id) {
         device = get_device_object(device_id);
         if (device->operations.close == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else {
-            if(device->operations.close(file_descriptors[device_id]) != 0) {;
+        } else {
+            if (device->operations.close(file_descriptors[device_id]) != 0) {
+                ;
                 ret = EVIEWITF_FAIL;
             } else {
                 file_descriptors[device_id] = -1;
@@ -255,9 +253,9 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         device = get_device_object(device_id);
         if (device->operations.read == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else {
-            if(device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {;
+        } else {
+            if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+                ;
                 ret = EVIEWITF_FAIL;
             }
         }
@@ -293,9 +291,9 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         device = get_device_object(device_id);
         if (device->operations.write == NULL) {
             ret = EVIEWITF_FAIL;
-        }
-        else {
-            if(device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {;
+        } else {
+            if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+                ;
                 ret = EVIEWITF_FAIL;
             }
         }
