@@ -66,7 +66,7 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
         }
         printf("SSD storage directory %s \n", record_dir);
         ret = eviewitf_ssd_record_stream(cam_id, delay, record_dir,
-                                         (eviewitf_get_camera_object(cam_id))->camera_attributes.buffer_size);
+                                         (get_device_object(cam_id))->attributes.buffer_size);
         if (record_path == NULL) {
             free(record_dir);
         }
@@ -141,7 +141,7 @@ int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
 
     if (EVIEWITF_OK == ret) {
         ret = eviewitf_ssd_streamer_play(
-            streamer_id, (eviewitf_get_camera_object(streamer_id + EVIEWITF_MAX_CAMERA))->camera_attributes.buffer_size, fps,
+            streamer_id, (get_device_object(streamer_id + EVIEWITF_MAX_CAMERA))->attributes.buffer_size, fps,
             frames_dir);
     }
 
@@ -168,7 +168,7 @@ int eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = eviewitf_ssd_set_blending(blender_id, eviewitf_get_blender_attributes(blender_id)->buffer_size, frame);
+        ret = eviewitf_ssd_set_blending(blender_id, get_device_object(blender_id + EVIEWITF_OFFSET_BLENDER)->attributes.buffer_size, frame);
     }
 
     return ret;

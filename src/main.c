@@ -230,24 +230,31 @@ int main(int argc, char **argv) {
 
     /* Select camera for display */
     if ((arguments.camera_id >= 0) && arguments.display) {
-        if (eviewitf_display_select_camera(arguments.camera_id) >= 0) {
+        eviewitf_init();
+        ret = eviewitf_display_select_camera(arguments.camera_id);
+        if (ret >= 0) {
             fprintf(stdout, "Camera %d selected for display\n", arguments.camera_id);
         } else {
             fprintf(stdout, "Failed to select camera %d for display\n", arguments.camera_id);
         }
+        eviewitf_deinit();
     }
     /* Select streamer for display */
     if ((arguments.streamer_id >= 0) && arguments.display) {
-        if (eviewitf_display_select_streamer(arguments.streamer_id) >= 0) {
+        eviewitf_init();
+        ret = eviewitf_display_select_streamer(arguments.streamer_id);
+        if (ret >= 0) {
             fprintf(stdout, "Streamer %d selected for display\n", arguments.streamer_id);
         } else {
             fprintf(stdout, "Failed to select streamer %d for display\n", arguments.streamer_id);
         }
+        eviewitf_deinit();
     }
     /* Select camera for record */
     if ((arguments.camera_id >= 0) && (arguments.record_duration > 0)) {
         eviewitf_init();
-        if (eviewitf_app_record_cam(arguments.camera_id, arguments.record_duration, arguments.path_frames_dir) >= 0) {
+        ret = eviewitf_app_record_cam(arguments.camera_id, arguments.record_duration, arguments.path_frames_dir);
+        if (ret >= 0) {
             fprintf(stdout, "Recorded %d s from camera %d\n", arguments.record_duration, arguments.camera_id);
         } else {
             fprintf(stdout, "Fail to record stream from camera %d\n", arguments.camera_id);

@@ -20,7 +20,8 @@ eviewitf: $(BUILDDIR)/src/main.o libewiewitf
 LIBDEPS = $(BUILDDIR)/src/eviewitf.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_app.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_blender.o
-LIBDEPS += $(BUILDDIR)/src/eviewitf_cam.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_camera.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
 LIBDEPS += $(BUILDDIR)/src/mfis_communication.o

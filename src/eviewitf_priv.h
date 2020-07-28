@@ -14,6 +14,11 @@
  * Private Definitions
  ******************************************************************************************/
 
+#define EVIEWITF_MAX_DEVICES     (EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER + EVIEWITF_MAX_BLENDER)
+#define EVIEWITF_OFFSET_CAMERA   (0)
+#define EVIEWITF_OFFSET_STREAMER (EVIEWITF_MAX_CAMERA)
+#define EVIEWITF_OFFSET_BLENDER  (EVIEWITF_OFFSET_STREAMER + EVIEWITF_MAX_STREAMER)
+
 /* Magic number used to check metadata presence */
 #define FRAME_MAGIC_NUMBER 0xD1CECA5F
 
@@ -40,10 +45,33 @@ typedef enum {
 } fct_ret_r;
 
 /**
- * @brief Camera operation
- * Defines some operation that could be customized according to the camera type
+ * @brief Device type
  */
-typedef struct eviewitf_camera_operations {
+typedef enum {
+    DEVICE_TYPE_NONE,
+    DEVICE_TYPE_CAMERA,
+    DEVICE_TYPE_STREAMER,
+    DEVICE_TYPE_BLENDER,
+    DEVICE_TYPE_CAMERA_SEEK,
+} device_type;
+
+/**
+ * @brief Device attributes
+ * Defines some attributes of the device
+ */
+typedef struct {
+    device_type type;
+    uint32_t buffer_size;
+    uint32_t width;
+    uint32_t height;
+    uint16_t dt;
+} device_attributes;
+
+/**
+ * @brief Device operation
+ * Defines some operation that could be customized according to the device type
+ */
+typedef struct {
     /* Operation to be performed on open request */
     int (*open)(int cam_id);
 
@@ -58,19 +86,19 @@ typedef struct eviewitf_camera_operations {
 
     /* Called when the camera is selected for display */
     int (*display)(int cam_id);
-} eviewitf_camera_operations_t;
+} device_operations;
 
 /**
  * @brief Camera definition
- * Contains both attributes and operations for a camera
+ * Contains both attributes and operations for a device
  */
-typedef struct eviewitf_camera_object {
-    /* Camera attributes from MFIS */
-    struct eviewitf_mfis_camera_attributes camera_attributes;
+typedef struct {
+    /* Device attributes */
+    device_attributes attributes;
 
-    /* Camera operations related tio camera type */
-    struct eviewitf_camera_operations camera_operations;
-} eviewitf_camera_object_t;
+    /* Device operations */
+    device_operations operations;
+} device_object;
 
 /******************************************************************************************
  * Private Functions Prototypes
@@ -84,18 +112,32 @@ int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
 
 /* Common */
 int eviewitf_is_initialized();
-struct eviewitf_camera_object *eviewitf_get_camera_object(int cam_id);
-struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int cam_id);
 
-/* To be moved ? */
-int camera_generic_open(int cam_id);
-int camera_generic_close(int file_descriptor);
-int camera_generic_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
-int generic_camera_display(int cam_id);
+/* Devices */
+int device_objects_init();
+device_object *get_device_object(int device_id);
+int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes);
+int device_open(int device_id);
+int device_close(int device_id);
+int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
+int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
+int device_poll(int *device_id, int nb_devices, short *event_return);
 
-int camera_streamer_open(int cam_id);
-int camera_streamer_close(int file_descriptor);
-int camera_streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+/* Blender */
+int blender_open(int device_id);
+int blender_close(int file_descriptor) ;
+int blender_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+
+/* Camera */
+int camera_open(int device_id);
+int camera_close(int file_descriptor);
+int camera_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
+int camera_display(int device_id);
+
+/* Streamer */
+int streamer_open(int device_id);
+int streamer_close(int file_descriptor);
+int streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
 
 
 #endif /* EVIEWITF_PRIV_H */

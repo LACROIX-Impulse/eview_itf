@@ -38,73 +38,12 @@
  * Private enumerations
  ******************************************************************************************/
 
-/* Blending attributes */
-static struct eviewitf_mfis_blending_attributes all_blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
-
-/* Camera objects */
-static struct eviewitf_camera_object all_cameras_objects[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
-
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
-/* Private function used to retrieved cam buffer during api initialization.
- Doesn't need to be exposed in API */
-/**
- * \fn eviewitf_mfis_get_cam_attributes
- * \brief Get the cameras attributes
- *
- * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
- *
- * \return state of the function. Returns EVIEWITF_OK if okay
- */
-static int eviewitf_mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
-    int ret = EVIEWITF_OK;
-
-    /* Check input parameter */
-    if (cameras_attributes == NULL) {
-        ret = EVIEWITF_INVALID_PARAM;
-    }
-
-    /* Get the cameras attributes */
-    if (ret == EVIEWITF_OK) {
-        ret = mfis_get_cam_attributes(cameras_attributes);
-        if (ret != EVIEWITF_OK) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
-}
-
-/**
- * \fn eviewitf_mfis_get_blend_attributes
- * \brief Get the blendings attributes
- *
- * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
- *
- * \return state of the function. Returns EVIEWITF_OK if okay
- */
-static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
-    int ret = EVIEWITF_OK;
-
-    /* Check input parameter */
-    if (blendings_attributes == NULL) {
-        ret = EVIEWITF_INVALID_PARAM;
-    }
-
-    /* Get the blendings attributes */
-    if (ret == EVIEWITF_OK) {
-        ret = mfis_get_blend_attributes(blendings_attributes);
-        if (ret != EVIEWITF_OK) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
-}
 
 /**
  * \fn eviewitf_is_initialized
@@ -113,36 +52,6 @@ static int eviewitf_mfis_get_blend_attributes(struct eviewitf_mfis_blending_attr
  * \return 0 if not initialized
  */
 int eviewitf_is_initialized() { return eviewitf_global_init; }
-
-/**
- * \fn eviewitf_get_camera_object
- * \brief Get a pointer on the camera object
- *
- * \param [in] cam_id: Camera id
- *
- * \return pointer on camera object structure
- */
-struct eviewitf_camera_object *eviewitf_get_camera_object(int cam_id) {
-    if (cam_id < 0 || cam_id >= EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER) {
-        return NULL;
-    }
-    return &all_cameras_objects[cam_id];
-}
-
-/**
- * \fn eviewitf_get_blender_attributes
- * \brief Get a pointer on the blender attributes
- *
- * \param [in] blender_id: Blender id
- *
- * \return pointer on blender attributes structure
- */
-struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int blender_id) {
-    if (blender_id < 0 || blender_id >= EVIEWITF_MAX_BLENDER) {
-        return NULL;
-    }
-    return &all_blendings_attributes[blender_id];
-}
 
 /**
  * \fn eviewitf_init
@@ -155,7 +64,6 @@ struct eviewitf_mfis_blending_attributes *eviewitf_get_blender_attributes(int bl
 int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-    struct eviewitf_mfis_camera_attributes cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
 
     memset(tx_buffer, 0, sizeof(tx_buffer));
     memset(rx_buffer, 0, sizeof(rx_buffer));
@@ -175,57 +83,9 @@ int eviewitf_init(void) {
             ret = EVIEWITF_FAIL;
         }
 
-        /* Get the cameras attributes */
+        /* Devices initialization */
         if (ret == EVIEWITF_OK) {
-            ret = eviewitf_mfis_get_cam_attributes(cameras_attributes);
-        }
-        /* Fill camera objects structure */
-        if (ret == EVIEWITF_OK) {
-            /* Set camera operations */
-            for (int i = 0; i < EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER; i++) {
-                /* Copy attributes */
-                memcpy(&all_cameras_objects[i].camera_attributes, &cameras_attributes[i], sizeof(struct eviewitf_mfis_camera_attributes));
-                /* Set operations */
-                switch (cameras_attributes[i].cam_type)
-                {
-                    case EVIEWITF_MFIS_CAM_TYPE_GENERIC:
-                        all_cameras_objects[i].camera_operations.open = camera_generic_open;
-                        all_cameras_objects[i].camera_operations.close = camera_generic_close;
-                        all_cameras_objects[i].camera_operations.write = NULL;
-                        all_cameras_objects[i].camera_operations.read = camera_generic_read;
-                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
-                        break;
-                    case EVIEWITF_MFIS_CAM_TYPE_VIRTUAL:
-                        all_cameras_objects[i].camera_operations.open = camera_streamer_open;
-                        all_cameras_objects[i].camera_operations.close = camera_streamer_close;
-                        all_cameras_objects[i].camera_operations.write = camera_streamer_write;
-                        all_cameras_objects[i].camera_operations.read = NULL;
-                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
-                        break;
-                    case EVIEWITF_MFIS_CAM_TYPE_SEEK:
-                        all_cameras_objects[i].camera_operations.open = camera_generic_open;
-                        all_cameras_objects[i].camera_operations.close = camera_generic_close;
-                        all_cameras_objects[i].camera_operations.write = NULL;
-                        all_cameras_objects[i].camera_operations.read = camera_generic_read;
-                        all_cameras_objects[i].camera_operations.display = generic_camera_display;
-                        break;
-                    
-                    default:
-                        all_cameras_objects[i].camera_operations.open = NULL;
-                        all_cameras_objects[i].camera_operations.close = NULL;
-                        all_cameras_objects[i].camera_operations.write = NULL;
-                        all_cameras_objects[i].camera_operations.read = NULL;
-                        all_cameras_objects[i].camera_operations.display = NULL;
-
-                        break;
-                }
-            }
-        }
-
-
-        /* Get the blendings attributes */
-        if (ret == EVIEWITF_OK) {
-            ret = eviewitf_mfis_get_blend_attributes(all_blendings_attributes);
+            ret = device_objects_init();
         }
 
         if (ret == EVIEWITF_OK) {
@@ -273,12 +133,12 @@ int eviewitf_deinit(void) {
 }
 
 /**
- * \fn generic_camera_display
+ * \fn camera_display
  * \brief Request R7 to select camera device as display input
  *
  * \return state of the function. Return 0 if okay
  */
-int generic_camera_display(int cam_id) {
+int camera_display(int cam_id) {
     int ret = EVIEWITF_OK;
     int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
 
@@ -310,17 +170,18 @@ int generic_camera_display(int cam_id) {
  */
 int eviewitf_display_select_camera(int cam_id) {
     int ret = EVIEWITF_OK;
+    device_object *device = get_device_object(cam_id + EVIEWITF_OFFSET_CAMERA);
 
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (ret == EVIEWITF_OK) {
-        if (all_cameras_objects[cam_id].camera_operations.display == NULL) {
+        if (device->operations.display == NULL) {
             ret = EVIEWITF_FAIL;
         }
         else  {
-            ret = generic_camera_display(cam_id);
+            ret = device->operations.display(cam_id + EVIEWITF_OFFSET_CAMERA);
         }
     }
 
@@ -335,17 +196,18 @@ int eviewitf_display_select_camera(int cam_id) {
  */
 int eviewitf_display_select_streamer(int streamer_id) {
     int ret = EVIEWITF_OK;
+    device_object *device = get_device_object(streamer_id + EVIEWITF_OFFSET_STREAMER);
 
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
         ret = EVIEWITF_INVALID_PARAM;
     }
 
     if (ret == EVIEWITF_OK) {
-        if (all_cameras_objects[streamer_id + EVIEWITF_MAX_CAMERA].camera_operations.display == NULL) {
+        if (device->operations.display == NULL) {
             ret = EVIEWITF_FAIL;
         }
         else  {
-            ret = generic_camera_display(streamer_id + EVIEWITF_MAX_CAMERA);
+            ret = device->operations.display(streamer_id + EVIEWITF_OFFSET_STREAMER);
         }
     }
 
