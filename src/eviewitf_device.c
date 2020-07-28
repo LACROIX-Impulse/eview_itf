@@ -8,7 +8,9 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <poll.h>
+#include <unistd.h>
 
 #include "eviewitf_priv.h"
 #include "mfis_communication.h"
@@ -34,6 +36,34 @@ static int file_descriptors[EVIEWITF_MAX_DEVICES];
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
+
+/**
+ * \fn int generic_close(int file_descriptor)
+ * \brief close device
+ *
+ * \param file_descriptor: file descriptor on an opened device
+ *
+ * \return 0 on success otherwise -1
+ */
+int generic_close(int file_descriptor) {
+    /* Close file descriptor */
+    return close(file_descriptor);
+}
+
+/**
+ * \fn int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
+ * \brief write to a device
+ *
+ * \param file_descriptor: file descriptor on an opened device
+ * \param frame_buffer: buffer containing the frame
+ * \param buffer_size: size of the frame
+ *
+ * \return the number of written bytes or -1
+ */
+int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
+    /* Write to the device */
+    return write(file_descriptor, frame_buffer, buffer_size);
+}
 
 /**
  * \fn int device_objects_init()
@@ -64,7 +94,7 @@ int device_objects_init() {
                 case EVIEWITF_MFIS_CAM_TYPE_GENERIC:
                     device_objects[i].attributes.type = DEVICE_TYPE_CAMERA;
                     device_objects[i].operations.open = camera_open;
-                    device_objects[i].operations.close = camera_close;
+                    device_objects[i].operations.close = generic_close;
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = camera_read;
                     device_objects[i].operations.display = camera_display;
@@ -72,8 +102,8 @@ int device_objects_init() {
                 case EVIEWITF_MFIS_CAM_TYPE_VIRTUAL:
                     device_objects[i].attributes.type = DEVICE_TYPE_STREAMER;
                     device_objects[i].operations.open = streamer_open;
-                    device_objects[i].operations.close = streamer_close;
-                    device_objects[i].operations.write = streamer_write;
+                    device_objects[i].operations.close = generic_close;
+                    device_objects[i].operations.write = generic_write;
                     device_objects[i].operations.read = NULL;
                     device_objects[i].operations.display = camera_display;
                     break;
@@ -84,6 +114,10 @@ int device_objects_init() {
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = camera_seek_read;
                     device_objects[i].operations.display = camera_seek_display;
+                    /* Check if there are enough seek instances available */
+                    if (camera_seek_register(i) != EVIEWITF_OK) {
+                        ret = EVIEWITF_OK;
+                    }
                     break;
 
                 default:
@@ -117,8 +151,8 @@ int device_objects_init() {
             device_objects[i + EVIEWITF_OFFSET_BLENDER].attributes.type = DEVICE_TYPE_BLENDER;
             /* Set operations */
             device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.open = blender_open;
-            device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.close = blender_close;
-            device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.write = blender_write;
+            device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.close = generic_close;
+            device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.write = generic_write;
             device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.read = NULL;
             device_objects[i + EVIEWITF_OFFSET_BLENDER].operations.display = NULL;
         }
@@ -205,7 +239,6 @@ int device_close(int device_id) {
             ret = EVIEWITF_FAIL;
         } else {
             if (device->operations.close(file_descriptors[device_id]) != 0) {
-                ;
                 ret = EVIEWITF_FAIL;
             } else {
                 file_descriptors[device_id] = -1;

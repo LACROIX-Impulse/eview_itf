@@ -34,18 +34,21 @@
  * Functions
  ******************************************************************************************/
 
+/**
+ * \fn int streamer_open(int device_id)
+ * \brief open a streamer device
+ *
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return file descriptor or -1
+ */
 int streamer_open(int device_id) {
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
     /* Get mfis device filename */
     snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, device_id);
     return open(device_name, O_WRONLY);
-}
-
-int streamer_close(int file_descriptor) { return close(file_descriptor); }
-
-int streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
-    return write(file_descriptor, frame_buffer, buffer_size);
 }
 
 /**

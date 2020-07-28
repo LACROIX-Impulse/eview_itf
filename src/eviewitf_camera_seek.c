@@ -71,6 +71,15 @@ static seek_handler seek_handlers[SEEK_NB_CAMERAS] = {0};
  * Functions
  ******************************************************************************************/
 
+/**
+ * \fn int camera_seek_register(int cam_id)
+ * \brief register a seek camera
+ *
+ * \param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return EVIEWITF_OK or EVIEWITF_FAIL if no more slot available
+ */
 int camera_seek_register(int cam_id) {
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].used == false) {
@@ -83,7 +92,16 @@ int camera_seek_register(int cam_id) {
     return EVIEWITF_FAIL;
 }
 
-int camera_seek_get_seek_id(int cam_id) {
+/**
+ * \fn int camera_seek_get_seek_id(int cam_id)
+ * \brief get Seek ID from camera ID
+ *
+ * \param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return seek cmera id or -1
+ */
+static int camera_seek_get_seek_id(int cam_id) {
     for (int seek_id = 0; seek_id < SEEK_NB_CAMERAS; seek_id++) {
         if (seek_handlers[seek_id].cam_id == cam_id) {
             return seek_id;
@@ -92,6 +110,15 @@ int camera_seek_get_seek_id(int cam_id) {
     return -1;
 }
 
+/**
+ * \fn int camera_seek_open(int cam_id)
+ * \brief open a seek camera device
+ *
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return file descriptor or -1
+ */
 int camera_seek_open(int cam_id) {
     char tmp_string[SEEK_STRING_MAX_LENGTH];
     int seek_id = camera_seek_get_seek_id(cam_id);
@@ -99,7 +126,6 @@ int camera_seek_open(int cam_id) {
 
     /* Open mutual exclusion semaphores */
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SEM_MUTEX_CAMERA, seek_id);
-    /* Then create a brand new one */
     seek_handlers[seek_id].mutex_sem = sem_open (tmp_string, 0);
     if (seek_handlers[seek_id].mutex_sem == SEM_FAILED) {
         return -1;
@@ -138,6 +164,14 @@ int camera_seek_open(int cam_id) {
     return seek_handlers[seek_id].sock;
 }
 
+/**
+ * \fn int camera_seek_close(int file_descriptor)
+ * \brief close seek camera device
+ *
+ * \param file_descriptor: file descriptor on an opened device
+ *
+ * \return 0 on success otherwise -1
+ */
 int camera_seek_close(int file_descriptor) {
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].sock == file_descriptor) {
@@ -150,6 +184,16 @@ int camera_seek_close(int file_descriptor) {
     return -1;
 }
 
+/**
+ * \fn int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
+ * \brief Read from a seek camera
+ *
+ * \param file_descriptor: file descriptor on an opened device
+ * \param frame_buffer: buffer containing the frame
+ * \param buffer_size: size of the frame
+ *
+ * \return the number of read bytes or -1
+ */
 int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
     int min_size = MIN(buffer_size, sizeof (seek_shared_memory));
@@ -200,7 +244,16 @@ int camera_seek_display(int cam_id) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }
+    /* Check answer */
+    if (read(sock_config, msg, SEEK_CONFIG_MESSAGE_SIZE) !=  SEEK_CONFIG_MESSAGE_SIZE) {
+        close(sock_config);
+        return EVIEWITF_FAIL;
+    }
+    if ((msg[0] != SEEK_CONFIG_START_DISPLAY_CAMERA) || (msg[1] != 0)) {
+        close(sock_config);
+        return EVIEWITF_FAIL;
+    }
 
     close(sock_config);
-    return EVIEWITF_OK;
+    return camera_display(SEEK_STREAMER_ID + EVIEWITF_OFFSET_STREAMER);
 }

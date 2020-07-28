@@ -33,6 +33,15 @@
  * Functions
  ******************************************************************************************/
 
+/**
+ * \fn int camera_open(int cam_id)
+ * \brief open a camera device
+ *
+ * \param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return file descriptor or -1
+ */
 int camera_open(int cam_id) {
     char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
@@ -41,9 +50,18 @@ int camera_open(int cam_id) {
     return open(device_name, O_RDONLY);
 }
 
-int camera_close(int file_descriptor) { return close(file_descriptor); }
-
+/**
+ * \fn int camera_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
+ * \brief Read from a camera
+ *
+ * \param file_descriptor: file descriptor on an opened device
+ * \param frame_buffer: buffer containing the frame
+ * \param buffer_size: size of the frame
+ *
+ * \return the number of read bytes or -1
+ */
 int camera_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
+    /* Read from device */
     return read(file_descriptor, frame_buffer, buffer_size);
 }
 
