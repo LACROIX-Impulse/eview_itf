@@ -113,7 +113,7 @@ static int camera_seek_get_seek_id(int cam_id) {
  * \fn int camera_seek_open(int cam_id)
  * \brief open a seek camera device
  *
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
  *        we assume this value has been tested by the caller
  *
  * \return file descriptor or -1
@@ -203,7 +203,7 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
             sem_wait(seek_handlers[i].mutex_sem);
             /* Copy content from shared memory */
             memcpy(frame_buffer, seek_handlers[i].mutex_sem, min_size);
-            /* Read message on socket to cancal polling */
+            /* Read message on socket to cancel polling */
             read(seek_handlers[i].sock, msg, SEEK_CONFIG_MESSAGE_SIZE);
             sem_post(seek_handlers[i].mutex_sem);
             return min_size;
