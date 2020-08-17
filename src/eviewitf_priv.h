@@ -74,19 +74,19 @@ typedef struct {
  */
 typedef struct {
     /* Operation to be performed on open request */
-    int (*open)(int cam_id);
+    int (*open)(int device_id);
 
     /* Operation to be performed on close request */
     int (*close)(int file_descriptor);
 
-    /* Called when a frame is written to a camera */
+    /* Called when a frame is written to a device */
     int (*write)(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
 
-    /* Called when a frame is read fro ma camera */
+    /* Called when a frame is read from a device */
     int (*read)(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
 
-    /* Called when the camera is selected for display */
-    int (*display)(int cam_id);
+    /* Called when the device is selected for display */
+    int (*display)(int device_id);
 } device_operations;
 
 /**

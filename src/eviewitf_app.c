@@ -130,9 +130,9 @@ int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
     }
 
     if (EVIEWITF_OK == ret) {
-        ret = eviewitf_ssd_streamer_play(streamer_id,
-                                         (get_device_object(streamer_id + EVIEWITF_MAX_CAMERA))->attributes.buffer_size,
-                                         fps, frames_dir);
+        ret = eviewitf_ssd_streamer_play(
+            streamer_id, (get_device_object(streamer_id + EVIEWITF_OFFSET_STREAMER))->attributes.buffer_size, fps,
+            frames_dir);
     }
 
     return ret;

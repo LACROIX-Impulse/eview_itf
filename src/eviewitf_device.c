@@ -1,9 +1,9 @@
 /**
- * \file eviewitf.c
- * \brief Communication API between A53 and R7 CPUs
+ * \file eviewitf_device.c
+ * \brief Common functions for device management
  * \author esoftthings
  *
- * API to communicate with the R7 CPU from the A53 (Linux).
+ * Common functions for device management (camera, streamer, blender, ...)
  *
  */
 
@@ -259,7 +259,7 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
  * \param in buffer_size: size of the blender frame buffer
- * \param in buffer: blender frame buffer
+ * \param in buffer: device frame buffer
  *
  * \return state of the function. Return 0 if okay
  */
