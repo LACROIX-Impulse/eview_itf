@@ -6,3 +6,9 @@
  * \defgroup blender Blender (functions that concern the blenders)
  * \defgroup display Display (functions that concern the display)
  */
+
+
+/**
+ * @example example1.c
+ * Here is an example of how the API can be used to receive and process a frame 
+ * */
