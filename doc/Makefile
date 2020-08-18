@@ -1,9 +1,13 @@
-.PHONY: all doc docclean
+.PHONY: all docuser docfull clean
 
-all: doc
+all: docuser docfull
 
-doc:
-	doxygen headers-and-sources.doxyfile
+docuser:
+	doxygen doxyfile-user
+
+docfull:
+	doxygen doxyfile-full
+	make -C user/latex pdf
 
 clean:
 	rm -Rf html/ latex/
