@@ -1,5 +1,5 @@
 /**
- * \file eviewitf_streamer.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs for streamer devices
  * \author eSoftThings
  *
@@ -52,8 +52,7 @@ int streamer_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_s
  * \fn int eviewitf_streamer_open(int streamer_id)
  * \brief Open a streamer device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
-
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_streamer_open(int streamer_id) {
@@ -70,8 +69,7 @@ int eviewitf_streamer_open(int streamer_id) {
  * \fn int eviewitf_streamer_close(int streamer_id)
  * \brief Close a streamer device
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
-
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_streamer_close(int streamer_id) {
@@ -87,9 +85,8 @@ int eviewitf_streamer_close(int streamer_id) {
  * \fn int eviewitf_streamer_get_attributes(int streamer_id)
  * \brief Get streamer attrubutes such as buffer size
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
- * \param attributes: pointer on the structure to be filled
-
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \param[out] attributes pointer on the structure to be filled
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes) {
@@ -105,10 +102,9 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
  * \fn eviewitf_streamer_write_frame
  * \brief Write a frame to a streamer
 
- * \param in streamer_id: id of the streamer
- * \param in buffer_size: size of the streamer buffer
- * \param in buffer: streamer buffer
- *
+ * \param[in] streamer_id id of the streamer
+ * \param[in] buffer_size size of the virtual camera buffer
+ * \param[in] buffer virtual camera buffer
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32_t buffer_size) {

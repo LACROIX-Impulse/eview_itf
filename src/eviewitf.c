@@ -47,8 +47,6 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
  * \fn eviewitf_init
  * \brief Init MFIS driver on R7 side
  *
- * \param [in] camera id
- *
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_init(void) {
@@ -206,9 +204,9 @@ int eviewitf_display_select_streamer(int streamer_id) {
  * \fn eviewitf_camera_get_parameter
  * \brief Request R7 to get a register value
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param reg_adress: Register address
- * \param *reg_value: Register Value
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] reg_adress Register address
+ * \param[out] reg_value: Register Value
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
@@ -256,9 +254,9 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
  * \fn eviewitf_camera_set_parameter
  * \brief Request R7 to set a register to a value
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param reg_adress: Register address
- * \param reg_value: Register Value to set
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] reg_adress Register address
+ * \param[out] reg_value Register Value to set
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
@@ -387,7 +385,7 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
  * \fn eviewitf_set_R7_heartbeat_mode
  * \brief Activate/deactivate R7 heartbeat
  *
- * \param in mode: 0 to deactivate heartbeat other to activate it
+ * \param[in] mode 0 to deactivate heartbeat other to activate it
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
@@ -414,7 +412,7 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
  * \fn eviewitf_set_R7_boot_mode
  * \brief Set the R7 boot mode
  *
- * \param in mode: requets a specific R7 boot mode
+ * \param[in] mode: requets a specific R7 boot mode
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_set_R7_boot_mode(uint32_t mode) {
@@ -441,7 +439,7 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
  * \fn eviewitf_get_eviewitf_version
  * \brief Return the eViewitf lib version
  *
- * \return state of the function. Return version if okay, NULL if fail
+ * \return return version number as a string
  */
 const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
 
@@ -449,8 +447,7 @@ const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
  * \fn eviewitf_get_eview_version
  * \brief Retrieve eview version
  *
- * \param in version: return version number
- * \return state of the function. Return 0 if okay
+ * \return return version number as a string
  */
 const char *eviewitf_get_eview_version(void) {
     int ret = EVIEWITF_OK;
@@ -496,10 +493,10 @@ const char *eviewitf_get_eview_version(void) {
  * \fn eviewitf_display_select_cropping
  * \brief Start the cropping with coordinates to R7
  *
- * \param in x1: set first coordinate X position
- * \param in y1: set first coordinate Y position
- * \param in x2: set second coordinate X position
- * \param in y2: set second coordinate Y position
+ * \param[in] x1: set first coordinate X position
+ * \param[in] y1: set first coordinate Y position
+ * \param[in] x2: set second coordinate X position
+ * \param[in] y2: set second coordinate Y position
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {

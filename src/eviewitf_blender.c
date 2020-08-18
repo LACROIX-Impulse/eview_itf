@@ -1,5 +1,5 @@
 /**
- * \file eviewitf_blender.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs for blender devices
  * \author eSoftThings
  *
@@ -54,8 +54,7 @@ int blender_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_si
  * \fn int eviewitf_blender_open(int blender_id)
  * \brief Open a blender device
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
-
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_blender_open(int blender_id) {
@@ -72,8 +71,7 @@ int eviewitf_blender_open(int blender_id) {
  * \fn int eviewitf_blender_close(int blender_id)
  * \brief Close a blender device
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
-
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_blender_close(int blender_id) {
@@ -89,9 +87,8 @@ int eviewitf_blender_close(int blender_id) {
  * \fn int eviewitf_blender_get_attributes(int blender_id)
  * \brief Get blender attrubutes such as buffer size
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
- * \param attributes: pointer on the structure to be filled
-
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
+ * \param[out] attributes pointer on the structure to be filled
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
@@ -106,11 +103,10 @@ int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t
 /**
  * \fn eviewitf_blender_write_frame
  * \brief Write a frame to a blender
-
- * \param in blender_id: id of the blender
- * \param in buffer_size: size of the blender frame buffer
- * \param in buffer: blender frame buffer
  *
+ * \param[in] blender_id: id of the blender
+ * \param[in] buffer_size: size of the blender frame buffer
+ * \param[in] buffer: blender frame buffer
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_blender_write_frame(int blender_id, uint8_t *frame_buffer, uint32_t buffer_size) {

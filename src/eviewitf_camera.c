@@ -1,5 +1,5 @@
 /**
- * \file eviewitf_cam.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs for camera devices
  * \author eSoftThings
  *
@@ -51,8 +51,7 @@ int camera_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size
  * \fn int eviewitf_camera_open(int cam_id)
  * \brief Open a camera device
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
-
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_open(int cam_id) {
@@ -69,7 +68,7 @@ int eviewitf_camera_open(int cam_id) {
  * \fn int eviewitf_camera_close(int cam_id)
  * \brief Close a camera device
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
 
  * \return state of the function. Return 0 if okay
  */
@@ -86,10 +85,9 @@ int eviewitf_camera_close(int cam_id) {
  * \fn int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Copy frame from physical memory to the given buffer location
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param frame_buffer: buffer to store the incoming frame
- * \param buffer_size: buffer size for coherency check
-
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] frame_buffer buffer to store the incoming frame
+ * \param[in] buffer_size buffer size for coherency check
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size) {
@@ -105,10 +103,9 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  * \fn int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return)
  * \brief Poll on multiple cameras to check a new frame is available
  *
- * \param cam_id: table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
- * \param nb_cam: number of cameras on which the polling applies
- * \param event_return: detected events for each camera, 0 if no frame, 1 if a frame is available
-
+ * \param[in] cam_id table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
+ * \param[in] nb_cam number of cameras on which the polling applies
+ * \param[out] event_return detected events for each camera, 0 if no frame, 1 if a frame is available
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
@@ -129,9 +126,8 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
  * \fn int eviewitf_camera_get_attributes(int cam_id)
  * \brief Get camera attributes such as buffer size
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param attributes: pointer on the structure to be filled
-
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] attributes pointer on the structure to be filled
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *attributes) {
@@ -148,10 +144,9 @@ int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t *att
                               eviewitf_frame_metadata_info_t *frame_metadata)
  * \brief Extract metadata from a frame buffer
  *
- * \param buf: pointer on the buffe rwhere the frame is stored
- * \param buffer_size: size of the buffer
- * \param frame_metadata: pointer on metadata structure to be filled
-
+ * \param[in] buf pointer on the buffer where the frame is stored
+ * \param[in] buffer_size size of the buffer
+ * \param[out] frame_metadata pointer on metadata structure to be filled
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,

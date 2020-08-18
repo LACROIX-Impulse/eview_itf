@@ -1,5 +1,5 @@
 /**
- * \file eviewitf-priv.h
+ * \file
  * \brief Internal header for private structures
  * \author esoftthings
  */
