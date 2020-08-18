@@ -3,7 +3,7 @@ LDFLAGS=
 INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
-TARGET ?= ${TARGETIP}
+TARGETIP ?= ${TARGETIP}
 CFLAGS+= -Wall -Wextra
 
 include make/git.mk
@@ -50,7 +50,7 @@ install: eviewitf
 
 .PHONY: deploy
 deploy: install
-	scp build/eviewitf root@$(TARGET):/usr/bin/
+	scp build/eviewitf root@$(TARGETIP):/usr/bin/
 
 .PHONY: version
 version:
@@ -79,3 +79,7 @@ docclean:
 .PHONY: doc
 doc: docclean
 	$(MAKE) -C $(PWD)/doc all
+
+.PHONY: package
+package: doc ipk
+	scripts/build_package.sh $(VERSION)
