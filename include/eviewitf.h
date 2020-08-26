@@ -263,7 +263,7 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t* re
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \param[in] reg_address Register address
- * \param[out] reg_value Register Value to set
+ * \param[in] reg_value Register Value to set
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value);
@@ -313,8 +313,8 @@ int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes
  * \ingroup streamer
  *
  * \param[in] streamer_id id of the camera
- * \param[in] buffer_size size of the virtual camera buffer
- * \param[in] frame_buffer virtual camera buffer
+ * \param[in] buffer_size size of the streamer buffer
+ * \param[in] frame_buffer streamer buffer
  * \return return code as specified by the eviewitf_return_code enumeration.
  *
  * A streamer can be selected for being displayed on the screen connected to the eCube through
@@ -400,10 +400,12 @@ int eviewitf_display_select_camera(int cam_id);
  * Replace the currently displayed camera or streamer.
  */
 int eviewitf_display_select_streamer(int streamer_id);
+
 /**
  * \fn eviewitf_display_select_blender(int blender_id)
  * \brief Select a blender to be displayed, over the currently selected camera or streamer, on the screen connected to
- * the eCube. \ingroup display
+ * the eCube.
+ * \ingroup display
  *
  * \param[in] blender_id: id of the blender
  * \return return code as specified by the eviewitf_return_code enumeration.

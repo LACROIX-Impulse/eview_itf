@@ -45,9 +45,14 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
 
 /**
  * \fn eviewitf_init
- * \brief Init MFIS driver on R7 side
+ * \brief Initialize the eViewItf API
+ * \ingroup eview
  *
- * \return state of the function. Return 0 if okay
+ * \return Return code as specified by the eviewitf_return_code enumeration.
+ *
+ * Initialize the eViewItf API by opening a communication with eView and by retrieving devices information from eView.
+ * This function must be called before any other function of this API.
+ * Otherwise, the other functions will return the error code EVIEWITF_NOT_INITIALIZED (eviewitf_return_state).
  */
 int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
@@ -86,9 +91,12 @@ int eviewitf_init(void) {
 
 /**
  * \fn eviewitf_deinit
- * \brief Deinit MFIS driver on R7 side
+ * \brief De-initialize the eViewItf API
+ * \ingroup eview
  *
- * \return state of the function. Return 0 if okay
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * De-initialize the eViewItf API by closing the communication with eView.
  */
 int eviewitf_deinit(void) {
     int ret = EVIEWITF_OK;
@@ -151,10 +159,14 @@ int camera_display(int cam_id) {
 }
 
 /**
- * \fn eviewitf_display_select_camera
- * \brief Request R7 to select camera as display input
+ * \fn eviewitf_display_select_camera(int cam_id)
+ * \brief Select a camera input to be displayed on the screen connected to the eCube
+ * \ingroup display
  *
- * \return state of the function. Return 0 if okay
+ * \param[in] cam_id: id of the camera
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * Replace the currently displayed camera or streamer.
  */
 int eviewitf_display_select_camera(int cam_id) {
     int ret = EVIEWITF_OK;
@@ -176,10 +188,14 @@ int eviewitf_display_select_camera(int cam_id) {
 }
 
 /**
- * \fn eviewitf_display_select_streamer
- * \brief Request R7 to select streamer as display input
+ * \fn eviewitf_display_select_streamer(int streamer_id)
+ * \brief Select a streamer to be printed on the screen connected to the eCube
+ * \ingroup display
  *
- * \return state of the function. Return 0 if okay
+ * \param[in] streamer_id: id of the streamer
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * Replace the currently displayed camera or streamer.
  */
 int eviewitf_display_select_streamer(int streamer_id) {
     int ret = EVIEWITF_OK;
@@ -201,13 +217,14 @@ int eviewitf_display_select_streamer(int streamer_id) {
 }
 
 /**
- * \fn eviewitf_camera_get_parameter
- * \brief Request R7 to get a register value
+ * \fn eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t* reg_value)
+ * \brief Get a parameter of a camera.
+ * \ingroup cameras
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param[in] reg_adress Register address
- * \param[out] reg_value: Register Value
- * \return state of the function. Return 0 if okay
+ * \param[in] reg_address Register address
+ * \param[out] reg_value Register Value
+ * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
@@ -250,14 +267,16 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
     }
     return ret;
 }
+
 /**
- * \fn eviewitf_camera_set_parameter
- * \brief Request R7 to set a register to a value
+ * \fn eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value)
+ * \brief Set a parameter of a camera.
+ * \ingroup cameras
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param[in] reg_adress Register address
- * \param[out] reg_value Register Value to set
- * \return state of the function. Return 0 if okay
+ * \param[in] reg_address Register address
+ * \param[in] reg_value Register Value to set
+ * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
@@ -300,10 +319,16 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
 }
 
 /**
- * \fn eviewitf_display_select_blender
- * \brief Start / stop the blending (use -1) to stop
+ * \fn eviewitf_display_select_blender(int blender_id)
+ * \brief Select a blender to be displayed, over the currently selected camera or streamer, on the screen connected to
+ * the eCube.
+ * \ingroup display
  *
- * \return state of the function. Return 0 if okay
+ * \param[in] blender_id: id of the blender
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * Calling this function with blender_id not included between 0 and EVIEWITF_MAX_BLENDER – 1 (API macros) deactivates
+ * the blender (no more overlay on the currently displayed camera or streamer).
  */
 int eviewitf_display_select_blender(int blender_id) {
     int ret = EVIEWITF_OK;
@@ -382,11 +407,17 @@ int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
 }
 
 /**
- * \fn eviewitf_set_R7_heartbeat_mode
- * \brief Activate/deactivate R7 heartbeat
+ * \fn eviewitf_set_R7_heartbeat_mode(uint32_t mode)
+ * \brief Activate or deactivate eView heartbeat.
+ * \ingroup eview
  *
  * \param[in] mode 0 to deactivate heartbeat other to activate it
- * \return state of the function. Return 0 if okay
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The eView heartbeat can be activated to check if eView is still running as it should.
+ * With the heartbeat activated, eView will regularly send a message over the eCube’s USB Debug port.
+ * This is a debugging function. This function should not be used in a normal behavior.
+ * However, it can help to identify the cause of an EVIEWITF_BLOCKED (eviewitf_return_code) error code.
  */
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
@@ -409,11 +440,16 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
 }
 
 /**
- * \fn eviewitf_set_R7_boot_mode
- * \brief Set the R7 boot mode
+ * \fn eviewitf_set_R7_boot_mode(uint32_t mode)
+ * \brief Set a specific boot mode to eView.
+ * \ingroup eview
  *
- * \param[in] mode: requets a specific R7 boot mode
- * \return state of the function. Return 0 if okay
+ * \param[in] mode requets a specific R7 boot mode
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * An eView specific mode can be set under peculiar conditions.
+ * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
+ * requests.
  */
 int eviewitf_set_R7_boot_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
@@ -437,17 +473,21 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 
 /**
  * \fn eviewitf_get_eviewitf_version
- * \brief Return the eViewitf lib version
+ * \brief Get the version of eViewItf.
+ * \ingroup version
  *
- * \return return version number as a string
+ * \return returns a pointer on a string containing the eViewItf version number.
  */
 const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
 
 /**
  * \fn eviewitf_get_eview_version
- * \brief Retrieve eview version
+ * \brief Retrieve eView version
+ * \ingroup version
  *
- * \return return version number as a string
+ * \return returns a pointer on a string containing the eView version number.
+ *
+ * Retrieve the running eView version.
  */
 const char *eviewitf_get_eview_version(void) {
     int ret = EVIEWITF_OK;
