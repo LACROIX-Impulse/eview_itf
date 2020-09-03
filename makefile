@@ -3,7 +3,7 @@ LDFLAGS=
 INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
-TARGET ?= ${TARGETIP}
+TARGETIP ?= ${TARGETIP}
 CFLAGS+= -Wall -Wextra
 
 include make/git.mk
@@ -50,7 +50,7 @@ install: eviewitf
 
 .PHONY: deploy
 deploy: install
-	scp build/eviewitf root@$(TARGET):/usr/bin/
+	scp build/eviewitf root@$(TARGETIP):/usr/bin/
 
 .PHONY: version
 version:
@@ -71,3 +71,15 @@ clangcheck:
 	@find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec cat {} \; \
 		| diff -u <(find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec \
 		clang-format --style=file {} \;) -
+
+.PHONY: docclean
+docclean:
+	$(MAKE) -C $(PWD)/doc clean
+
+.PHONY: doc
+doc: docclean
+	$(MAKE) -C $(PWD)/doc all
+
+.PHONY: package
+package: doc ipk
+	scripts/build_package.sh $(VERSION)

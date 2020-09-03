@@ -1,5 +1,5 @@
 /**
- * \file eviewitf.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs
  * \author esoftthings
  *
