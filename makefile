@@ -15,12 +15,13 @@ all: eviewitf
 
 .PHONY: eviewitf
 eviewitf: $(BUILDDIR)/src/main.o libewiewitf
-	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -L$(BUILDDIR)
+	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -lpthread -L$(BUILDDIR)
 
 LIBDEPS = $(BUILDDIR)/src/eviewitf.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_app.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_blender.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_camera.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_camera_seek.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
