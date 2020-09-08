@@ -3,7 +3,7 @@ LDFLAGS=
 INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
-TARGETIP ?= ${TARGETIP}
+TARGETIP ?= 192.168.0.82
 CFLAGS+= -Wall -Wextra
 
 include make/git.mk
