@@ -10,11 +10,11 @@
 #ifndef EVIEWITF_H
 #define EVIEWITF_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 /**
  * \def EVIEWITF_MAX_CAMERA
