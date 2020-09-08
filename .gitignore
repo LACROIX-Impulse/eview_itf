@@ -1,3 +1,5 @@
 *.o
 *.a
 build
+doc/user
+doc/full

@@ -1,0 +1,14 @@
+/**
+ * \defgroup eview eView (functions that concern eView)
+ * \defgroup version Version (functions to get versions information)
+ * \defgroup cameras Cameras (functions that concern the cameras)
+ * \defgroup streamer Streamer (functions that concern the streamers)
+ * \defgroup blender Blender (functions that concern the blenders)
+ * \defgroup display Display (functions that concern the display)
+ */
+
+
+/**
+ * @example example1.c
+ * Here is an example of how the API can be used to receive and process a frame 
+ * */

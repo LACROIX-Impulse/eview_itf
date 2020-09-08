@@ -1,5 +1,5 @@
 /**
- * \file eviewitf_blender.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs for blender devices
  * \author eSoftThings
  *
@@ -7,14 +7,12 @@
  *
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
-#include "eviewitf.h"
+
 #include "eviewitf_priv.h"
-#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
@@ -31,167 +29,108 @@
 /******************************************************************************************
  * Private variables
  ******************************************************************************************/
-static int file_blenders[EVIEWITF_MAX_BLENDER] = {-1, -1};
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
 /**
- * \fn int eviewitf_blender_open(int blender_id)
- * \brief Open a blender device
+ * \fn int blender_open(int device_id)
+ * \brief open a blender device
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
-
- * \return state of the function. Return 0 if okay
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return file descriptor or -1
  */
-int eviewitf_blender_open(int blender_id) {
-    int ret = EVIEWITF_OK;
+int blender_open(int device_id) {
     char device_name[DEVICE_BLENDER_MAX_LENGTH];
 
-    /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        ret = EVIEWITF_NOT_INITIALIZED;
-    }
+    /* Get mfis device filename */
+    snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME,
+             device_id - EVIEWITF_OFFSET_BLENDER + 2); /* O2 and O3 */
+    return open(device_name, O_WRONLY);
+}
 
+/**
+ * \fn int eviewitf_blender_open(int blender_id)
+ * \brief Open a blender device
+ * \ingroup blender
+ *
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A blender must be opened before to be able to use it (write_frame). A blender should not be opened by two different
+ * process at the same time.
+ */
+int eviewitf_blender_open(int blender_id) {
     /* Test blender id */
-    else if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    /* Test already open */
-    else if (file_blenders[blender_id] != -1) {
-        ret = EVIEWITF_FAIL;
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME, blender_id + 2); /* O2 and O3 */
-        file_blenders[blender_id] = open(device_name, O_WRONLY);
-        if (file_blenders[blender_id] == -1) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
+    /* Open device */
+    return device_open(blender_id + EVIEWITF_OFFSET_BLENDER);
 }
 
 /**
  * \fn int eviewitf_blender_close(int blender_id)
  * \brief Close a blender device
+ * \ingroup blender
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
-
- * \return state of the function. Return 0 if okay
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A blender should be closed before to stop the process that opened it.
  */
 int eviewitf_blender_close(int blender_id) {
-    int ret = EVIEWITF_OK;
-
     /* Test blender id */
     if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    if (ret >= EVIEWITF_OK) {
-        // Test blender has been opened
-        if (file_blenders[blender_id] == -1) {
-            ret = EVIEWITF_NOT_OPENED;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        if (close(file_blenders[blender_id]) != 0) {
-            ret = EVIEWITF_FAIL;
-        } else {
-            file_blenders[blender_id] = -1;
-        }
-    }
-
-    return ret;
+    return device_close(blender_id + EVIEWITF_OFFSET_BLENDER);
 }
 
 /**
- * \fn int eviewitf_blender_get_attributes(int blender_id)
- * \brief Get blender attrubutes such as buffer size
+ * \fn int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t* attributes)
+ * \brief Get the attributes of a blender such as buffer size
+ * \ingroup blender
  *
- * \param blender_id: id of the blender between 0 and EVIEWITF_MAX_BLENDER
- * \param attributes: pointer on the structure to be filled
-
- * \return state of the function. Return 0 if okay
+ * \param[in] blender_id id of the blender between 0 and EVIEWITF_MAX_BLENDER
+ * \param[out] attributes pointer on the structure to be filled
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The attributes that can be retrieved through this function are the ones defined in the structure
+ * eviewitf_device_attributes_t.
  */
 int eviewitf_blender_get_attributes(int blender_id, eviewitf_device_attributes_t *attributes) {
-    int ret = EVIEWITF_OK;
-    /* Get the blenders attributes */
-    struct eviewitf_mfis_blending_attributes *blender_attributes = eviewitf_get_blender_attributes(blender_id);
-
     /* Test blender id */
     if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    /* Test attributes */
-    if (ret >= EVIEWITF_OK) {
-        if (attributes == NULL) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-
-    /* Test API has been initialized */
-    if (ret >= EVIEWITF_OK) {
-        if (eviewitf_is_initialized() == 0) {
-            ret = EVIEWITF_NOT_INITIALIZED;
-        }
-    }
-
-    /* Copy attributes */
-    if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = blender_attributes->buffer_size;
-        attributes->width = blender_attributes->width;
-        attributes->height = blender_attributes->height;
-        attributes->dt = blender_attributes->dt;
-    }
-
-    return ret;
+    return device_get_attributes(blender_id + EVIEWITF_OFFSET_BLENDER, attributes);
 }
 
 /**
- * \fn eviewitf_blender_write_frame
+ * \fn eviewitf_blender_write_frame(int blender_id, uint8_t* frame_buffer, uint32_t buffer_size)
  * \brief Write a frame to a blender
-
- * \param in blender_id: id of the camera
- * \param in buffer_size: size of the blender frame buffer
- * \param in buffer: blender frame buffer
+ * \ingroup blender
  *
- * \return state of the function. Return 0 if okay
+ * \param[in] blender_id: id of the blender
+ * \param[in] buffer_size: size of the blender frame buffer
+ * \param[in] frame_buffer: blender frame buffer
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A blender can be selected for being displayed, over the currently selected camera or streamer, on the screen
+ * connected to the eCube through eviewitf_display_select_blender.
  */
 int eviewitf_blender_write_frame(int blender_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
-
-    /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        ret = EVIEWITF_NOT_INITIALIZED;
+    /* Test blender id */
+    if ((blender_id < 0) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    if (ret >= EVIEWITF_OK) {
-        if (frame_buffer == NULL) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        // Test blender has been opened
-        if (file_blenders[blender_id] == -1) {
-            ret = EVIEWITF_NOT_OPENED;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Write the frame in the virtual camera */
-        if (write(file_blenders[blender_id], frame_buffer, buffer_size) < 0) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
+    return device_write(blender_id + EVIEWITF_OFFSET_BLENDER, frame_buffer, buffer_size);
 }

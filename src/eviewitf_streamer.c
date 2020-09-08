@@ -1,5 +1,5 @@
 /**
- * \file eviewitf_streamer.c
+ * \file
  * \brief Communication API between A53 and R7 CPUs for streamer devices
  * \author eSoftThings
  *
@@ -7,14 +7,12 @@
  *
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
-#include "eviewitf.h"
+
 #include "eviewitf_priv.h"
-#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
@@ -31,177 +29,108 @@
 /******************************************************************************************
  * Private variables
  ******************************************************************************************/
-static int file_streamers[EVIEWITF_MAX_STREAMER] = {-1, -1, -1, -1, -1, -1, -1, -1};
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
 /**
+ * \fn int streamer_open(int device_id)
+ * \brief open a streamer device
+ *
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ *
+ * \return file descriptor or -1
+ */
+int streamer_open(int device_id) {
+    char device_name[DEVICE_CAMERA_MAX_LENGTH];
+
+    /* Get mfis device filename */
+    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, device_id);
+    return open(device_name, O_WRONLY);
+}
+
+/**
  * \fn int eviewitf_streamer_open(int streamer_id)
  * \brief Open a streamer device
+ * \ingroup streamer
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
-
- * \return state of the function. Return 0 if okay
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A streamer must be opened before to be able to use it (write_frame). A streamer should not be opened by two different
+ * process at the same time.
  */
 int eviewitf_streamer_open(int streamer_id) {
-    int ret = EVIEWITF_OK;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
-    struct eviewitf_mfis_camera_attributes *streamer_attributes;
-
-    /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        ret = EVIEWITF_NOT_INITIALIZED;
-    }
-
     /* Test streamer id */
-    else if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    /* Test already open */
-    else if (file_streamers[streamer_id] != -1) {
-        ret = EVIEWITF_FAIL;
-    }
-
-    /* Test streamer is active */
-    else {
-        streamer_attributes = eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
-        if (streamer_attributes->cam_type == EVIEWITF_MFIS_CAM_TYPE_NONE) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, streamer_id + EVIEWITF_MAX_CAMERA);
-        file_streamers[streamer_id] = open(device_name, O_WRONLY);
-        if (file_streamers[streamer_id] == -1) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
+    /* Open device */
+    return device_open(streamer_id + EVIEWITF_OFFSET_STREAMER);
 }
 
 /**
  * \fn int eviewitf_streamer_close(int streamer_id)
  * \brief Close a streamer device
+ * \ingroup streamer
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
-
- * \return state of the function. Return 0 if okay
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A streamer should be closed before to stop the process that opened it.
  */
 int eviewitf_streamer_close(int streamer_id) {
-    int ret = EVIEWITF_OK;
-
     /* Test streamer id */
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    if (ret >= EVIEWITF_OK) {
-        // Test streamer has been opened
-        if (file_streamers[streamer_id] == -1) {
-            ret = EVIEWITF_NOT_OPENED;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Get mfis device filename */
-        if (close(file_streamers[streamer_id]) != 0) {
-            ret = EVIEWITF_FAIL;
-        } else {
-            file_streamers[streamer_id] = -1;
-        }
-    }
-
-    return ret;
+    return device_close(streamer_id + EVIEWITF_OFFSET_STREAMER);
 }
 
 /**
- * \fn int eviewitf_streamer_get_attributes(int streamer_id)
- * \brief Get streamer attrubutes such as buffer size
+ * \fn int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t* attributes)
+ * \brief Get the attributes of a streamer such as buffer size
+ * \ingroup streamer
  *
- * \param streamer_id: id of the streamer between 0 and EVIEWITF_MAX_STREAMER
- * \param attributes: pointer on the structure to be filled
-
- * \return state of the function. Return 0 if okay
+ * \param[in] streamer_id id of the streamer between 0 and EVIEWITF_MAX_STREAMER
+ * \param[out] attributes pointer on the structure to be filled
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The attributes that can be retrieved through this function are the ones defined in the structure
+ * eviewitf_device_attributes_t.
  */
 int eviewitf_streamer_get_attributes(int streamer_id, eviewitf_device_attributes_t *attributes) {
-    int ret = EVIEWITF_OK;
-    /* Get the streamers attributes */
-    struct eviewitf_mfis_camera_attributes *streamer_attributes =
-        eviewitf_get_camera_attributes(streamer_id + EVIEWITF_MAX_CAMERA);
-
     /* Test streamer id */
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
-        ret = EVIEWITF_INVALID_PARAM;
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    /* Test attributes */
-    if (ret >= EVIEWITF_OK) {
-        if (attributes == NULL) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-
-    /* Test API has been initialized */
-    if (ret >= EVIEWITF_OK) {
-        if (eviewitf_is_initialized() == 0) {
-            ret = EVIEWITF_NOT_INITIALIZED;
-        }
-    }
-
-    /* Copy attributes */
-    if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = streamer_attributes->buffer_size;
-        attributes->width = streamer_attributes->width;
-        attributes->height = streamer_attributes->height;
-        attributes->dt = streamer_attributes->dt;
-    }
-
-    return ret;
+    return device_get_attributes(streamer_id + EVIEWITF_OFFSET_STREAMER, attributes);
 }
 
 /**
- * \fn eviewitf_streamer_write_frame
+ * \fn eviewitf_streamer_write_frame(int streamer_id, uint8_t* frame_buffer, uint32_t buffer_size)
  * \brief Write a frame to a streamer
-
- * \param in streamer_id: id of the camera
- * \param in buffer_size: size of the virtual camera buffer
- * \param in buffer: virtual camera buffer
+ * \ingroup streamer
  *
- * \return state of the function. Return 0 if okay
+ * \param[in] streamer_id id of the camera
+ * \param[in] buffer_size size of the streamer buffer
+ * \param[in] frame_buffer streamer buffer
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A streamer can be selected for being displayed on the screen connected to the eCube through
+ * eviewitf_display_select_streamer. buffer_size should be equal to the size of frame_buffer and can be retrieved
+ * through a call to eviewitf_streamer_get_attributes.
  */
 int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
-
-    /* Test API has been initialized */
-    if (eviewitf_is_initialized() == 0) {
-        ret = EVIEWITF_NOT_INITIALIZED;
+    /* Test streamer id */
+    if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
+        return EVIEWITF_INVALID_PARAM;
     }
 
-    if (ret >= EVIEWITF_OK) {
-        if (frame_buffer == NULL) {
-            ret = EVIEWITF_INVALID_PARAM;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        // Test streamer has been opened
-        if (file_streamers[streamer_id] == -1) {
-            ret = EVIEWITF_NOT_OPENED;
-        }
-    }
-
-    if (ret >= EVIEWITF_OK) {
-        /* Write the frame in the virtual camera */
-        if (write(file_streamers[streamer_id], frame_buffer, buffer_size) < 0) {
-            ret = EVIEWITF_FAIL;
-        }
-    }
-
-    return ret;
+    return device_write(streamer_id + EVIEWITF_OFFSET_STREAMER, frame_buffer, buffer_size);
 }

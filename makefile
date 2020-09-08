@@ -3,7 +3,7 @@ LDFLAGS=
 INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
-TARGET ?= ${TARGETIP}
+TARGETIP ?= 192.168.0.82
 CFLAGS+= -Wall -Wextra
 
 include make/git.mk
@@ -15,12 +15,14 @@ all: eviewitf
 
 .PHONY: eviewitf
 eviewitf: $(BUILDDIR)/src/main.o libewiewitf
-	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -ldl -L$(BUILDDIR)
+	$(CC) $(CFLAGS) $< -o $(BUILDDIR)/$@ -l$@ -lrt -lpthread -L$(BUILDDIR)
 
 LIBDEPS = $(BUILDDIR)/src/eviewitf.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_app.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_blender.o
-LIBDEPS += $(BUILDDIR)/src/eviewitf_cam.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_camera.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_camera_seek.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
 LIBDEPS += $(BUILDDIR)/src/mfis_communication.o
@@ -49,7 +51,7 @@ install: eviewitf
 
 .PHONY: deploy
 deploy: install
-	scp build/eviewitf root@$(TARGET):/usr/bin/
+	scp build/eviewitf root@$(TARGETIP):/usr/bin/
 
 .PHONY: version
 version:
@@ -70,3 +72,15 @@ clangcheck:
 	@find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec cat {} \; \
 		| diff -u <(find $(CLANG_FORMAT_DIRS) -iname *.h -o -iname *.c -exec \
 		clang-format --style=file {} \;) -
+
+.PHONY: docclean
+docclean:
+	$(MAKE) -C $(PWD)/doc clean
+
+.PHONY: doc
+doc: docclean
+	$(MAKE) -C $(PWD)/doc all
+
+.PHONY: package
+package: doc ipk
+	scripts/build_package.sh $(VERSION)
