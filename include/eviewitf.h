@@ -10,6 +10,10 @@
 #ifndef EVIEWITF_H
 #define EVIEWITF_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /**
@@ -429,5 +433,9 @@ int eviewitf_display_select_blender(int blender_id);
  * Setting all the coordinates to 0 deactivates the cropping.
  */
 int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* EVIEWITF_H */
