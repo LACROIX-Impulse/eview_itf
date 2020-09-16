@@ -530,11 +530,11 @@ const char *eviewitf_get_eview_version(void) {
 }
 
 /**
- * \fn eviewitf_get_monitoring_info
+ * \fn eviewitf_get_monitoring_info(uint32_t* data, uint8_t size)
  * \brief Request R7 to get monitoring info.
  * \ingroup eview
  *
- * \param[in/out] data pointer where to store monitoring info
+ * \param[out] data pointer where to store monitoring info
  * \param[in] size size of the data table, should not be greater than EVIEWITF_MONITORING_INFO_SIZE
  * \return state of the function. Return 0 if okay
  *
