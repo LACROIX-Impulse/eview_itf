@@ -172,7 +172,7 @@ int eviewitf_app_print_monitoring_info(void) {
     ret = eviewitf_get_monitoring_info(data, EVIEWITF_MONITORING_INFO_SIZE);
     if (EVIEWITF_OK == ret) {
         for (int i = 0; i < EVIEWITF_MONITORING_INFO_SIZE; i++) {
-            printf("Raw monitoring %d: %X\n", i, data[i]);
+            printf("Raw monitoring %d: 0x%08X\n", i, data[i]);
         }
     }
 
