@@ -110,6 +110,7 @@ int eviewitf_app_reset_camera(int cam_id);
 int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
 int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
 int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
+int eviewitf_app_print_monitoring_info(void);
 
 /* Common */
 int eviewitf_is_initialized();

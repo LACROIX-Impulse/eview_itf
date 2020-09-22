@@ -530,6 +530,44 @@ const char *eviewitf_get_eview_version(void) {
 }
 
 /**
+ * \fn eviewitf_get_monitoring_info(uint32_t* data, uint8_t size)
+ * \brief Request R7 to get monitoring info.
+ * \ingroup eview
+ *
+ * \param[out] data pointer where to store monitoring info
+ * \param[in] size size of the data table, should not be greater than EVIEWITF_MONITORING_INFO_SIZE
+ * \return state of the function. Return 0 if okay
+ *
+ * Content is voluntary not explicitly described in this interface, can be project specific.
+ */
+int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
+    int ret = EVIEWITF_OK;
+    uint8_t i;
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = EVIEWITF_MFIS_FCT_GET_MONITORING_INFO;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_MONITORING_INFO) ||
+        (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    if (size > EVIEWITF_MONITORING_INFO_SIZE) size = EVIEWITF_MONITORING_INFO_SIZE;
+    /* Max 6 bytes of usefull data */
+    for (i = 0; i < size; i++) {
+        data[i] = rx_buffer[i + 2];
+    }
+
+    return ret;
+}
+
+/**
  * \fn eviewitf_display_select_cropping
  * \brief Start the cropping with coordinates to R7
  *

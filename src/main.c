@@ -39,7 +39,8 @@ static char args_doc[] =
     "deactivate R7 heartbeat: -h\n"
     "set R7 boot mode: -B [0-?]\n"
     "start cropping -U x1:y1:x2:y2\n"
-    "stop cropping -u";
+    "stop cropping -u"
+    "raw monitoring info -m";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -62,6 +63,7 @@ static struct argp_option options[] = {
     {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
     {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
     {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
+    {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format"},
     {0},
 };
 
@@ -90,6 +92,7 @@ struct arguments {
     int heartbeat;
     int cropping;
     char *cropping_coord;
+    int monitoring_info;
 };
 
 /* Parse a single option. */
@@ -132,6 +135,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'h':
             arguments->heartbeat = 0;
+            break;
+        case 'm':
+            arguments->monitoring_info = 1;
             break;
         case 'n':
             arguments->stop_blending = 1;
@@ -223,6 +229,7 @@ int main(int argc, char **argv) {
     arguments.heartbeat = -1;
     arguments.cropping = -1;
     arguments.cropping_coord = NULL;
+    arguments.monitoring_info = 0;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -346,6 +353,18 @@ int main(int argc, char **argv) {
         ret = eviewitf_display_select_blender(-1);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
+        } else if (ret == EVIEWITF_INVALID_PARAM) {
+            fprintf(stdout, "An error occurred\n");
+        } else {
+            fprintf(stdout, "Fail\n");
+        }
+    }
+
+    /* Print monitoring info */
+    if (arguments.monitoring_info) {
+        ret = eviewitf_app_print_monitoring_info();
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "\n");
         } else if (ret == EVIEWITF_INVALID_PARAM) {
             fprintf(stdout, "An error occurred\n");
         } else {

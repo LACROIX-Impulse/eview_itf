@@ -33,6 +33,11 @@ extern "C" {
  * \brief Max number of blender devices
  */
 #define EVIEWITF_MAX_BLENDER 2
+/**
+ * \def EVIEWITF_MONITORING_INFO_SIZE
+ * \brief Size of the monitoring uint32_t table
+ */
+#define EVIEWITF_MONITORING_INFO_SIZE 6
 
 /**
  * \enum eviewitf_return_code
@@ -158,6 +163,19 @@ const char* eviewitf_get_eview_version(void);
  * \return returns a pointer on a string containing the eViewItf version number.
  */
 const char* eviewitf_get_eviewitf_version(void);
+
+/**
+ * \fn eviewitf_get_monitoring_info(uint32_t* data, uint8_t size)
+ * \brief Request R7 to get monitoring info.
+ * \ingroup eview
+ *
+ * \param[out] data pointer where to store monitoring info
+ * \param[in] size size of the data table, should not be greater than EVIEWITF_MONITORING_INFO_SIZE
+ * \return state of the function. Return 0 if okay
+ *
+ * Content is voluntary not explicitly described in this interface, can be project specific.
+ */
+int eviewitf_get_monitoring_info(uint32_t* data, uint8_t size);
 
 /**
  * \fn int eviewitf_camera_open(int cam_id)
