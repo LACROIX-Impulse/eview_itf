@@ -61,7 +61,7 @@ static struct argp_option options[] = {
     {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
     {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
     {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
-    {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format"},
+    {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format", 0},
     {0},
 };
 
