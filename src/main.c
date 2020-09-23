@@ -35,8 +35,7 @@ static char args_doc[] =
     "reboot a camera: -x -c [0-7]\n"
     "set blending:    -b [PATH] -o [0-1]\n"
     "stop blending:   -n\n"
-    "activate R7 heartbeat: -H\n"
-    "deactivate R7 heartbeat: -h\n"
+    "set R7 heartbeat state: -H [0-1]\n"
     "set R7 boot mode: -B [0-?]\n"
     "start cropping -U x1:y1:x2:y2\n"
     "stop cropping -u"
@@ -57,8 +56,7 @@ static struct argp_option options[] = {
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
     {"no-blending", 'n', 0, 0, "Stop the blending", 0},
-    {"heartbeaton", 'H', 0, 0, "Activate R7 heartbeat", 0},
-    {"heartbeatoff", 'h', 0, 0, "Deactivate R7 heartbeat", 0},
+    {"heartbeat", 'H', "STATE", 0, "Set R7 heartbeat state", 0},
     {"boot", 'B', "MODE", 0, "Select R7 boot mode", 0},
     {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
     {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
@@ -131,10 +129,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             }
             break;
         case 'H':
-            arguments->heartbeat = 1;
-            break;
-        case 'h':
-            arguments->heartbeat = 0;
+            arguments->heartbeat = atoi(arg);
+            if (arguments->heartbeat < 0) {
+                argp_usage(state);
+            }
             break;
         case 'm':
             arguments->monitoring_info = 1;
