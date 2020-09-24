@@ -123,7 +123,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  *
  * \param[in] cam_id table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
  * \param[in] nb_cam number of cameras on which the polling applies
- * \param[in] ms_timeout number of millisecond the function should block waiting for a frame, negative value means infinite
+ * \param[in] ms_timeout dealy the function should block waiting for a frame, negative value means infinite
  * \param[out] event_return detected events for each camera, 0 if no frame, 1 if a frame is available
  * \return return code as specified by the eviewitf_return_code enumeration.
  */

@@ -126,8 +126,7 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
                 difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
             }
             frame_id++;
-        }
-        else {
+        } else {
             printf("Poll timeout \n");
             return -1;
         }
