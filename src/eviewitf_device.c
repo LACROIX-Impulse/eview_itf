@@ -330,11 +330,12 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  * \param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
  *        we assume those values has been tested by the caller
  * \param nb_devices: number of devices on which the polling applies
+ * \param ms_timeout: number of millisecond the function should block waiting for a frame, negative value means infinite
  * \param event_return: detected events for each device, 0 if no frame, 1 if a frame is available
 
  * \return state of the function. Return 0 if okay
  */
-int device_poll(int *device_id, int nb_devices, short *event_return) {
+int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
     struct pollfd pfd[nb_devices];
     int r_poll;
     int ret = EVIEWITF_OK;
@@ -355,7 +356,7 @@ int device_poll(int *device_id, int nb_devices, short *event_return) {
     }
 
     if (ret >= EVIEWITF_OK) {
-        r_poll = poll(pfd, nb_devices, -1);
+        r_poll = poll(pfd, nb_devices, ms_timeout);
         if (r_poll == -1) {
             ret = EVIEWITF_FAIL;
         }

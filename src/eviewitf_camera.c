@@ -123,10 +123,11 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  *
  * \param[in] cam_id table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
  * \param[in] nb_cam number of cameras on which the polling applies
+ * \param[in] ms_timeout number of millisecond the function should block waiting for a frame, negative value means infinite
  * \param[out] event_return detected events for each camera, 0 if no frame, 1 if a frame is available
- * \return state of the function. Return 0 if okay
+ * \return return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
+int eviewitf_camera_poll(int *cam_id, int nb_cam, int ms_timeout, short *event_return) {
     if (cam_id == NULL) {
         return EVIEWITF_INVALID_PARAM;
     } else {
@@ -137,7 +138,7 @@ int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return) {
         }
     }
 
-    return device_poll(cam_id, nb_cam, event_return);
+    return device_poll(cam_id, nb_cam, ms_timeout, event_return);
 }
 
 /**
