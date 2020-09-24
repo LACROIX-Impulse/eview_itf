@@ -249,7 +249,7 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer
 int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t* frame_metadata);
 /**
- * \fn int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return)
+ * \fn int eviewitf_camera_poll(int* cam_id, int nb_cam, int ms_timeout, short* event_return)
  * \brief Poll on multiple cameras to check a new frame is available
  * \ingroup cameras
  *
