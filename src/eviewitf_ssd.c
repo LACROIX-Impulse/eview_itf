@@ -100,7 +100,7 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
     pfd.fd = cam_fd;
     pfd.events = POLLIN;
     while (difft.tv_sec < duration) {
-        r_poll = poll(&pfd, 1, -1);
+        r_poll = poll(&pfd, 1, 1000);
         if (r_poll == -1) {
             printf("POLL ERROR \n");
             return -1;
@@ -126,6 +126,10 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
                 difft.tv_nsec = res_run.tv_nsec - res_start.tv_nsec;
             }
             frame_id++;
+        }
+        else {
+            printf("Poll timeout \n");
+            return -1;
         }
     }
 
