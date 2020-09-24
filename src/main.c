@@ -183,11 +183,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->reboot = 1;
             break;
         case ARGP_KEY_ARG:
-            /* Too many arguments. */
             argp_usage(state);
             break;
         case ARGP_KEY_END:
-            /* Not enough arguments. */
+            if (state->argc <= 1) {
+                /* Not enough args */
+                argp_state_help(state, state->out_stream, ARGP_HELP_USAGE | ARGP_HELP_LONG);
+            }
             break;
         default:
             return ARGP_ERR_UNKNOWN;
