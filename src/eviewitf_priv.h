@@ -110,6 +110,7 @@ int eviewitf_app_reset_camera(int cam_id);
 int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
 int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
 int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
+int eviewitf_app_print_monitoring_info(void);
 
 /* Common */
 int eviewitf_is_initialized();
@@ -122,7 +123,7 @@ int device_open(int device_id);
 int device_close(int device_id);
 int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
 int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
-int device_poll(int *device_id, int nb_devices, short *event_return);
+int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return);
 
 /* Blender */
 int blender_open(int device_id);

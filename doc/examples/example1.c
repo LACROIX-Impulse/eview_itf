@@ -44,14 +44,14 @@ int main(void) {
     /* Main loop */
     while (user_condition) {
         /* Poll on the camera */
-        ret = eviewitf_camera_poll(cam_id, 1, event_return);
+        ret = eviewitf_camera_poll(cam_id, 1, -1, event_return);
         if (ret != EVIEWITF_OK) {
             fprintf(stderr, "Failed to poll on camera\n");
             return -1;
         }
 
         /* New frame available on camera 0 */
-        if (event_return[0] & POLLIN) {
+        if (event_return[0]) {
             /* Get frame from camera 0 */
             ret = eviewitf_camera_get_frame(0, frame_buffer, camera_attributes.buffer_size);
             if (ret != EVIEWITF_OK) {
