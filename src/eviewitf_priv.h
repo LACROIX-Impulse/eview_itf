@@ -123,7 +123,7 @@ int device_open(int device_id);
 int device_close(int device_id);
 int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
 int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
-int device_poll(int *device_id, int nb_devices, short *event_return);
+int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return);
 
 /* Blender */
 int blender_open(int device_id);

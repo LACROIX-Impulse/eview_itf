@@ -249,12 +249,13 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer
 int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
                                      eviewitf_frame_metadata_info_t* frame_metadata);
 /**
- * \fn int eviewitf_camera_poll(int *cam_id, int nb_cam, short *event_return)
+ * \fn int eviewitf_camera_poll(int* cam_id, int nb_cam, int ms_timeout, short* event_return)
  * \brief Poll on multiple cameras to check a new frame is available
  * \ingroup cameras
  *
  * \param[in] cam_id table of camera ids to poll on (id between 0 and EVIEWITF_MAX_CAMERA)
  * \param[in] nb_cam number of cameras on which the polling applies
+ * \param[in] ms_timeout dealy the function should block waiting for a frame, negative value means infinite
  * \param[out] event_return detected events for each camera, 0 if no frame, 1 if a frame is available
  * \return return code as specified by the eviewitf_return_code enumeration.
  *
@@ -264,7 +265,7 @@ int eviewitf_camera_extract_metadata(uint8_t* buf, uint32_t buffer_size,
  * poll can be done on several cameras. Thanks to this function, a process can wait for a new frame to become available
  * among a list of cameras. As soon as one camera of the list will get a new frame, the poll will return.
  */
-int eviewitf_camera_poll(int* cam_id, int nb_cam, short* event_return);
+int eviewitf_camera_poll(int* cam_id, int nb_cam, int ms_timeout, short* event_return);
 
 /**
  * \fn eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t* reg_value)
