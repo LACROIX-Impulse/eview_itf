@@ -568,6 +568,37 @@ int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
 }
 
 /**
+ * \fn eviewitf_get_R7_boot_mode(uint32_t *mode)
+ * \brief Get current eView boot mode.
+ * \ingroup eview
+ *
+ * \param[out] mode current/active boot mode of eView component
+ * \return state of the function. Return 0 if okay
+ *
+ * An eView specific mode can be set under peculiar conditions.
+ * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
+ * requests.
+ */
+int eviewitf_get_R7_boot_mode(uint32_t *mode) {
+    int ret = EVIEWITF_OK;
+    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+
+    /* Prepare TX buffer */
+    tx_buffer[0] = EVIEWITF_MFIS_FCT_GET_BOOT_MODE;
+
+    /* Send request to R7 */
+    ret = mfis_send_request(tx_buffer, rx_buffer);
+    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    *mode = rx_buffer[2];
+    return ret;
+}
+/**
  * \fn eviewitf_display_select_cropping
  * \brief Start the cropping with coordinates to R7
  *
