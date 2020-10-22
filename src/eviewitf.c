@@ -593,9 +593,10 @@ int eviewitf_get_R7_boot_mode(uint32_t *mode) {
     ret = mfis_send_request(tx_buffer, rx_buffer);
     if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
+    } else {
+        *mode = rx_buffer[2];
     }
 
-    *mode = rx_buffer[2];
     return ret;
 }
 /**
