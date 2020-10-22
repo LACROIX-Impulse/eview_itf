@@ -178,6 +178,20 @@ const char* eviewitf_get_eviewitf_version(void);
 int eviewitf_get_monitoring_info(uint32_t* data, uint8_t size);
 
 /**
+ * \fn eviewitf_get_R7_boot_mode(uint32_t *mode)
+ * \brief Get current eView boot mode.
+ * \ingroup eview
+ *
+ * \param[out] mode current/active boot mode of eView component
+ * \return state of the function. Return 0 if okay
+ *
+ * An eView specific mode can be set under peculiar conditions.
+ * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
+ * requests.
+ */
+int eviewitf_get_R7_boot_mode(uint32_t *mode);
+
+/**
  * \fn int eviewitf_camera_open(int cam_id)
  * \brief Open a camera device
  * \ingroup cameras

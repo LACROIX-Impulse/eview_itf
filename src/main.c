@@ -435,7 +435,14 @@ int main(int argc, char **argv) {
             }
         }
         if (ret >= EVIEWITF_OK) {
-            eviewitf_display_select_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
+            ret = eviewitf_display_select_cropping(cropp_x1, cropp_y1, cropp_x2, cropp_y2);
+            if (ret >= EVIEWITF_OK) {
+                fprintf(stdout, "Cropping set\n");
+            } else if (ret == EVIEWITF_INVALID_PARAM) {
+                fprintf(stdout, "Cropping set error\n");
+            } else {
+                fprintf(stdout, "Cropping set failure\n");
+            }
         }
     }
 
