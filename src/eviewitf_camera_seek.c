@@ -26,7 +26,7 @@
 
 #define SEEK_FRAME_WIDTH 200
 #define SEEK_FRAME_HEIGH 150
-#define SEEK_DT 0x01F0
+#define SEEK_DT          0x01F0
 
 #define SEEK_NB_CAMERAS           4
 #define SEEK_STRING_MAX_LENGTH    64
@@ -268,7 +268,7 @@ int camera_seek_display(int cam_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int camera_seek_get_attributes(__attribute__((unused))int device_id, eviewitf_device_attributes_t *attributes) {
+int camera_seek_get_attributes(__attribute__((unused)) int device_id, eviewitf_device_attributes_t *attributes) {
     attributes->buffer_size = SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH * sizeof(float);
     attributes->width = SEEK_FRAME_WIDTH;
     attributes->height = SEEK_FRAME_HEIGH;
