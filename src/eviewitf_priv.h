@@ -87,6 +87,9 @@ typedef struct {
 
     /* Called when the device is selected for display */
     int (*display)(int device_id);
+
+    /* Get device attributes */
+    int (*get_attributes)(int device_id, eviewitf_device_attributes_t *attributes);
 } device_operations;
 
 /**
@@ -142,5 +145,6 @@ int camera_seek_open(int device_id);
 int camera_seek_close(int file_descriptor);
 int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size);
 int camera_seek_display(int device_id);
+int camera_seek_get_attributes(int device_id, eviewitf_device_attributes_t *attributes);
 
 #endif /* EVIEWITF_PRIV_H */
