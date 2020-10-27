@@ -57,8 +57,7 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
         }
         printf("SSD storage directory %s \n", record_dir);
         eviewitf_camera_get_attributes(cam_id, &attributes);
-        ret =
-            eviewitf_ssd_record_stream(cam_id, delay, record_dir, attributes.buffer_size);
+        ret = eviewitf_ssd_record_stream(cam_id, delay, record_dir, attributes.buffer_size);
         if (record_path == NULL) {
             free(record_dir);
         }
