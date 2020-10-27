@@ -42,6 +42,7 @@
 int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
     int ret = EVIEWITF_OK;
     char *record_dir = NULL;
+    eviewitf_device_attributes_t attributes;
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -55,8 +56,9 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
             record_dir = record_path;
         }
         printf("SSD storage directory %s \n", record_dir);
+        eviewitf_camera_get_attributes(cam_id, &attributes);
         ret =
-            eviewitf_ssd_record_stream(cam_id, delay, record_dir, (get_device_object(cam_id))->attributes.buffer_size);
+            eviewitf_ssd_record_stream(cam_id, delay, record_dir, attributes.buffer_size);
         if (record_path == NULL) {
             free(record_dir);
         }

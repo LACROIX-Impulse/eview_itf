@@ -80,11 +80,7 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
     struct timespec difft = {0};
     struct stat st;
     char buff_f[size];
-    int cam_fd;
     short revents;
-    struct pollfd pfd;
-    int r_poll;
-    char device_name[DEVICE_CAMERA_MAX_LENGTH];
 
     // Create frame directory if not existing (and it should not exist)
     if (stat(frames_directory, &st) == -1) {
@@ -95,21 +91,17 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
         return -1;
     }
     res_run = res_start;
-    snprintf(device_name, DEVICE_CAMERA_MAX_LENGTH, DEVICE_CAMERA_NAME, camera_id);
-    cam_fd = open(device_name, O_RDWR);
-    pfd.fd = cam_fd;
-    pfd.events = POLLIN;
+    eviewitf_camera_open(camera_id);
     while (difft.tv_sec < duration) {
-        r_poll = poll(&pfd, 1, 1000);
-        if (r_poll == -1) {
-            printf("POLL ERROR \n");
-            return -1;
+        if (eviewitf_camera_poll(&camera_id, 1, 2000, &revents) != EVIEWITF_OK) {
+            printf("Error polling device\n");
+            break;
         }
-        revents = pfd.revents;
-        if (revents & POLLIN) {
+
+        if (revents) {
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
             file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
-            read(cam_fd, buff_f, size);
+            eviewitf_camera_get_frame(camera_id, (uint8_t *)buff_f, size);
             write(file_ssd, buff_f, size);
             close(file_ssd);
 
@@ -128,11 +120,11 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
             frame_id++;
         } else {
             printf("Poll timeout \n");
-            return -1;
+            break;
         }
     }
 
-    close(cam_fd);
+    eviewitf_camera_close(camera_id);
     printf("Time elapsed %lds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     return 0;
 }
