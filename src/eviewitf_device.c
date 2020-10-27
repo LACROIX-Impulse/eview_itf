@@ -126,7 +126,7 @@ int device_objects_init() {
                     device_objects[i].operations.close = NULL;
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = NULL;
-                    device_objects[i].operations.display = NULL;
+                    device_objects[i].operations.display = camera_display; /* Force display welcome screen */
 
                     break;
             }
