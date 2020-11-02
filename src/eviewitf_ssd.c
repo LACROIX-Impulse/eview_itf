@@ -91,7 +91,10 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
         return -1;
     }
     res_run = res_start;
-    eviewitf_camera_open(camera_id);
+    if (eviewitf_camera_open(camera_id) != EVIEWITF_OK) {
+        printf("Error opening device\n");
+        return -1;
+    }
     while (difft.tv_sec < duration) {
         if (eviewitf_camera_poll(&camera_id, 1, 2000, &revents) != EVIEWITF_OK) {
             printf("Error polling device\n");
@@ -124,8 +127,11 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
         }
     }
 
-    eviewitf_camera_close(camera_id);
     printf("Time elapsed %lds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
+    if (eviewitf_camera_close(camera_id) != EVIEWITF_OK) {
+        printf("Error closing device\n");
+        return -1;
+    }
     return 0;
 }
 
