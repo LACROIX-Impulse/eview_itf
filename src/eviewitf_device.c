@@ -98,6 +98,7 @@ int device_objects_init() {
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = camera_read;
                     device_objects[i].operations.display = camera_display;
+                    device_objects[i].operations.get_attributes = NULL;
                     break;
                 case EVIEWITF_MFIS_CAM_TYPE_VIRTUAL:
                     device_objects[i].attributes.type = DEVICE_TYPE_STREAMER;
@@ -106,6 +107,7 @@ int device_objects_init() {
                     device_objects[i].operations.write = generic_write;
                     device_objects[i].operations.read = NULL;
                     device_objects[i].operations.display = camera_display;
+                    device_objects[i].operations.get_attributes = NULL;
                     break;
                 case EVIEWITF_MFIS_CAM_TYPE_SEEK:
                     device_objects[i].attributes.type = DEVICE_TYPE_CAMERA_SEEK;
@@ -114,6 +116,7 @@ int device_objects_init() {
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = camera_seek_read;
                     device_objects[i].operations.display = camera_seek_display;
+                    device_objects[i].operations.get_attributes = camera_seek_get_attributes;
                     /* Check if there are enough seek instances available */
                     if (camera_seek_register(i) != EVIEWITF_OK) {
                         ret = EVIEWITF_OK;
@@ -126,7 +129,8 @@ int device_objects_init() {
                     device_objects[i].operations.close = NULL;
                     device_objects[i].operations.write = NULL;
                     device_objects[i].operations.read = NULL;
-                    device_objects[i].operations.display = NULL;
+                    device_objects[i].operations.display = camera_display; /* Force display welcome screen */
+                    device_objects[i].operations.get_attributes = NULL;
 
                     break;
             }
@@ -402,10 +406,17 @@ int device_get_attributes(int device_id, eviewitf_device_attributes_t *attribute
 
     /* Copy attributes */
     if (ret >= EVIEWITF_OK) {
-        attributes->buffer_size = device->attributes.buffer_size;
-        attributes->width = device->attributes.width;
-        attributes->height = device->attributes.height;
-        attributes->dt = device->attributes.dt;
+        device = get_device_object(device_id);
+        if (device->operations.get_attributes == NULL) {
+            attributes->buffer_size = device->attributes.buffer_size;
+            attributes->width = device->attributes.width;
+            attributes->height = device->attributes.height;
+            attributes->dt = device->attributes.dt;
+        } else {
+            if (device->operations.get_attributes(device_id, attributes) < 0) {
+                ret = EVIEWITF_FAIL;
+            }
+        }
     }
 
     return ret;

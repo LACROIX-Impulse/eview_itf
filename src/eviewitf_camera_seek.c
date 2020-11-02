@@ -26,6 +26,7 @@
 
 #define SEEK_FRAME_WIDTH 200
 #define SEEK_FRAME_HEIGH 150
+#define SEEK_DT          0x01F0
 
 #define SEEK_NB_CAMERAS           4
 #define SEEK_STRING_MAX_LENGTH    64
@@ -202,7 +203,7 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
         if (seek_handlers[i].sock == file_descriptor) {
             sem_wait(seek_handlers[i].mutex_sem);
             /* Copy content from shared memory */
-            memcpy(frame_buffer, seek_handlers[i].mutex_sem, min_size);
+            memcpy(frame_buffer, seek_handlers[i].ptr_shm, min_size);
             /* Read message on socket to cancel polling */
             read(seek_handlers[i].sock, msg, SEEK_CONFIG_MESSAGE_SIZE);
             sem_post(seek_handlers[i].mutex_sem);
@@ -256,4 +257,22 @@ int camera_seek_display(int cam_id) {
 
     close(sock_config);
     return camera_display(SEEK_STREAMER_ID + EVIEWITF_OFFSET_STREAMER);
+}
+
+/**
+ * \fn int camera_seek_get_attributes(int device_id, eviewitf_device_attributes_t *attributes)
+ * \brief Get seek camera attributes
+ *
+ * \param camera_id: id of the Seek camera
+ * \param attributes: attributes structure to be filled in
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int camera_seek_get_attributes(__attribute__((unused)) int device_id, eviewitf_device_attributes_t *attributes) {
+    attributes->buffer_size = SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH * sizeof(float);
+    attributes->width = SEEK_FRAME_WIDTH;
+    attributes->height = SEEK_FRAME_HEIGH;
+    attributes->dt = SEEK_DT;
+
+    return 0;
 }
