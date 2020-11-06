@@ -90,11 +90,9 @@ int eviewitf_app_reset_camera(int cam_id) {
             /* Check returned answer state */
             if (request[0] != EVIEWITF_MFIS_FCT_CAM_RESET) {
                 ret = EVIEWITF_FAIL;
-            }
-            if (request[1] == FCT_RETURN_ERROR) {
+            } else if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
-            }
-            if (request[1] == FCT_INV_PARAM) {
+            } else if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
         }

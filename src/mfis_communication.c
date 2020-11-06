@@ -20,6 +20,7 @@
 
 #include "eviewitf.h"
 #include "mfis_communication.h"
+#include "mfis-ioctl.h"
 
 /******************************************************************************************
  * Private definitions
@@ -133,4 +134,63 @@ int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes* blending
     close(fd);
     pthread_mutex_unlock(&mfis_mutex);
     return EVIEWITF_OK;
+}
+
+/**
+ * @brief Delivers an ioctl to the MFIS driver
+ *
+ * @param[in]  devtype       Device type
+ * @param[in]  devid         Device identifier
+ * @param[in]  cmd           I/O command
+ * @param[in]  param         I/O parameter
+ * @return EVIEWITF_OK on success, negative value on failure (see errno.h)
+ */
+int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param) {
+    int fd;
+    int ret = EVIEWITF_OK;
+    uint32_t msg[EVIEWITF_MFIS_MSG_SIZE];
+    struct mfis_ioctl* hdr;
+
+    /* Prepares the message header */
+    hdr = (struct mfis_ioctl*)msg;
+    hdr->funcid = EVIEWITF_MFIS_FCT_IOCTL;
+    hdr->requester = 0; /* Keep it empty, driver will set this field */
+    hdr->devtype = devtype;
+    hdr->devid = devid;
+    hdr->result = 0;
+    hdr->cmd = cmd;
+
+    /* Copies the parameter based on the IOC message size */
+    if (param && MFIS_IOCSZ(cmd) > 0) memcpy(msg + 2, param, MFIS_IOCSZ(cmd));
+
+    pthread_mutex_lock(&mfis_mutex);
+    /* Open MFIS IOCTL */
+    fd = open("/dev/mfis_ioctl", O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "%s() error cannot open ioctl file : %s\n", __FUNCTION__, strerror(errno));
+        ret = EVIEWITF_FAIL;
+        goto out_ret;
+    }
+
+    /* Send message over MFIS */
+    ret = ioctl(fd, EVIEWITF_MFIS_FCT, (uint32_t*)msg);
+    close(fd);
+    if (ret < 0) {
+        fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
+        ret = EVIEWITF_FAIL;
+        goto out_ret;
+    }
+
+    /* Check returned answer state */
+    if (hdr->funcid != EVIEWITF_MFIS_FCT_IOCTL) {
+        ret = EVIEWITF_FAIL;
+    } else if (hdr->result == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
+        ret = EVIEWITF_FAIL;
+    } else if (hdr->result == EVIEWITF_MFIS_FCT_INV_PARAM) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
+out_ret:
+    pthread_mutex_unlock(&mfis_mutex);
+    return ret;
 }

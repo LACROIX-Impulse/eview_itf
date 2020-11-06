@@ -69,7 +69,8 @@ int eviewitf_init(void) {
 
         /* Send request to R7 and check returned answer state*/
         ret = mfis_send_request(request);
-        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_INIT) || (request[1] != FCT_RETURN_OK)) {
+        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_INIT) ||
+            (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
 
@@ -108,7 +109,8 @@ int eviewitf_deinit(void) {
 
         /* Send request to R7 */
         ret = mfis_send_request(request);
-        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_DEINIT) || (request[1] != FCT_RETURN_OK)) {
+        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_DEINIT) ||
+            (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -141,7 +143,7 @@ int camera_display(int cam_id) {
         ret = EVIEWITF_FAIL;
     } else {
         /* Check returned answer state */
-        if ((request[0] != EVIEWITF_MFIS_FCT_SET_DISPLAY) && (request[1] != FCT_RETURN_OK)) {
+        if ((request[0] != EVIEWITF_MFIS_FCT_SET_DISPLAY) && (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -241,13 +243,13 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
             if (request[0] != EVIEWITF_MFIS_FCT_CAM_GET_REGISTER) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_RETURN_ERROR) {
+            if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_INV_PARAM) {
+            if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
-            if (request[1] == FCT_RETURN_BLOCKED) {
+            if (request[1] == EVIEWITF_MFIS_FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
             }
         }
@@ -274,7 +276,6 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-
         /* Prepare TX buffer */
         request[0] = EVIEWITF_MFIS_FCT_CAM_SET_REGISTER;
         request[1] = cam_id;
@@ -290,13 +291,13 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
             if (request[0] != EVIEWITF_MFIS_FCT_CAM_SET_REGISTER) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_RETURN_ERROR) {
+            if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_INV_PARAM) {
+            if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
-            if (request[1] == FCT_RETURN_BLOCKED) {
+            if (request[1] == EVIEWITF_MFIS_FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
             }
         }
@@ -340,10 +341,10 @@ int eviewitf_display_select_blender(int blender_id) {
             if (request[0] != EVIEWITF_MFIS_FCT_SET_BLENDING) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_RETURN_ERROR) {
+            if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (request[1] == FCT_INV_PARAM) {
+            if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
         }
@@ -375,7 +376,8 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
 
     /* Send request to R7 */
     ret = mfis_send_request(request);
-    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_HEARTBEAT) || (request[1] != FCT_RETURN_OK)) {
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_HEARTBEAT) ||
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
@@ -404,7 +406,8 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 
     /* Send request to R7 */
     ret = mfis_send_request(request);
-    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_BOOT_MODE) || (request[1] != FCT_RETURN_OK)) {
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_BOOT_MODE) ||
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
@@ -446,7 +449,7 @@ const char *eviewitf_get_eview_version(void) {
     /* Send request to R7 */
     ret = mfis_send_request(request);
     if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION) ||
-        (request[1] != FCT_RETURN_OK)) {
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
         return NULL;
     } else {
@@ -454,7 +457,7 @@ const char *eviewitf_get_eview_version(void) {
         {
             size_div = 5;
         } else if ((request[2] - ((request[2] / 4) * 4)) >= 1) { /* check if there is a rest */
-            size_div = (request[2] / 4) + 1;                       /* +1 to get the rest of the division */
+            size_div = (request[2] / 4) + 1;                     /* +1 to get the rest of the division */
         } else {
             size_div = (request[2] / 4); /* no rest */
         }
@@ -489,7 +492,7 @@ int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
     /* Send request to R7 */
     ret = mfis_send_request(request);
     if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_MONITORING_INFO) ||
-        (request[1] != FCT_RETURN_OK)) {
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
@@ -523,7 +526,8 @@ int eviewitf_get_R7_boot_mode(uint32_t *mode) {
 
     /* Send request to R7 */
     ret = mfis_send_request(request);
-    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) || (request[1] != FCT_RETURN_OK)) {
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) ||
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     } else {
         *mode = request[2];
@@ -554,7 +558,8 @@ int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint
 
     /* Send request to R7 */
     ret = mfis_send_request(request);
-    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_CROPPING) || (request[1] != FCT_RETURN_OK)) {
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_CROPPING) ||
+        (request[1] != EVIEWITF_MFIS_FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
