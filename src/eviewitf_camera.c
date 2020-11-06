@@ -230,3 +230,67 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
 
     return ret;
 }
+
+/**
+ * \fn eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    (void)(cam_id);
+    (void)(exposure_us);
+    (void)(gain_thou);
+    return EVIEWITF_FAIL;
+}
+
+/**
+ * \fn eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's minimum exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    (void)(cam_id);
+    (void)(exposure_us);
+    (void)(gain_thou);
+    return EVIEWITF_FAIL;
+}
+
+/**
+ * \fn eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's maximum exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    (void)(cam_id);
+    (void)(exposure_us);
+    (void)(gain_thou);
+    return EVIEWITF_FAIL;
+}
+
+/**
+ * \fn  eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou)
+ * \brief Set camera's exposure time.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] exposure_us exposure time in micro seconds
+ * \param[out] gain_thou gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou) {
+    (void)(cam_id);
+    (void)(exposure_us);
+    (void)(gain_thou);
+    return EVIEWITF_FAIL;
+}
