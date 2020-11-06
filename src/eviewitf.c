@@ -369,43 +369,6 @@ int eviewitf_display_select_blender(int blender_id) {
     return ret;
 }
 
-int eviewitf_set_camera_fps(int cam_id, uint32_t fps) {
-    int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    /* Test camera id */
-    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
-        ret = EVIEWITF_INVALID_PARAM;
-    } else {
-        memset(tx_buffer, 0, sizeof(tx_buffer));
-        memset(rx_buffer, 0, sizeof(rx_buffer));
-
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_CAM_SET_FPS;
-        tx_buffer[1] = cam_id;
-        tx_buffer[2] = (int32_t)fps;
-        ret = mfis_send_request(tx_buffer, rx_buffer);
-
-        if (ret < EVIEWITF_OK) {
-            ret = EVIEWITF_FAIL;
-        } else {
-            /* Check returned answer state */
-            if (rx_buffer[0] != EVIEWITF_MFIS_FCT_CAM_SET_FPS) {
-                ret = EVIEWITF_FAIL;
-            }
-            if (rx_buffer[1] == FCT_RETURN_ERROR) {
-                ret = EVIEWITF_FAIL;
-            }
-            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
-                ret = EVIEWITF_BLOCKED;
-            }
-            if (rx_buffer[1] == FCT_INV_PARAM) {
-                ret = EVIEWITF_INVALID_PARAM;
-            }
-        }
-    }
-    return ret;
-}
-
 /**
  * \fn eviewitf_set_R7_heartbeat_mode(uint32_t mode)
  * \brief Activate or deactivate eView heartbeat.
