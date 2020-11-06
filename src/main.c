@@ -26,20 +26,22 @@ static char doc[] = "eviewitf -- Program for communication between A53 and R7 CP
 
 /* Arguments description */
 static char args_doc[] =
-    "change display:  -d -c [0-7]\n"
-    "change display:  -d -s [0-7]\n"
-    "record:          -c [0-7] -r [???] (-p [PATH])\n"
-    "play recordings: -s [0-7] -f [5-60] -p [PATH]\n"
-    "write register:  -c [0-7] -Wa [0x????] -v [0x??]\n"
-    "read register:   -c [0-7] -Ra [0x????]\n"
-    "reboot a camera: -x -c [0-7]\n"
-    "set blending:    -b [PATH] -o [0-1]\n"
+    "change display:  -d -c[0-7]\n"
+    "change display:  -d -s[0-7]\n"
+    "record:          -c[0-7] -r[???] (-p[PATH])\n"
+    "play recordings: -s[0-7] -f[5-60] -p[PATH]\n"
+    "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
+    "read register:   -c[0-7] -Ra[0x????]\n"
+    "reboot a camera: -x -c[0-7]\n"
+    "set blending:    -b[PATH] -o[0-1]\n"
     "stop blending:   -n\n"
-    "set R7 heartbeat state: -H [0-1]\n"
-    "set R7 boot mode: -B [0-?]\n"
-    "start cropping -U x1:y1:x2:y2\n"
-    "stop cropping -u"
-    "raw monitoring info -m";
+    "set R7 heartbeat state: -H[0-1]\n"
+    "set R7 boot mode:-B[0-?]\n"
+    "start cropping:  -Ux1:y1:x2:y2\n"
+    "stop cropping:   -u\n"
+    "monitoring info: -m\n"
+    "set exposure:    -c[0-7] -e[???] -g[???]\n"
+    "get exposure:    -c[0-7] -E\n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -62,6 +64,9 @@ static struct argp_option options[] = {
     {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
     {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
     {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format", 0},
+    {"exposure", 'E', 0, 0, "Get camera exposure value", 0},
+    {"exposure", 'e', "EXPOSURE", 0, "Set camera exposure delay", 0},
+    {"gain", 'g', "GAIN", 0, "Set camera gain", 0},
     {0},
 };
 
@@ -91,6 +96,8 @@ struct arguments {
     int cropping;
     char *cropping_coord;
     int monitoring_info;
+    int exposure;
+    int gain;
 };
 
 /* Parse a single option. */
@@ -122,9 +129,24 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'd':
             arguments->display = 1;
             break;
+        case 'E':
+            arguments->exposure = -2;
+            break;
+        case 'e':
+            arguments->exposure = atoi(arg);
+            if (arguments->exposure < 0) {
+                argp_usage(state);
+            }
+            break;
         case 'f':
             arguments->fps_value = atoi(arg);
             if ((arguments->fps_value < FPS_MIN_VALUE) || (arguments->fps_value > FPS_MAX_VALUE)) {
+                argp_usage(state);
+            }
+            break;
+        case 'g':
+            arguments->gain = atoi(arg);
+            if (arguments->gain < 0) {
                 argp_usage(state);
             }
             break;
@@ -230,6 +252,8 @@ int main(int argc, char **argv) {
     arguments.cropping = -1;
     arguments.cropping_coord = NULL;
     arguments.monitoring_info = 0;
+    arguments.exposure = -1;
+    arguments.gain = -1;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -457,5 +481,48 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Cropping stopped failure\n");
         }
     }
+
+    /* Set camera exposure*/
+    if ((arguments.camera_id >= 0) && (arguments.exposure >= 0) && (arguments.gain >= 0)) {
+        ret = eviewitf_camera_set_exposure(arguments.camera_id, arguments.exposure, arguments.gain);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Exposure set to %d us and gain to %d on camera id %d \n", arguments.exposure,
+                    arguments.gain, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to set exposure\n");
+        } else {
+            fprintf(stdout, "Fail to set exposure on camera id %d  \n", arguments.camera_id);
+        }
+    }
+    /* Get camera exposure*/
+    if ((arguments.camera_id >= 0) && (arguments.exposure == -2)) {
+        uint32_t exposure;
+        uint32_t gain;
+        ret = eviewitf_camera_get_exposure(arguments.camera_id, &exposure, &gain);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Exposure is %d us and gain %d on camera id %d \n", exposure, gain, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get exposure\n");
+        } else {
+            fprintf(stdout, "Fail to get exposure on camera id %d  \n", arguments.camera_id);
+        }
+        ret = eviewitf_camera_get_min_exposure(arguments.camera_id, &exposure, &gain);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Min exposure is %d us and min gain %d on camera id %d \n", exposure, gain, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get min exposure\n");
+        } else {
+            fprintf(stdout, "Fail to get min exposure on camera id %d  \n", arguments.camera_id);
+        }
+        ret = eviewitf_camera_get_max_exposure(arguments.camera_id, &exposure, &gain);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Max exposure is %d us and max gain %d on camera id %d \n", exposure, gain, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get max exposure\n");
+        } else {
+            fprintf(stdout, "Fail to get max exposure on camera id %d  \n", arguments.camera_id);
+        }
+    }
+
     exit(-ret);
 }

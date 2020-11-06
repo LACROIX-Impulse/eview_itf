@@ -180,6 +180,10 @@ int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param
         ret = EVIEWITF_FAIL;
         goto out_ret;
     }
+    else {
+        /* Copies the parameter based on the IOC message size */
+        if (param && MFIS_IOCSZ(cmd) > 0) memcpy(param, msg + 2, MFIS_IOCSZ(cmd));
+    }
 
     /* Check returned answer state */
     if (hdr->funcid != EVIEWITF_MFIS_FCT_IOCTL) {
