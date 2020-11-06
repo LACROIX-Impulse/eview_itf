@@ -23,7 +23,7 @@
  ******************************************************************************************/
 int mfis_init();
 int mfis_deinit();
-int mfis_send_request(int32_t *send, int32_t *receive);
+int mfis_send_request(int32_t *request);
 int mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes);
 int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes);
 #endif /* MFIS_COMMUNICATION_H */

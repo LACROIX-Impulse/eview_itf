@@ -56,10 +56,7 @@ int eviewitf_is_initialized() { return eviewitf_global_init; }
  */
 int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     mfis_init();
 
@@ -68,11 +65,11 @@ int eviewitf_init(void) {
         ret = EVIEWITF_FAIL;
     } else {
         /* Prepare TX buffer */
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_INIT;
+        request[0] = EVIEWITF_MFIS_FCT_INIT;
 
         /* Send request to R7 and check returned answer state*/
-        ret = mfis_send_request(tx_buffer, rx_buffer);
-        if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_INIT) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = mfis_send_request(request);
+        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_INIT) || (request[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
 
@@ -100,21 +97,18 @@ int eviewitf_init(void) {
  */
 int eviewitf_deinit(void) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Check if init has been done */
     if (eviewitf_global_init == 0) {
         ret = EVIEWITF_NOT_INITIALIZED;
     } else {
         /* Prepare TX buffer */
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_DEINIT;
+        request[0] = EVIEWITF_MFIS_FCT_DEINIT;
 
         /* Send request to R7 */
-        ret = mfis_send_request(tx_buffer, rx_buffer);
-        if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_DEINIT) || (rx_buffer[1] != FCT_RETURN_OK)) {
+        ret = mfis_send_request(request);
+        if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_DEINIT) || (request[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -136,21 +130,18 @@ int eviewitf_deinit(void) {
  */
 int camera_display(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_SET_DISPLAY;
-    tx_buffer[1] = cam_id;
+    request[0] = EVIEWITF_MFIS_FCT_SET_DISPLAY;
+    request[1] = cam_id;
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
+    ret = mfis_send_request(request);
     if (ret < EVIEWITF_OK) {
         ret = EVIEWITF_FAIL;
     } else {
         /* Check returned answer state */
-        if ((rx_buffer[0] != EVIEWITF_MFIS_FCT_SET_DISPLAY) && (rx_buffer[1] != FCT_RETURN_OK)) {
+        if ((request[0] != EVIEWITF_MFIS_FCT_SET_DISPLAY) && (request[1] != FCT_RETURN_OK)) {
             ret = EVIEWITF_FAIL;
         }
     }
@@ -228,7 +219,7 @@ int eviewitf_display_select_streamer(int streamer_id) {
  */
 int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -236,34 +227,31 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
     } else if (reg_value == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        memset(tx_buffer, 0, sizeof(tx_buffer));
-        memset(rx_buffer, 0, sizeof(rx_buffer));
-
         /* Prepare TX buffer */
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_CAM_GET_REGISTER;
-        tx_buffer[1] = cam_id;
-        tx_buffer[2] = 0;
-        tx_buffer[3] = reg_address;
-        ret = mfis_send_request(tx_buffer, rx_buffer);
+        request[0] = EVIEWITF_MFIS_FCT_CAM_GET_REGISTER;
+        request[1] = cam_id;
+        request[2] = 0;
+        request[3] = reg_address;
+        ret = mfis_send_request(request);
 
         if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
         } else {
             /* Check returned answer state */
-            if (rx_buffer[0] != EVIEWITF_MFIS_FCT_CAM_GET_REGISTER) {
+            if (request[0] != EVIEWITF_MFIS_FCT_CAM_GET_REGISTER) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            if (request[1] == FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_INV_PARAM) {
+            if (request[1] == FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
-            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+            if (request[1] == FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
             }
         }
-        *reg_value = (uint32_t)rx_buffer[2];
+        *reg_value = (uint32_t)request[2];
     }
     return ret;
 }
@@ -280,37 +268,35 @@ int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *re
  */
 int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        memset(tx_buffer, 0, sizeof(tx_buffer));
-        memset(rx_buffer, 0, sizeof(rx_buffer));
 
         /* Prepare TX buffer */
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_CAM_SET_REGISTER;
-        tx_buffer[1] = cam_id;
-        tx_buffer[2] = 0;
-        tx_buffer[3] = reg_address;
-        tx_buffer[4] = (int32_t)reg_value;
-        ret = mfis_send_request(tx_buffer, rx_buffer);
+        request[0] = EVIEWITF_MFIS_FCT_CAM_SET_REGISTER;
+        request[1] = cam_id;
+        request[2] = 0;
+        request[3] = reg_address;
+        request[4] = (int32_t)reg_value;
+        ret = mfis_send_request(request);
 
         if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
         } else {
             /* Check returned answer state */
-            if (rx_buffer[0] != EVIEWITF_MFIS_FCT_CAM_SET_REGISTER) {
+            if (request[0] != EVIEWITF_MFIS_FCT_CAM_SET_REGISTER) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            if (request[1] == FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_INV_PARAM) {
+            if (request[1] == FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
-            if (rx_buffer[1] == FCT_RETURN_BLOCKED) {
+            if (request[1] == FCT_RETURN_BLOCKED) {
                 ret = EVIEWITF_BLOCKED;
             }
         }
@@ -332,35 +318,32 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
  */
 int eviewitf_display_select_blender(int blender_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test blender id */
     if ((blender_id < -1) || (blender_id >= EVIEWITF_MAX_BLENDER)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        memset(tx_buffer, 0, sizeof(tx_buffer));
-        memset(rx_buffer, 0, sizeof(rx_buffer));
-
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_SET_BLENDING;
+        request[0] = EVIEWITF_MFIS_FCT_SET_BLENDING;
         if (blender_id < 0) {
-            tx_buffer[1] = 0;
+            request[1] = 0;
         } else {
-            tx_buffer[1] = 1;
-            tx_buffer[2] = blender_id;
+            request[1] = 1;
+            request[2] = blender_id;
         }
-        ret = mfis_send_request(tx_buffer, rx_buffer);
+        ret = mfis_send_request(request);
 
         if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
         } else {
             /* Check returned answer state */
-            if (rx_buffer[0] != EVIEWITF_MFIS_FCT_SET_BLENDING) {
+            if (request[0] != EVIEWITF_MFIS_FCT_SET_BLENDING) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            if (request[1] == FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
             }
-            if (rx_buffer[1] == FCT_INV_PARAM) {
+            if (request[1] == FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
         }
@@ -384,18 +367,15 @@ int eviewitf_display_select_blender(int blender_id) {
  */
 int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_SET_HEARTBEAT;
-    tx_buffer[1] = mode;
+    request[0] = EVIEWITF_MFIS_FCT_SET_HEARTBEAT;
+    request[1] = mode;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_SET_HEARTBEAT) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_HEARTBEAT) || (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
@@ -416,18 +396,15 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
  */
 int eviewitf_set_R7_boot_mode(uint32_t mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_SET_BOOT_MODE;
-    tx_buffer[1] = mode;
+    request[0] = EVIEWITF_MFIS_FCT_SET_BOOT_MODE;
+    request[1] = mode;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_SET_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_BOOT_MODE) || (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
@@ -457,35 +434,33 @@ const char *eviewitf_get_eview_version(void) {
     int i = 0;
     int j = 0;
     int size_div = 0;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     if (strlen(eview_version) != 0) {
         return eview_version;
     }
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION;
+    request[0] = EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION) ||
-        (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_EVIEW_VERSION) ||
+        (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
         return NULL;
     } else {
-        if (rx_buffer[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
+        if (request[2] == 20) /* 5 uint32_t split in 4 uint_8t is the maximum available*/
         {
             size_div = 5;
-        } else if ((rx_buffer[2] - ((rx_buffer[2] / 4) * 4)) >= 1) { /* check if there is a rest */
-            size_div = (rx_buffer[2] / 4) + 1;                       /* +1 to get the rest of the division */
+        } else if ((request[2] - ((request[2] / 4) * 4)) >= 1) { /* check if there is a rest */
+            size_div = (request[2] / 4) + 1;                       /* +1 to get the rest of the division */
         } else {
-            size_div = (rx_buffer[2] / 4); /* no rest */
+            size_div = (request[2] / 4); /* no rest */
         }
         for (i = 0; i < size_div; i++) {
             for (j = 0; j < 4; j++) {
-                eview_version[(i * 4) + j] = (char)(rx_buffer[3 + i] >> (24 - (j * 8)));
+                eview_version[(i * 4) + j] = (char)(request[3 + i] >> (24 - (j * 8)));
             }
         }
         return eview_version;
@@ -506,25 +481,22 @@ const char *eviewitf_get_eview_version(void) {
 int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
     int ret = EVIEWITF_OK;
     uint8_t i;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_GET_MONITORING_INFO;
+    request[0] = EVIEWITF_MFIS_FCT_GET_MONITORING_INFO;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_MONITORING_INFO) ||
-        (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_MONITORING_INFO) ||
+        (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 
     if (size > EVIEWITF_MONITORING_INFO_SIZE) size = EVIEWITF_MONITORING_INFO_SIZE;
     /* Max 6 bytes of usefull data */
     for (i = 0; i < size; i++) {
-        data[i] = rx_buffer[i + 2];
+        data[i] = request[i + 2];
     }
 
     return ret;
@@ -544,20 +516,17 @@ int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
  */
 int eviewitf_get_R7_boot_mode(uint32_t *mode) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_GET_BOOT_MODE;
+    request[0] = EVIEWITF_MFIS_FCT_GET_BOOT_MODE;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_GET_BOOT_MODE) || (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     } else {
-        *mode = rx_buffer[2];
+        *mode = request[2];
     }
 
     return ret;
@@ -574,21 +543,18 @@ int eviewitf_get_R7_boot_mode(uint32_t *mode) {
  */
 int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
-
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-    memset(rx_buffer, 0, sizeof(rx_buffer));
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
-    tx_buffer[0] = EVIEWITF_MFIS_FCT_SET_CROPPING;
-    tx_buffer[1] = x1;
-    tx_buffer[2] = y1;
-    tx_buffer[3] = x2;
-    tx_buffer[4] = y2;
+    request[0] = EVIEWITF_MFIS_FCT_SET_CROPPING;
+    request[1] = x1;
+    request[2] = y1;
+    request[3] = x2;
+    request[4] = y2;
 
     /* Send request to R7 */
-    ret = mfis_send_request(tx_buffer, rx_buffer);
-    if ((ret < EVIEWITF_OK) || (rx_buffer[0] != EVIEWITF_MFIS_FCT_SET_CROPPING) || (rx_buffer[1] != FCT_RETURN_OK)) {
+    ret = mfis_send_request(request);
+    if ((ret < EVIEWITF_OK) || (request[0] != EVIEWITF_MFIS_FCT_SET_CROPPING) || (request[1] != FCT_RETURN_OK)) {
         ret = EVIEWITF_FAIL;
     }
 

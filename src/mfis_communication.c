@@ -35,14 +35,13 @@ int mfis_init() { return pthread_mutex_init(&mfis_mutex, NULL); }
 int mfis_deinit() { return pthread_mutex_destroy(&mfis_mutex); }
 
 /**
- * \fn int mfis_send_request(int32_t *send, int32_t *receive)
+ * \fn int mfis_send_request(int32_t* request)
  * \brief Send a request to R7 CPU and return its answer.
  *
- * \param send: array of 32bits containing message to send to R7
- * \param receive: array of 32bits that will be filled with R7 answer
+ * \param request: array of 32bits containing in/out message to/from R7
  * \return state of the function. Return 0 if okay
  */
-int mfis_send_request(int32_t* send, int32_t* receive) {
+int mfis_send_request(int32_t* request) {
     int fd, ret;
 
     pthread_mutex_lock(&mfis_mutex);
@@ -54,21 +53,12 @@ int mfis_send_request(int32_t* send, int32_t* receive) {
         goto out_ret;
     }
 
-    /* Send message to MFIS */
-    ret = ioctl(fd, EVIEWITF_MFIS_WR_VALUE, (int32_t*)send);
+    /* Send message over MFIS */
+    ret = ioctl(fd, EVIEWITF_MFIS_FCT, (int32_t*)request);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
-        goto out_close;
     }
 
-    /* Wait for MFIS answer from R7 */
-    ret = ioctl(fd, EVIEWITF_MFIS_RD_VALUE, (int32_t*)receive);
-    if (ret < 0) {
-        fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
-        goto out_close;
-    }
-
-out_close:
     close(fd);
 out_ret:
     pthread_mutex_unlock(&mfis_mutex);
