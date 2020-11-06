@@ -43,23 +43,11 @@ struct cam_reg {
 };
 
 /**
- * @brief Sensor gain mask
+ * @brief Sensor exposure
  */
-#define CAMGAINMSK_DIGITAL (0x01)
-#define CAMGAINMSK_ANALOG  (0x02)
-
-/**
- * @brief Sensor gains
- */
-struct cam_gain {
-    uint16_t mask;
-    uint16_t analog;
-    uint16_t digital;
-    uint16_t custom1;
-    uint16_t custom2;
-    uint16_t custom3;
-    uint16_t custom4;
-    uint16_t custom5;
+struct cam_exp {
+    uint32_t exp_us;  /* Exposure duration (usecs) */
+    uint32_t gain_thou; /* Gain value 1/1000 */
 };
 
 /**
@@ -67,17 +55,17 @@ struct cam_gain {
  */
 #define IOCGCAMMODE    MFIS_IOR(0, sizeof(uint32_t))        /* Gets the sensor mode */
 #define IOCSCAMMODE    MFIS_IOW(1, sizeof(uint32_t))        /* Sets the sensor mode */
-#define IOCGCAMEXP     MFIS_IOR(2, sizeof(uint32_t))        /* Gets the sensor exposure (usecs) */
-#define IOCSCAMEXP     MFIS_IOW(3, sizeof(uint32_t))        /* Sets the sensor exposure (usecs) */
-#define IOCGCAMGAIN    MFIS_IOR(4, sizeof(struct cam_gain)) /* Gets the sensor analog/digital gain */
-#define IOCSCAMGAIN    MFIS_IOW(5, sizeof(struct cam_gain)) /* Sets the sensor analog/digital gain */
+#define IOCGCAMEXP     MFIS_IOR(2, sizeof(struct cam_exp))  /* Gets the sensor exposure parameters */
+#define IOCSCAMEXP     MFIS_IOW(3, sizeof(struct cam_exp))  /* Sets the sensor exposure parameters */
+#define IOCGCAMEXPMIN  MFIS_IOR(4, sizeof(struct cam_exp))  /* Gets the sensor min exposure parameters */
+#define IOCGCAMEXPMAX  MFIS_IOR(5, sizeof(struct cam_exp))  /* Gets the sensor max exposure parameters */
 #define IOCGCAMRATE    MFIS_IOW(6, sizeof(uint8_t))         /* Gets the sensor frame rate */
 #define IOCSCAMRATE    MFIS_IOR(7, sizeof(uint8_t))         /* Sets the sensor frame rate */
 #define IOCGCAMREADOUT MFIS_IOR(8, sizeof(uint8_t))         /* Gets the sensor image readout */
 #define IOCSCAMREADOUT MFIS_IOW(9, sizeof(uint8_t))         /* Sets the sensor image readout */
 #define IOCGCAMREG     MFIS_IOW(10, sizeof(struct cam_reg)) /* Sets the sensor image readout */
 #define IOCSCAMREG     MFIS_IOW(11, sizeof(struct cam_reg)) /* Sets the sensor image readout */
-#define IOCGCAMTEMP    MFIS_IOR(18, sizeof(uint16_t))       /* Gets the sensor temperature */
+#define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))       /* Gets the sensor temperature */
 #define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
 #define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
 #define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */

@@ -12,6 +12,8 @@
 #include <unistd.h>
 
 #include "eviewitf_priv.h"
+#include "cam-ioctl.h"
+#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
@@ -241,10 +243,17 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
-    (void)(cam_id);
-    (void)(exposure_us);
-    (void)(gain_thou);
-    return EVIEWITF_FAIL;
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXP, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
 }
 
 /**
@@ -257,10 +266,17 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *ga
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
-    (void)(cam_id);
-    (void)(exposure_us);
-    (void)(gain_thou);
-    return EVIEWITF_FAIL;
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXPMIN, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
 }
 
 /**
@@ -273,10 +289,17 @@ int eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
-    (void)(cam_id);
-    (void)(exposure_us);
-    (void)(gain_thou);
-    return EVIEWITF_FAIL;
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXPMAX, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
 }
 
 /**
@@ -289,8 +312,8 @@ int eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou) {
-    (void)(cam_id);
-    (void)(exposure_us);
-    (void)(gain_thou);
-    return EVIEWITF_FAIL;
+    struct cam_exp exposure_value;
+    exposure_value.exp_us = exposure_us;
+    exposure_value.gain_thou = gain_thou;
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMEXP, &exposure_value);
 }
