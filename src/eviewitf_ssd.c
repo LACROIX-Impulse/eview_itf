@@ -79,7 +79,7 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
     struct timespec res_run;
     struct timespec difft = {0};
     struct stat st;
-    char buff_f[size];
+    char *buff_f;
     short revents;
 
     // Create frame directory if not existing (and it should not exist)
@@ -93,6 +93,12 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
     res_run = res_start;
     if (eviewitf_camera_open(camera_id) != EVIEWITF_OK) {
         printf("Error opening device\n");
+        return -1;
+    }
+    buff_f = malloc(size);
+    if (buff_f == NULL) {
+        printf("Error Unable to allocate buffer\n");
+        eviewitf_camera_close(camera_id);
         return -1;
     }
     while (difft.tv_sec < duration) {
@@ -110,6 +116,8 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
 
             if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
                 printf("Got an issue with system clock aborting \n");
+                free(buff_f);
+                eviewitf_camera_close(camera_id);
                 return -1;
             }
 
@@ -127,6 +135,7 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
         }
     }
 
+    free(buff_f);
     printf("Time elapsed %lds:%03ld ms, catched %d frames \n", difft.tv_sec, difft.tv_nsec / 100000, frame_id);
     if (eviewitf_camera_close(camera_id) != EVIEWITF_OK) {
         printf("Error closing device\n");
@@ -157,7 +166,7 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
     struct timespec difft = {0};
     char pre_read = 1;
     int test_rw = 0;
-    uint8_t buff_f[buffer_size];
+    uint8_t *buff_f;
     DIR *dir;
 
     /* Test the fps value */
@@ -195,11 +204,20 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
         return -1;
     }
 
+    buff_f = malloc(buffer_size);
+    if (buff_f == NULL) {
+        printf("Error Unable to allocate buffer\n");
+        eviewitf_streamer_close(streamer_id);
+        return -1;
+    }
+
     /* Read the frames in the directory */
     while ((-1) != file_ssd) {
         /* Get current time */
         if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
             printf("Got an issue with system clock aborting \n");
+            free(buff_f);
+            eviewitf_streamer_close(streamer_id);
             return -1;
         }
 
@@ -215,6 +233,8 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
                 if ((-1) == test_rw) {
                     printf("[Error] Read frame from the file\n");
                     close(file_ssd);
+                    free(buff_f);
+                    eviewitf_streamer_close(streamer_id);
                     return -1;
                 }
 
@@ -238,12 +258,16 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
                 /* Update the starting time for the duration */
                 if (clock_gettime(CLOCK_MONOTONIC, &res_start) != 0) {
                     printf("Got an issue with system clock aborting \n");
+                    free(buff_f);
+                    eviewitf_streamer_close(streamer_id);
                     return -1;
                 }
 
                 /* Write the frame in the virtual camera */
                 if (EVIEWITF_OK != eviewitf_streamer_write_frame(streamer_id, buff_f, buffer_size)) {
                     printf("[Error] Set a frame in the virtual camera\n");
+                    free(buff_f);
+                    eviewitf_streamer_close(streamer_id);
                     return -1;
                 }
 
@@ -256,12 +280,13 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
         }
     }
 
+    free(buff_f);
     if (eviewitf_streamer_close(streamer_id) != EVIEWITF_OK) {
         printf("Error closing device\n");
         return -1;
     }
 
-    return ret;
+    return 0;
 }
 
 /**
@@ -276,7 +301,7 @@ int eviewitf_ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame)
     int ret = EVIEWITF_OK;
     int file_ssd;
     int test_rw = 0;
-    uint8_t buff_f[buffer_size];
+    uint8_t *buff_f;
 
     file_ssd = open(frame, O_RDONLY);
     if ((-1) == file_ssd) {
@@ -284,11 +309,18 @@ int eviewitf_ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame)
         return -1;
     }
 
+    buff_f = malloc(buffer_size);
+    if (buff_f == NULL) {
+        printf("[Error] Unable to allocate buffer\n");
+        close(file_ssd);
+        return -1;
+    }
     /* Read the frame from the file  */
     test_rw = read(file_ssd, buff_f, buffer_size);
     if ((-1) == test_rw) {
         printf("[Error] Read frame from the file\n");
         close(file_ssd);
+        free(buff_f);
         return -1;
     }
 
@@ -301,6 +333,7 @@ int eviewitf_ssd_set_blending(int blender_id, uint32_t buffer_size, char *frame)
     }
 
     close(file_ssd);
+    free(buff_f);
 
     return ret;
 }

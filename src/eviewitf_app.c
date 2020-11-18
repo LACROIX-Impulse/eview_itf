@@ -74,30 +74,25 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
  */
 int eviewitf_app_reset_camera(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t tx_buffer[EVIEWITF_MFIS_MSG_SIZE], rx_buffer[EVIEWITF_MFIS_MSG_SIZE];
+    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        memset(tx_buffer, 0, sizeof(tx_buffer));
-        memset(rx_buffer, 0, sizeof(rx_buffer));
-
-        tx_buffer[0] = EVIEWITF_MFIS_FCT_CAM_RESET;
-        tx_buffer[1] = cam_id;
-        ret = mfis_send_request(tx_buffer, rx_buffer);
+        request[0] = EVIEWITF_MFIS_FCT_CAM_RESET;
+        request[1] = cam_id;
+        ret = mfis_send_request(request);
 
         if (ret < EVIEWITF_OK) {
             ret = EVIEWITF_FAIL;
         } else {
             /* Check returned answer state */
-            if (rx_buffer[0] != EVIEWITF_MFIS_FCT_CAM_RESET) {
+            if (request[0] != EVIEWITF_MFIS_FCT_CAM_RESET) {
                 ret = EVIEWITF_FAIL;
-            }
-            if (rx_buffer[1] == FCT_RETURN_ERROR) {
+            } else if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
                 ret = EVIEWITF_FAIL;
-            }
-            if (rx_buffer[1] == FCT_INV_PARAM) {
+            } else if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
                 ret = EVIEWITF_INVALID_PARAM;
             }
         }

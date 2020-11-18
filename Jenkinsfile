@@ -1,9 +1,9 @@
 pipeline {
     agent {
-        label 'sdk-ecube-0.15'
+        label 'sdk-ecube-0.17'
     }
     environment {
-        SYSROOTS = "${env.SYSROOTS_0_15}"
+        SYSROOTS = "${env.SYSROOTS_0_17}"
     }
     triggers {
         bitbucketPush()
