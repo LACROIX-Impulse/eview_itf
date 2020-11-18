@@ -20,6 +20,7 @@
 
 #include "eviewitf.h"
 #include "mfis_communication.h"
+#include "mfis-ioctl.h"
 
 /******************************************************************************************
  * Private definitions
@@ -35,14 +36,13 @@ int mfis_init() { return pthread_mutex_init(&mfis_mutex, NULL); }
 int mfis_deinit() { return pthread_mutex_destroy(&mfis_mutex); }
 
 /**
- * \fn int mfis_send_request(int32_t *send, int32_t *receive)
+ * \fn int mfis_send_request(int32_t* request)
  * \brief Send a request to R7 CPU and return its answer.
  *
- * \param send: array of 32bits containing message to send to R7
- * \param receive: array of 32bits that will be filled with R7 answer
+ * \param request: array of 32bits containing in/out message to/from R7
  * \return state of the function. Return 0 if okay
  */
-int mfis_send_request(int32_t* send, int32_t* receive) {
+int mfis_send_request(int32_t* request) {
     int fd, ret;
 
     pthread_mutex_lock(&mfis_mutex);
@@ -54,21 +54,12 @@ int mfis_send_request(int32_t* send, int32_t* receive) {
         goto out_ret;
     }
 
-    /* Send message to MFIS */
-    ret = ioctl(fd, EVIEWITF_MFIS_WR_VALUE, (int32_t*)send);
+    /* Send message over MFIS */
+    ret = ioctl(fd, EVIEWITF_MFIS_FCT, (int32_t*)request);
     if (ret < 0) {
         fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
-        goto out_close;
     }
 
-    /* Wait for MFIS answer from R7 */
-    ret = ioctl(fd, EVIEWITF_MFIS_RD_VALUE, (int32_t*)receive);
-    if (ret < 0) {
-        fprintf(stderr, "%s() ioctl read error : %s\n", __FUNCTION__, strerror(errno));
-        goto out_close;
-    }
-
-out_close:
     close(fd);
 out_ret:
     pthread_mutex_unlock(&mfis_mutex);
@@ -146,31 +137,60 @@ int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes* blending
 }
 
 /**
- * \fn uint32_t* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size)
- * \brief Convert memory physical address to virtual one so it can be accessed from userspace (READ ONLY).
+ * @brief Delivers an ioctl to the MFIS driver
  *
- * \param const uint32_t physical_address: physical address to convert
- * \param uint32_t mem_size: size of the memory to convert
- * \return pointer to virtual address (return NULL if error).
+ * @param[in]  devtype       Device type
+ * @param[in]  devid         Device identifier
+ * @param[in]  cmd           I/O command
+ * @param[in]  param         I/O parameter
+ * @return EVIEWITF_OK on success, negative value on failure (see errno.h)
  */
-void* mfis_get_virtual_address(const uint32_t physical_address, uint32_t mem_size) {
-    int mem_dev;
-    uint32_t* virtual_address = NULL;
-    mem_dev = open("/dev/mem", O_RDONLY);
-    if (mem_dev == -1) {
-        fprintf(stderr, "%s() error while opening /dev/mem : %s\n", __FUNCTION__, strerror(errno));
+int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param) {
+    int fd;
+    int ret = EVIEWITF_OK;
+    uint32_t msg[EVIEWITF_MFIS_MSG_SIZE];
+    struct mfis_ioctl* hdr;
+
+    /* Prepares the message header */
+    hdr = (struct mfis_ioctl*)msg;
+    hdr->funcid = EVIEWITF_MFIS_FCT_IOCTL;
+    hdr->requester = 0; /* Keep it empty, driver will set this field */
+    hdr->devtype = devtype;
+    hdr->devid = devid;
+    hdr->result = 0;
+    hdr->cmd = cmd;
+
+    /* Copies the parameter based on the IOC message size */
+    if (param && MFIS_IOCSZ(cmd) > 0) memcpy(msg + 2, param, MFIS_IOCSZ(cmd));
+
+    pthread_mutex_lock(&mfis_mutex);
+    /* Open MFIS IOCTL */
+    fd = open("/dev/mfis_ioctl", O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "%s() error cannot open ioctl file : %s\n", __FUNCTION__, strerror(errno));
+        ret = EVIEWITF_FAIL;
         goto out_ret;
     }
 
-    virtual_address = mmap(NULL, mem_size, PROT_READ, MAP_PRIVATE, mem_dev, physical_address);
-    if (virtual_address == MAP_FAILED) {
-        fprintf(stderr, "%s() error MAP_FAILED : %s\n", __FUNCTION__, strerror(errno));
-        virtual_address = NULL;
-        goto out_close;
+    /* Send message over MFIS */
+    ret = ioctl(fd, EVIEWITF_MFIS_FCT, (uint32_t*)msg);
+    close(fd);
+    if (ret < 0) {
+        fprintf(stderr, "%s() ioctl write error : %s\n", __FUNCTION__, strerror(errno));
+        ret = EVIEWITF_FAIL;
+        goto out_ret;
     }
 
-out_close:
-    close(mem_dev);
+    /* Check returned answer state */
+    if (hdr->funcid != EVIEWITF_MFIS_FCT_IOCTL) {
+        ret = EVIEWITF_FAIL;
+    } else if (hdr->result == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
+        ret = EVIEWITF_FAIL;
+    } else if (hdr->result == EVIEWITF_MFIS_FCT_INV_PARAM) {
+        ret = EVIEWITF_INVALID_PARAM;
+    }
+
 out_ret:
-    return virtual_address;
+    pthread_mutex_unlock(&mfis_mutex);
+    return ret;
 }

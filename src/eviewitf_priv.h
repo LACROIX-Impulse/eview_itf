@@ -35,17 +35,6 @@
  Doesn't need to be exposed in API */
 
 /**
- * \enum fct_ret_r
- * \brief Return codes
- */
-typedef enum {
-    FCT_RETURN_OK = 1,
-    FCT_RETURN_BLOCKED,
-    FCT_INV_PARAM,
-    FCT_RETURN_ERROR,
-} fct_ret_r;
-
-/**
  * @brief Device type
  */
 typedef enum {
