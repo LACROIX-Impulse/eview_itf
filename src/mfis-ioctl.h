@@ -60,8 +60,8 @@ struct mfis_ioctl {
     uint8_t devtype;
     uint8_t requester;
     uint8_t devid;
-    uint16_t cmd;
     uint16_t result;
+    uint16_t cmd;
     uint32_t arg[0];
 };
 

@@ -273,12 +273,12 @@ int main(int argc, char **argv) {
     if ((arguments.camera_id >= 0) && arguments.reg && arguments.val && arguments.write) {
         ret = eviewitf_camera_set_parameter(arguments.camera_id, arguments.reg_address, arguments.reg_value);
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "0X%hhX written in register 0X%X of camera id %d \n", arguments.reg_value,
+            fprintf(stdout, "0x%X written in register 0x%X of camera id %d \n", arguments.reg_value,
                     arguments.reg_address, arguments.camera_id);
         } else if (ret == EVIEWITF_BLOCKED) {
-            fprintf(stdout, "You are not allowed to modify register 0X%X \n", arguments.reg_address);
+            fprintf(stdout, "You are not allowed to modify register 0x%X \n", arguments.reg_address);
         } else {
-            fprintf(stdout, "Fail to set value 0X%hhX, of camera id %d in register 0X%X\n", arguments.reg_value,
+            fprintf(stdout, "Fail to set value 0x%X, of camera id %d in register 0x%X\n", arguments.reg_value,
                     arguments.camera_id, arguments.reg_address);
         }
     }
@@ -286,12 +286,12 @@ int main(int argc, char **argv) {
     if ((arguments.camera_id >= 0) && arguments.reg && arguments.read) {
         ret = eviewitf_camera_get_parameter(arguments.camera_id, arguments.reg_address, &register_value);
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Register 0X%X Value: 0X%hhX, of camera id %d \n", arguments.reg_address, register_value,
+            fprintf(stdout, "Register 0x%X Value: 0x%X, of camera id %d \n", arguments.reg_address, register_value,
                     arguments.camera_id);
         } else if (ret == EVIEWITF_BLOCKED) {
             fprintf(stdout, "You are not allowed to read register 0X%X \n", arguments.reg_address);
         } else {
-            fprintf(stdout, "Fail to get register 0X%X value, of camera id %d  \n", arguments.reg_address,
+            fprintf(stdout, "Fail to get register 0x%X value, of camera id %d  \n", arguments.reg_address,
                     arguments.camera_id);
         }
     }
