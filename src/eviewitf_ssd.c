@@ -156,7 +156,6 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
  * \return state of the function. Return 0 if okay
  */
 int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, char *frames_directory) {
-    int ret = EVIEWITF_OK;
     int frame_id = 0;
     int file_ssd = 1;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
