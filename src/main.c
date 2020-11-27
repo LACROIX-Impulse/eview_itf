@@ -508,7 +508,8 @@ int main(int argc, char **argv) {
         }
         ret = eviewitf_camera_get_min_exposure(arguments.camera_id, &exposure, &gain);
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Min exposure is %d us and min gain %d on camera id %d \n", exposure, gain, arguments.camera_id);
+            fprintf(stdout, "Min exposure is %d us and min gain %d on camera id %d \n", exposure, gain,
+                    arguments.camera_id);
         } else if (ret == EVIEWITF_BLOCKED) {
             fprintf(stdout, "Not possible to get min exposure\n");
         } else {
@@ -516,7 +517,8 @@ int main(int argc, char **argv) {
         }
         ret = eviewitf_camera_get_max_exposure(arguments.camera_id, &exposure, &gain);
         if (ret >= EVIEWITF_OK) {
-            fprintf(stdout, "Max exposure is %d us and max gain %d on camera id %d \n", exposure, gain, arguments.camera_id);
+            fprintf(stdout, "Max exposure is %d us and max gain %d on camera id %d \n", exposure, gain,
+                    arguments.camera_id);
         } else if (ret == EVIEWITF_BLOCKED) {
             fprintf(stdout, "Not possible to get max exposure\n");
         } else {

@@ -46,7 +46,7 @@ struct cam_reg {
  * @brief Sensor exposure
  */
 struct cam_exp {
-    uint32_t exp_us;  /* Exposure duration (usecs) */
+    uint32_t exp_us;    /* Exposure duration (usecs) */
     uint32_t gain_thou; /* Gain value 1/1000 */
 };
 
