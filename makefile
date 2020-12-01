@@ -47,7 +47,7 @@ install: eviewitf
 	mkdir -p $(DESTDIR)/usr/lib/
 	cp $(BUILDDIR)/libeviewitf.a $(DESTDIR)/usr/lib/libeviewitf.a
 	mkdir -p $(DESTDIR)/usr/include/
-	cp include/eviewitf.h $(DESTDIR)/usr/include/eviewitf.h
+	cp -r include/* $(DESTDIR)/usr/include/
 
 .PHONY: deploy
 deploy: install
