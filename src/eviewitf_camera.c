@@ -12,6 +12,8 @@
 #include <unistd.h>
 
 #include "eviewitf_priv.h"
+#include "cam-ioctl.h"
+#include "mfis_communication.h"
 
 /******************************************************************************************
  * Private definitions
@@ -229,4 +231,89 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
     }
 
     return ret;
+}
+
+/**
+ * \fn eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXP, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's minimum exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXPMIN, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
+ * \brief Get camera's maximum exposure time and gain.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] exposure_us pointer to the returned exposure time in micro seconds
+ * \param[out] gain_thou pointer to the returned gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_max_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou) {
+    int ret;
+    struct cam_exp exposure_value;
+    if ((exposure_us == NULL) || (gain_thou == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMEXPMAX, &exposure_value);
+    *exposure_us = exposure_value.exp_us;
+    *gain_thou = exposure_value.gain_thou;
+
+    return ret;
+}
+
+/**
+ * \fn  eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou)
+ * \brief Set camera's exposure time.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] exposure_us exposure time in micro seconds
+ * \param[out] gain_thou gain in 1/1000 of unit
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou) {
+    struct cam_exp exposure_value;
+    exposure_value.exp_us = exposure_us;
+    exposure_value.gain_thou = gain_thou;
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMEXP, &exposure_value);
 }
