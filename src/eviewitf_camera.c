@@ -317,3 +317,41 @@ int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain
     exposure_value.gain_thou = gain_thou;
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMEXP, &exposure_value);
 }
+
+/**
+ * \fn eviewitf_camera_get_offset(int cam_id, uint32_t *x_offset, uint32_t *y_offset)
+ * \brief Get camera's offset
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] x_offset pointer to the returned frame x_offset
+ * \param[out] y_offset pointer to the returned frame y_offset
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_frame_offset(int cam_id, uint32_t *x_offset, uint32_t *y_offset) {
+    struct cam_pt offset;
+    int ret;
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMOFFSET, &offset);
+    if (ret < 0) return ret;
+
+    *x_offset = (uint32_t)offset.x;
+    *y_offset = (uint32_t)offset.y;
+    return 0;
+}
+
+/**
+ * \fn eviewitf_camera_set_offset(int cam_id, uint32_t x_offset, uint32_t y_offset)
+ * \brief Set camera's offset
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] x_offset frame offset (width)
+ * \param[out] y_offset frame offset (height)
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_frame_offset(int cam_id, uint32_t x_offset, uint32_t y_offset) {
+    struct cam_pt offset;
+
+    offset.x = (int32_t)x_offset;
+    offset.y = (int32_t)y_offset;
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMOFFSET, &offset);
+}

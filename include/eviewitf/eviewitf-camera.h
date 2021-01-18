@@ -177,6 +177,28 @@ int eviewitf_camera_get_max_exposure(int cam_id, uint32_t* exposure_us, uint32_t
  */
 int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain_thou);
 
+/**
+ * \fn eviewitf_camera_get_frame_offset(int cam_id, uint32_t *x_offset, uint32_t *y_offset)
+ * \brief Get camera's offset
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] x_offset pointer to the returned frame x_offset
+ * \param[out] y_offset pointer to the returned frame y_offset
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_frame_offset(int cam_id, uint32_t* x_offset, uint32_t* y_offset);
+
+/**
+ * \fn eviewitf_camera_set_frame_offset(int cam_id, uint32_t x_offset, uint32_t y_offset)
+ * \brief Set camera's offset
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] x_offset frame offset (width)
+ * \param[out] y_offset frame offset (height)
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_frame_offset(int cam_id, uint32_t x_offset, uint32_t y_offset);
+
 #ifdef __cplusplus
 }
 #endif
