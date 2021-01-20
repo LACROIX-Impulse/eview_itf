@@ -41,7 +41,9 @@ static char args_doc[] =
     "stop cropping:   -u\n"
     "monitoring info: -m\n"
     "set exposure:    -c[0-7] -e[???] -g[???]\n"
-    "get exposure:    -c[0-7] -E\n";
+    "get exposure:    -c[0-7] -E\n"
+    "set offset:      -c[0-7] -jx:[X] -jy:[Y]\n"
+    "get offset:      -c[0-7] -J\n";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -67,6 +69,8 @@ static struct argp_option options[] = {
     {"exposure", 'E', 0, 0, "Get camera exposure value", 0},
     {"exposure", 'e', "EXPOSURE", 0, "Set camera exposure delay", 0},
     {"gain", 'g', "GAIN", 0, "Set camera gain", 0},
+    {"offset", 'j', "OFFSET", 0, "Set camera frame offset", 0},
+    {"offset", 'J', 0, 0, "Get camera frame offset", 0},
     {0},
 };
 
@@ -98,6 +102,8 @@ struct arguments {
     int monitoring_info;
     int exposure;
     int gain;
+    int x_offset;
+    int y_offset;
 };
 
 /* Parse a single option. */
@@ -138,6 +144,26 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             break;
+        case 'J':
+            arguments->x_offset = -2;
+            arguments->y_offset = -2;
+            break;
+        case 'j': {
+            char *v = strchr(arg, ':');
+            if (v == NULL) {
+                argp_usage(state);
+                break;
+            }
+            *v = '\0';
+            v++;
+            if (strlen(arg) != 1) {
+                argp_usage(state);
+                break;
+            }
+            if (*arg == 'x') arguments->x_offset = atoi(v);
+            if (*arg == 'y') arguments->y_offset = atoi(v);
+            break;
+        }
         case 'f':
             arguments->fps_value = atoi(arg);
             if ((arguments->fps_value < FPS_MIN_VALUE) || (arguments->fps_value > FPS_MAX_VALUE)) {
@@ -254,6 +280,8 @@ int main(int argc, char **argv) {
     arguments.monitoring_info = 0;
     arguments.exposure = -1;
     arguments.gain = -1;
+    arguments.x_offset = -1;
+    arguments.y_offset = -1;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -523,6 +551,33 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Not possible to get max exposure\n");
         } else {
             fprintf(stdout, "Fail to get max exposure on camera id %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* Set camera offset */
+    if ((arguments.camera_id >= 0) && (arguments.x_offset >= 0) && (arguments.y_offset >= 0)) {
+        ret = eviewitf_camera_set_frame_offset(arguments.camera_id, arguments.x_offset, arguments.y_offset);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Offset set to (%d,%d) camera id %d \n", arguments.x_offset, arguments.y_offset,
+                    arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to set offset\n");
+        } else {
+            fprintf(stdout, "Fail to set offset on camera id %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* Get camera offset */
+    if ((arguments.camera_id >= 0) && (arguments.x_offset == -2)) {
+        uint32_t x_offset, y_offset;
+
+        ret = eviewitf_camera_get_frame_offset(arguments.camera_id, &x_offset, &y_offset);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Offset is (%u, %u) on camera id %d \n", x_offset, y_offset, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get offset\n");
+        } else {
+            fprintf(stdout, "Fail to get offset on camera id %d  \n", arguments.camera_id);
         }
     }
 
