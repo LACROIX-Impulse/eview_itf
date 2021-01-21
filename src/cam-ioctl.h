@@ -4,12 +4,12 @@
 #include "mfis-ioctl.h"
 
 /**
- * @brief Sensor modes
+ * @brief Camera states
  */
-#define CAM_STATE_INACTIVE  (0) /* Camera is inactive */
-#define CAM_STATE_READY     (1) /* Camera is configured (not playing) */
-#define CAM_STATE_RUNNING   (2) /* Camera is running (play) */
-#define CAM_STATE_SUSPENDED (3) /* Camera is suspended (pause) */
+#define CAM_STATE_INACTIVE  (0x00) /* Camera is inactive */
+#define CAM_STATE_READY     (0x01) /* Camera is configured (not playing) */
+#define CAM_STATE_RUNNING   (0x02) /* Camera is running (play) */
+#define CAM_STATE_SUSPENDED (0x03) /* Camera is suspended (pause) */
 
 /**
  * @brief Sensor readout
@@ -43,6 +43,14 @@ struct cam_reg {
 };
 
 /**
+ * @brief Camera point
+ */
+struct cam_pt {
+    int32_t x; /* X axis */
+    int32_t y; /* Y axis */
+};
+
+/**
  * @brief Sensor exposure
  */
 struct cam_exp {
@@ -53,8 +61,8 @@ struct cam_exp {
 /**
  * @brief Camera I/O operations
  */
-#define IOCGCAMMODE    MFIS_IOR(0, sizeof(uint32_t))        /* Gets the sensor mode */
-#define IOCSCAMMODE    MFIS_IOW(1, sizeof(uint32_t))        /* Sets the sensor mode */
+#define IOCGCAMSTATE   MFIS_IOR(0, sizeof(uint32_t))        /* Gets the sensor state */
+#define IOCSCAMSTATE   MFIS_IOW(1, sizeof(uint32_t))        /* Sets the sensor state */
 #define IOCGCAMEXP     MFIS_IOR(2, sizeof(struct cam_exp))  /* Gets the sensor exposure parameters */
 #define IOCSCAMEXP     MFIS_IOW(3, sizeof(struct cam_exp))  /* Sets the sensor exposure parameters */
 #define IOCGCAMEXPMIN  MFIS_IOR(4, sizeof(struct cam_exp))  /* Gets the sensor min exposure parameters */
@@ -66,6 +74,8 @@ struct cam_exp {
 #define IOCGCAMREG     MFIS_IOW(10, sizeof(struct cam_reg)) /* Sets the sensor image readout */
 #define IOCSCAMREG     MFIS_IOW(11, sizeof(struct cam_reg)) /* Sets the sensor image readout */
 #define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))       /* Gets the sensor temperature */
+#define IOCGCAMOFFSET  MFIS_IOR(13, sizeof(struct cam_pt))  /* Gets the frame offset */
+#define IOCSCAMOFFSET  MFIS_IOR(14, sizeof(struct cam_pt))  /* Sets the frame offset */
 #define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
 #define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
 #define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */
