@@ -48,7 +48,7 @@ int blender_open(int device_id) {
 
     /* Get mfis device filename */
     snprintf(device_name, DEVICE_BLENDER_MAX_LENGTH, DEVICE_BLENDER_NAME,
-             device_id - EVIEWITF_OFFSET_BLENDER + 2); /* O2 and O3 */
+             (uint8_t)device_id - EVIEWITF_OFFSET_BLENDER + 2); /* O2 and O3 */
     return open(device_name, O_WRONLY);
 }
 
