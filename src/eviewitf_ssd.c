@@ -109,9 +109,14 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
 
         if (revents) {
             snprintf(filename_ssd, SSD_MAX_FILENAME_SIZE, "%s/%d", frames_directory, frame_id);
-            file_ssd = open(filename_ssd, O_CREAT | O_RDWR);
+            file_ssd = open(filename_ssd, O_CREAT | O_RDWR, 0666);
             eviewitf_camera_get_frame(camera_id, (uint8_t *)buff_f, size);
-            write(file_ssd, buff_f, size);
+            if (write(file_ssd, buff_f, size) != size) {
+                printf("Got an issue writing frame on disk\n");
+                free(buff_f);
+                eviewitf_camera_close(camera_id);
+                return -1;
+            }
             close(file_ssd);
 
             if (clock_gettime(CLOCK_MONOTONIC, &res_run) != 0) {
