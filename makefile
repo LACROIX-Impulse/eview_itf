@@ -4,7 +4,7 @@ INC = -I include
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
 TARGETIP ?= 192.168.0.82
-CFLAGS+= -Wall -Wextra
+CFLAGS+= -Wall -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security
 
 include make/git.mk
 

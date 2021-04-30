@@ -205,7 +205,9 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
             /* Copy content from shared memory */
             memcpy(frame_buffer, seek_handlers[i].ptr_shm, min_size);
             /* Read message on socket to cancel polling */
-            read(seek_handlers[i].sock, msg, SEEK_CONFIG_MESSAGE_SIZE);
+            if (read(seek_handlers[i].sock, msg, SEEK_CONFIG_MESSAGE_SIZE) != SEEK_CONFIG_MESSAGE_SIZE) {
+                min_size = -1;
+            }
             sem_post(seek_handlers[i].mutex_sem);
             return min_size;
         }
