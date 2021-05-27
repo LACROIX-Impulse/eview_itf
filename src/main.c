@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "eviewitf_priv.h"
+#include "cam-ioctl.h"
 
 #define FPS_MIN_VALUE     5
 #define FPS_DEFAULT_VALUE 30
@@ -22,7 +23,12 @@ const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
 
 /* Program documentation */
-static char doc[] = "eviewitf -- Program for communication between A53 and R7 CPUs";
+static char doc[] =
+    "eviewitf -- Program for communication between A53 and R7 CPUs"
+    "\v"
+    "Available camera patterns:\n"
+    " none, solid-red, solid-green, solid-blue, solid-vbar, solid-vbar-faded,\n"
+    " custom0, custom1, custom2, custom3, custom4\n";
 
 /* Arguments description */
 static char args_doc[] =
@@ -43,7 +49,9 @@ static char args_doc[] =
     "set exposure:    -c[0-7] -e[???] -g[???]\n"
     "get exposure:    -c[0-7] -E\n"
     "set offset:      -c[0-7] -jx:[X] -jy:[Y]\n"
-    "get offset:      -c[0-7] -J\n";
+    "get offset:      -c[0-7] -J\n"
+    "set pattern:     -c[0-7] -t[pattern]\n"
+    "get pattern:     -c[0-7] -T";
 
 /* Program options */
 static struct argp_option options[] = {
@@ -71,6 +79,8 @@ static struct argp_option options[] = {
     {"gain", 'g', "GAIN", 0, "Set camera gain", 0},
     {"offset", 'j', "OFFSET", 0, "Set camera frame offset", 0},
     {"offset", 'J', 0, 0, "Get camera frame offset", 0},
+    {"pattern", 't', "PATTERN", 0, "Set camera test pattern", 0},
+    {"pattern", 'T', 0, 0, "Get camera test pattern", 0},
     {0},
 };
 
@@ -104,7 +114,50 @@ struct arguments {
     int gain;
     int x_offset;
     int y_offset;
+    int cmd_pattern; /* Pattern command activated */
+    uint8_t pattern; /* Selected pattern  */
 };
+
+/* Possible patterns */
+struct pattern_mode {
+    uint8_t tp;
+    const char *name;
+};
+
+/* clang-format off */
+static struct pattern_mode patterns[] = {
+    { CAMTP_UNKNOWN, "unknown" },                    /* Unknown pattern */
+    { CAMTP_NONE, "none", },                         /* No test pattern */
+    { CAMTP_SOLID_RED, "solid-red", },               /* Solid color - red */
+    { CAMTP_SOLID_GREEN, "solid-green", },           /* Solid color - green */
+    { CAMTP_SOLID_BLUE, "solid-blue", },             /* Solid color - blue */
+    { CAMTP_SOLID_VBAR, "solid-vbar", },             /* Vertical bars */
+    { CAMTP_SOLID_VBAR_FADED, "solid-vbar-faded", }, /* Vertical bars faded */
+    { CAMTP_CUSTOM0, "custom0", },                   /* Custom pattern 0 */
+    { CAMTP_CUSTOM1, "custom1", },                   /* Custom pattern 1 */
+    { CAMTP_CUSTOM2, "custom2", },                   /* Custom pattern 2 */
+    { CAMTP_CUSTOM3, "custom3", },                   /* Custom pattern 3 */
+    { CAMTP_CUSTOM4, "custom4", },                   /* Custom pattern 4 */
+    { 0, NULL },
+};
+/* clang-format on */
+
+/* Gets the pattern value related to the given string */
+static int str2pattern(const char *pattern) {
+    if (!pattern) return -1;
+    for (int n = 0; patterns[n].name; n++) {
+        if (strcmp(pattern, patterns[n].name) == 0) return patterns[n].tp;
+    }
+    return -1;
+}
+
+/* Gets the pattern value related to the given string */
+static const char *pattern2str(uint8_t tp) {
+    for (int n = 0; patterns[n].name; n++) {
+        if (tp == patterns[n].tp) return patterns[n].name;
+    }
+    return patterns[0].name;
+}
 
 /* Parse a single option. */
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
@@ -213,6 +266,19 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             break;
+        case 't': {
+            int pattern = str2pattern(arg);
+            if (pattern < 0) {
+                fprintf(stdout, "Invalid test pattern %s\n", arg);
+                exit(EINVAL);
+            }
+            arguments->cmd_pattern = 1;
+            arguments->pattern = (uint8_t)pattern;
+            break;
+        }
+        case 'T':
+            arguments->cmd_pattern = 0;
+            break;
         case 'U':
             arguments->cropping = 1;
             arguments->cropping_coord = arg;
@@ -282,6 +348,7 @@ int main(int argc, char **argv) {
     arguments.gain = -1;
     arguments.x_offset = -1;
     arguments.y_offset = -1;
+    arguments.cmd_pattern = -1;
 
     /* Parse arguments; every option seen by parse_opt will
        be reflected in arguments. */
@@ -578,6 +645,33 @@ int main(int argc, char **argv) {
             fprintf(stdout, "Not possible to get offset\n");
         } else {
             fprintf(stdout, "Fail to get offset on camera id %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* Set camera test pattern */
+    if ((arguments.camera_id >= 0) && (arguments.cmd_pattern == 1)) {
+        ret = eviewitf_camera_set_test_pattern(arguments.camera_id, arguments.pattern);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Test pattern set to %s on camera id %d \n", pattern2str(arguments.pattern),
+                    arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to set test pattern\n");
+        } else {
+            fprintf(stdout, "Fail to set test pattern %s on camera id %d\n", pattern2str(arguments.pattern),
+                    arguments.camera_id);
+        }
+    }
+
+    /* Get camera test pattern */
+    if ((arguments.camera_id >= 0) && (arguments.cmd_pattern == 0)) {
+        ret = eviewitf_camera_get_test_pattern(arguments.camera_id, &arguments.pattern);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Test pattern set to %s on camera id %d\n", pattern2str(arguments.pattern),
+                    arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get test pattern\n");
+        } else {
+            fprintf(stdout, "Fail to get test pattern on camera id %d\n", arguments.camera_id);
         }
     }
 
