@@ -199,6 +199,26 @@ int eviewitf_camera_get_frame_offset(int cam_id, uint32_t* x_offset, uint32_t* y
  */
 int eviewitf_camera_set_frame_offset(int cam_id, uint32_t x_offset, uint32_t y_offset);
 
+/**
+ * \fn eviewitf_camera_get_test_pattern(int cam_id, uint8_t *pattern)
+ * \brief Get camera's test pattern
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] pattern the current test pattern used
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_test_pattern(int cam_id, uint8_t* pattern);
+
+/**
+ * \fn int eviewitf_camera_set_test_pattern(int cam_id, uint8_t pattern)
+ * \brief Set camera's test pattern
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] pattern test pattern used
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_test_pattern(int cam_id, uint8_t pattern);
+
 #ifdef __cplusplus
 }
 #endif
