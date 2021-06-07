@@ -28,6 +28,24 @@ extern "C" {
 #define EVIEWITF_MAX_CAMERA 8
 
 /**
+ * \brief Possible camera test patterns
+ * @{
+ */
+#define EVIEWITF_TEST_PATTERN_NONE             (0)   /* No test pattern */
+#define EVIEWITF_TEST_PATTERN_SOLID_RED        (1)   /* Solid color - red */
+#define EVIEWITF_TEST_PATTERN_SOLID_GREEN      (2)   /* Solid color - green */
+#define EVIEWITF_TEST_PATTERN_SOLID_BLUE       (3)   /* Solid color - blue */
+#define EVIEWITF_TEST_PATTERN_SOLID_VBAR       (4)   /* Vertical bars */
+#define EVIEWITF_TEST_PATTERN_SOLID_VBAR_FADED (5)   /* Vertical bars faded */
+#define EVIEWITF_TEST_PATTERN_CUSTOM0          (16)  /* Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM1          (17)  /* Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM2          (18)  /* Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM3          (19)  /* Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM4          (20)  /* Custom pattern */
+#define EVIEWITF_TEST_PATTERN_UNKNOWN          (255) /* Unknown test pattern */
+/** @} */
+
+/**
  * \fn int eviewitf_camera_open(int cam_id)
  * \brief Open a camera device
  *

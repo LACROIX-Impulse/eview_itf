@@ -13,7 +13,6 @@
 #include <unistd.h>
 
 #include "eviewitf_priv.h"
-#include "cam-ioctl.h"
 
 #define FPS_MIN_VALUE     5
 #define FPS_DEFAULT_VALUE 30
@@ -126,18 +125,18 @@ struct pattern_mode {
 
 /* clang-format off */
 static struct pattern_mode patterns[] = {
-    { CAMTP_UNKNOWN, "unknown" },                    /* Unknown pattern */
-    { CAMTP_NONE, "none", },                         /* No test pattern */
-    { CAMTP_SOLID_RED, "solid-red", },               /* Solid color - red */
-    { CAMTP_SOLID_GREEN, "solid-green", },           /* Solid color - green */
-    { CAMTP_SOLID_BLUE, "solid-blue", },             /* Solid color - blue */
-    { CAMTP_SOLID_VBAR, "solid-vbar", },             /* Vertical bars */
-    { CAMTP_SOLID_VBAR_FADED, "solid-vbar-faded", }, /* Vertical bars faded */
-    { CAMTP_CUSTOM0, "custom0", },                   /* Custom pattern 0 */
-    { CAMTP_CUSTOM1, "custom1", },                   /* Custom pattern 1 */
-    { CAMTP_CUSTOM2, "custom2", },                   /* Custom pattern 2 */
-    { CAMTP_CUSTOM3, "custom3", },                   /* Custom pattern 3 */
-    { CAMTP_CUSTOM4, "custom4", },                   /* Custom pattern 4 */
+    { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
+    { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
+    { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
+    { EVIEWITF_TEST_PATTERN_SOLID_GREEN, "solid-green", },           /* Solid color - green */
+    { EVIEWITF_TEST_PATTERN_SOLID_BLUE, "solid-blue", },             /* Solid color - blue */
+    { EVIEWITF_TEST_PATTERN_SOLID_VBAR, "solid-vbar", },             /* Vertical bars */
+    { EVIEWITF_TEST_PATTERN_SOLID_VBAR_FADED, "solid-vbar-faded", }, /* Vertical bars faded */
+    { EVIEWITF_TEST_PATTERN_CUSTOM0, "custom0", },                   /* Custom pattern 0 */
+    { EVIEWITF_TEST_PATTERN_CUSTOM1, "custom1", },                   /* Custom pattern 1 */
+    { EVIEWITF_TEST_PATTERN_CUSTOM2, "custom2", },                   /* Custom pattern 2 */
+    { EVIEWITF_TEST_PATTERN_CUSTOM3, "custom3", },                   /* Custom pattern 3 */
+    { EVIEWITF_TEST_PATTERN_CUSTOM4, "custom4", },                   /* Custom pattern 4 */
     { 0, NULL },
 };
 /* clang-format on */
