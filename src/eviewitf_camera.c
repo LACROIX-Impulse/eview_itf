@@ -355,3 +355,27 @@ int eviewitf_camera_set_frame_offset(int cam_id, uint32_t x_offset, uint32_t y_o
     offset.y = (int32_t)y_offset;
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMOFFSET, &offset);
 }
+
+/**
+ * \fn eviewitf_camera_get_test_pattern(int cam_id, uint32_t *pattern)
+ * \brief Get camera's test pattern
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] pattern the current test pattern used
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_test_pattern(int cam_id, uint8_t *pattern) {
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMTP, pattern);
+}
+
+/**
+ * \fn int eviewitf_camera_set_test_pattern(int cam_id, uint8_t pattern)
+ * \brief Set camera's test pattern
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] pattern test pattern used
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_test_pattern(int cam_id, uint8_t pattern) {
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMTP, &pattern);
+}
