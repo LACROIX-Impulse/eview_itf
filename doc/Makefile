@@ -4,11 +4,11 @@ all: docuser docfull
 
 docuser:
 	doxygen doxyfile-user
+	make -C user/latex pdf
 
 docfull:
 	doxygen doxyfile-full
-	make -C user/latex pdf
 
 clean:
-	rm -Rf html/ latex/
+	rm -Rf user/ full/
 
