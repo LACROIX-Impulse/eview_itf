@@ -16,7 +16,7 @@ echo 2.0 > ${IPKDIR}/debian-binary
 echo Package: eViewItf > ${IPKDIR}/control/control
 echo Version: ${VERSIONNAME} >> ${IPKDIR}/control/control
 echo Architecture: ecube >> ${IPKDIR}/control/control
-echo Maintainer: eSoftThings >> ${IPKDIR}/control/control
+echo Maintainer: LACROIX Impulse >> ${IPKDIR}/control/control
 echo Description: This package contains the eViewItf libraries and binaries >> ${IPKDIR}/control/control
 echo Depends: kernel-module-eviewitf-mfis >> ${IPKDIR}/control/control
 

@@ -8,9 +8,9 @@ The eCube is composed of several parts. Three main software are present:
 -	Customer application
 -	eVision
 
-eView is the eSoftThings solution to handle the camera and display pipeline. It is a bare metal software running on a real time ARM Cortex R7 CPU.
+eView is the LACROIX Impulse solution to handle the camera and display pipeline. It is a bare metal software running on a real time ARM Cortex R7 CPU.
 The Customer application is an adaptative software that can be designed for any customer needs. It runs in a Linux OS on an ARM Cortex A53 CPU.
-eVision is the eSoftThings perception stack solution to apply detections, tracking or other perception algorithms on a camera frame received from eView. It also runs in a Linux OS on the ARM Cortex A53 CPU but can also use the hardware accelerators of the platform.
+eVision is the LACROIX Impulse perception stack solution to apply detections, tracking or other perception algorithms on a camera frame received from eView. It also runs in a Linux OS on the ARM Cortex A53 CPU but can also use the hardware accelerators of the platform.
 eViewItf is the link between eView and the Customer application. It allows the Customer application to easily use and control the video and display pipeline. Thanks to eView and eViewItf, the Customer application does not need to take care of the camera initialization, the frames receptions, the display management and all the things related to the cameras and the display. eView is made to handle all these things and eViewItf will control eView according to the Customer application requests.
 
 @image html block_diagram.png "eCube block diagram"
