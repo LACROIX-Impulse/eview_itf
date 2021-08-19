@@ -1,8 +1,8 @@
 /**
  * \file
  * \brief Header for eViewItf API structures
- * \author eSoftThings
- * \copyright Copyright (c) 2015-2020 eSoftThings. All rights reserved.
+ * \author LACROIX Impulse
+ * \copyright Copyright (c) 2019-2021 LACROIX Impulse
  *
  * Structures used for communication API between A53 and R7 CPUs
  */

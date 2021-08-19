@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief Communication API between A53 and R7 CPUs
- * \author esoftthings
+ * \author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *

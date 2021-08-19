@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief Header for SSD relative operations
- * \author esoftthings
+ * \author LACROIX Impulse
  */
 
 #ifndef SRC_EVIEWITF_SSD_H_
