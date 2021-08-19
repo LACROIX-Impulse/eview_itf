@@ -48,7 +48,7 @@ pipeline {
             steps {
                 nexusPublisher nexusInstanceId: 'Nexus3', nexusRepositoryId: 'eCube-releases', packages:
                     [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: 'tar', filePath: "build/eviewitf-${env.VERSION}.tar"]],
-                        mavenCoordinate: [artifactId: 'eviewitf', groupId: 'com.esoftthings.ecube', packaging: 'tar', version: "${env.VERSION}"]]]
+                        mavenCoordinate: [artifactId: 'eviewitf', groupId: 'group.lacroix.ecube', packaging: 'tar', version: "${env.VERSION}"]]]
             }
         }
     }
