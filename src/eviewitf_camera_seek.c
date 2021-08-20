@@ -1,7 +1,7 @@
 /**
  * \file eviewitf_camera_seek.c
  * \brief Communication API between A53 and R7 CPUs for seek camera devices
- * \author eSoftThings
+ * \author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *

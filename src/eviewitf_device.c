@@ -1,7 +1,7 @@
 /**
  * \file eviewitf_device.c
  * \brief Common functions for device management
- * \author esoftthings
+ * \author LACROIX Impulse
  *
  * Common functions for device management (camera, streamer, blender, ...)
  *

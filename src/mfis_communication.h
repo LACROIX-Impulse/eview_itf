@@ -1,7 +1,7 @@
 /**
  * \file mfis_communication.h
  * \brief Header for communication with MFIS kernel driver
- * \author esoftthings
+ * \author LACROIX Impulse
  */
 
 #ifndef MFIS_COMMUNICATION_H

@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief Internal header for private structures
- * \author esoftthings
+ * \author LACROIX Impulse
  */
 
 #ifndef EVIEWITF_PRIV_H

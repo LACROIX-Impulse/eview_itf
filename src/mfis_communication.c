@@ -1,7 +1,7 @@
 /**
  * \file mfis_communication.c
  * \brief Handle communication with kernel
- * \author esoftthings
+ * \author LACROIX Impulse
  *
  * Handle low level communication with Linux kernel drivers
  *
