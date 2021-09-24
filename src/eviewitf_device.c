@@ -261,10 +261,11 @@ int device_close(int device_id) {
  *        we assume this value has been tested by the caller
  * \param frame_buffer: buffer to store the incoming frame
  * \param buffer_size: buffer size for coherency check
-
+ * \param offset: offset for seek operation (SEEK_SET)
+ *
  * \return state of the function. Return 0 if okay
  */
-int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset) {
     int ret = EVIEWITF_OK;
     device_object *device;
 
@@ -279,9 +280,15 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         if (device->operations.read == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
-            if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                ;
+            /* Seek before read */
+            if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
                 ret = EVIEWITF_FAIL;
+            }
+            else {
+                /* Then read */
+                if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+                    ret = EVIEWITF_FAIL;
+                }
             }
         }
     }
@@ -297,10 +304,11 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  *        we assume this value has been tested by the caller
  * \param in buffer_size: size of the blender frame buffer
  * \param in buffer: device frame buffer
+ * \param offset: offset for seek operation (SEEK_SET
  *
  * \return state of the function. Return 0 if okay
  */
-int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset) {
     int ret = EVIEWITF_OK;
     device_object *device;
 
@@ -317,9 +325,16 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         if (device->operations.write == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
-            if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                ;
+            /* Seek before write */
+            if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
                 ret = EVIEWITF_FAIL;
+            }
+            else {
+                /* Then write */
+                if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+                    ;
+                    ret = EVIEWITF_FAIL;
+                }
             }
         }
     }

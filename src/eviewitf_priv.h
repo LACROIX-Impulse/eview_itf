@@ -113,8 +113,8 @@ device_object *get_device_object(int device_id);
 int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes);
 int device_open(int device_id);
 int device_close(int device_id);
-int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
-int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size);
+int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset);
+int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset);
 int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return);
 
 /* Blender */

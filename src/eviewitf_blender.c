@@ -132,5 +132,5 @@ int eviewitf_blender_write_frame(int blender_id, uint8_t *frame_buffer, uint32_t
         return EVIEWITF_INVALID_PARAM;
     }
 
-    return device_write(blender_id + EVIEWITF_OFFSET_BLENDER, frame_buffer, buffer_size);
+    return device_write(blender_id + EVIEWITF_OFFSET_BLENDER, frame_buffer, buffer_size, 0);
 }

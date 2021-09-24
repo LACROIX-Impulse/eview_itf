@@ -132,5 +132,5 @@ int eviewitf_streamer_write_frame(int streamer_id, uint8_t *frame_buffer, uint32
         return EVIEWITF_INVALID_PARAM;
     }
 
-    return device_write(streamer_id + EVIEWITF_OFFSET_STREAMER, frame_buffer, buffer_size);
+    return device_write(streamer_id + EVIEWITF_OFFSET_STREAMER, frame_buffer, buffer_size, 0);
 }
