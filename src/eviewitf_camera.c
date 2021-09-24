@@ -119,30 +119,59 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
     return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, frame_buffer, buffer_size, 0);
 }
 
-
 /**
- * \fn int eviewitf_camera_get_frame_segment(int cam_id, uint8_t* segment_buffer, uint32_t segment_size, uint32_t segment_offset)
- * \brief Get a copy (from eView context memory) of a segment of the latest frame received from a camera.
- *  Segement from offset to offset + buffer_size
+ * \fn int eviewitf_camera_get_frame_segment(int cam_id, uint8_t* buffer, uint32_t size, uint32_t offset)
+ * \brief Get a copy (from eView context memory) of a segment of the latest frame received from a
+ * camera. Segment from offset to offset + buffer_size
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param[out] segment_buffer buffer to store the incoming segment
- * \param[in] segment_size buffer size of the segment
- * \param[in] segment_offset offset of the segment from frame buffer start adress
+ * \param[out] buffer buffer to store the incoming segment
+ * \param[in] size buffer size of the segment
+ * \param[in] offset offset of the segment from frame buffer start adress
  * \return return code as specified by the eviewitf_return_code enumeration.
  *
- * The frame_buffer must be allocated by the customer application before to call this function.
- * The size to be allocated must be the same than specified by buffer_size and can be retrieved through a call to
- * eviewitf_camera_get_attributes..
+ * The buffer must be allocated by the customer application before to call this function.
+ * The size to be allocated for a particular segement can be retrieved from frame metadata and can retrieved through a
+ * call to eviewitf_camera_get_frame_metadata.
  */
-int eviewitf_camera_get_frame_segment(int cam_id, uint8_t* segment_buffer, uint32_t segment_size, uint32_t segment_offset) {
+int eviewitf_camera_get_frame_segment(int cam_id, uint8_t *buffer, uint32_t size, uint32_t offset) {
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         return EVIEWITF_INVALID_PARAM;
     }
 
-    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, segment_buffer, segment_size, segment_offset);
+    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, buffer, size, offset);
 }
+
+/**
+ * \fn int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_t* frame_metadata)
+ * \brief Read frame metadata (which is a frame segment)
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] frame_metadata pointer on metadata structure to be filled
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The metadata that can be retrieved by this functions are the ones defined in the structure
+ eviewitf_frame_metadata_info_t.
+ */
+int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_t *frame_metadata) {
+    uint32_t offset;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    device_object *device = get_device_object(cam_id + EVIEWITF_OFFSET_CAMERA);
+    if (device == NULL) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+    offset = device->attributes.buffer_size - sizeof(eviewitf_frame_metadata_info_t);
+
+    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, (uint8_t *)frame_metadata,
+                       sizeof(eviewitf_frame_metadata_info_t), offset);
+}
+
 /**
  * \fn int eviewitf_camera_poll(int *cam_id, int nb_cam, int ms_timeout, short *event_return)
  * \brief Poll on multiple cameras to check a new frame is available

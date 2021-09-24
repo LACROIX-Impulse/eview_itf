@@ -283,8 +283,7 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_
             /* Seek before read */
             if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
                 ret = EVIEWITF_FAIL;
-            }
-            else {
+            } else {
                 /* Then read */
                 if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
                     ret = EVIEWITF_FAIL;
@@ -328,8 +327,7 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off
             /* Seek before write */
             if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
                 ret = EVIEWITF_FAIL;
-            }
-            else {
+            } else {
                 /* Then write */
                 if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
                     ;
