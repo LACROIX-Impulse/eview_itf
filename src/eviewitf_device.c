@@ -254,6 +254,28 @@ int device_close(int device_id) {
 }
 
 /**
+ * \fn int device_seek(int device_id, off_t offset, int whence)
+ * \brief Copy frame from physical memory to the given buffer location
+ *
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ * \param offset: offset for seek operation (SEEK_SET)
+ * \param whence: seek mode (SEEK_CUR / SEEK_CUR / SEEK_END)
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int device_seek(int device_id, off_t offset, int whence) {
+    int ret = EVIEWITF_OK;
+    device_object *device;
+
+    device = get_device_object(device_id);
+    if (lseek(file_descriptors[device_id], offset, whence) != offset) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+/**
  * \fn int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Copy frame from physical memory to the given buffer location
  *
@@ -261,11 +283,10 @@ int device_close(int device_id) {
  *        we assume this value has been tested by the caller
  * \param frame_buffer: buffer to store the incoming frame
  * \param buffer_size: buffer size for coherency check
- * \param offset: offset for seek operation (SEEK_SET)
  *
  * \return state of the function. Return 0 if okay
  */
-int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset) {
+int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
     device_object *device;
 
@@ -280,14 +301,9 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_
         if (device->operations.read == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
-            /* Seek before read */
-            if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
+            /* Then read */
+            if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
                 ret = EVIEWITF_FAIL;
-            } else {
-                /* Then read */
-                if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                    ret = EVIEWITF_FAIL;
-                }
             }
         }
     }
@@ -303,11 +319,10 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_
  *        we assume this value has been tested by the caller
  * \param in buffer_size: size of the blender frame buffer
  * \param in buffer: device frame buffer
- * \param offset: offset for seek operation (SEEK_SET
  *
  * \return state of the function. Return 0 if okay
  */
-int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off_t offset) {
+int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
     device_object *device;
 
@@ -324,15 +339,8 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size, off
         if (device->operations.write == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
-            /* Seek before write */
-            if (lseek(file_descriptors[device_id], offset, SEEK_SET) != offset) {
+            if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
                 ret = EVIEWITF_FAIL;
-            } else {
-                /* Then write */
-                if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                    ;
-                    ret = EVIEWITF_FAIL;
-                }
             }
         }
     }

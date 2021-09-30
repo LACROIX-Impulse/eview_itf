@@ -115,8 +115,10 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         return EVIEWITF_INVALID_PARAM;
     }
+    /* Do not check return value for backward compatibility */
+    device_seek(cam_id + EVIEWITF_OFFSET_CAMERA, 0, SEEK_SET);
 
-    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, frame_buffer, buffer_size, 0);
+    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, frame_buffer, buffer_size);
 }
 
 /**
@@ -135,12 +137,20 @@ int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer
  * call to eviewitf_camera_get_frame_metadata.
  */
 int eviewitf_camera_get_frame_segment(int cam_id, uint8_t *buffer, uint32_t size, uint32_t offset) {
+    int ret = EVIEWITF_OK;
+
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         return EVIEWITF_INVALID_PARAM;
     }
 
-    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, buffer, size, offset);
+    /* Seek before read */
+    ret = device_seek(cam_id + EVIEWITF_OFFSET_CAMERA, offset, SEEK_SET);
+    if (ret == EVIEWITF_OK) {
+        ret = device_read(cam_id + EVIEWITF_OFFSET_CAMERA, buffer, size);
+    }
+
+    return ret;
 }
 
 /**
@@ -156,6 +166,7 @@ int eviewitf_camera_get_frame_segment(int cam_id, uint8_t *buffer, uint32_t size
  */
 int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_t *frame_metadata) {
     uint32_t offset;
+    int ret;
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -168,8 +179,14 @@ int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_
     }
     offset = device->attributes.buffer_size - sizeof(eviewitf_frame_metadata_info_t);
 
-    return device_read(cam_id + EVIEWITF_OFFSET_CAMERA, (uint8_t *)frame_metadata,
-                       sizeof(eviewitf_frame_metadata_info_t), offset);
+    /* Seek before read */
+    ret = device_seek(cam_id + EVIEWITF_OFFSET_CAMERA, offset, SEEK_SET);
+    if (ret == EVIEWITF_OK) {
+        ret = device_read(cam_id + EVIEWITF_OFFSET_CAMERA, (uint8_t *)frame_metadata,
+                          sizeof(eviewitf_frame_metadata_info_t));
+    }
+
+    return ret;
 }
 
 /**
