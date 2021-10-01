@@ -31,6 +31,15 @@ typedef enum {
 } eviewitf_return_code;
 
 /**
+ * \struct eviewitf_frame_segment_info_t
+ * \brief Structure to hold offset and dt of a frame segment
+ */
+typedef struct {
+    uint32_t offset; /*!< The segments offset (in bytes) */
+    uint8_t dt;      /*!< The segment data type */
+} __attribute__((packed)) eviewitf_frame_segment_info_t;
+
+/**
  * \struct eviewitf_frame_metadata_info_t
  * \brief Pointers to current camera frame metadata
  *
@@ -46,9 +55,11 @@ typedef struct {
     uint32_t frame_timestamp_lsb; /*!< The timestamp (LSB). */
     uint32_t frame_timestamp_msb; /*!< The timestamp (MSB). */
     uint32_t frame_sync;          /*!< A frame synchronization flag */
-    uint32_t reserved[24];        /*!< 32 metadata fields in total. */
-    uint32_t frame_size;          /*!< The frame size (in bytes) */
-    uint32_t magic_number;        /*!< A memory pattern which marks the end of the metadata (magic number) */
+    eviewitf_frame_segment_info_t segments[4]
+        __attribute__((aligned(4))); /*!< Frame segments offset with a maximum of 4 segments */
+    uint32_t reserved[19];           /*!< 32 metadata fields in total. */
+    uint32_t frame_size;             /*!< The frame size (in bytes) */
+    uint32_t magic_number;           /*!< A memory pattern which marks the end of the metadata (magic number) */
 } eviewitf_frame_metadata_info_t;
 
 /**
