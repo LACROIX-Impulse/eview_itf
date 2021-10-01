@@ -266,9 +266,7 @@ int device_close(int device_id) {
  */
 int device_seek(int device_id, off_t offset, int whence) {
     int ret = EVIEWITF_OK;
-    device_object *device;
 
-    device = get_device_object(device_id);
     if (lseek(file_descriptors[device_id], offset, whence) != offset) {
         ret = EVIEWITF_FAIL;
     }

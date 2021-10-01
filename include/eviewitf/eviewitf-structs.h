@@ -34,10 +34,10 @@ typedef enum {
  * \struct eviewitf_frame_segment_info_t
  * \brief Structure to hold offset and dt of a frame segment
  */
-typedef struct __attribute__((packed)) {
+typedef struct {
     uint32_t offset; /*!< The segments offset (in bytes) */
     uint8_t dt;      /*!< The segment data type */
-} eviewitf_frame_segment_info_t;
+} __attribute__((packed)) eviewitf_frame_segment_info_t;
 
 /**
  * \struct eviewitf_frame_metadata_info_t
