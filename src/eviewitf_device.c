@@ -1,7 +1,7 @@
 /**
  * \file eviewitf_device.c
  * \brief Common functions for device management
- * \author esoftthings
+ * \author LACROIX Impulse
  *
  * Common functions for device management (camera, streamer, blender, ...)
  *
@@ -254,6 +254,26 @@ int device_close(int device_id) {
 }
 
 /**
+ * \fn int device_seek(int device_id, off_t offset, int whence)
+ * \brief Copy frame from physical memory to the given buffer location
+ *
+ * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ *        we assume this value has been tested by the caller
+ * \param offset: offset for seek operation (SEEK_SET)
+ * \param whence: seek mode (SEEK_CUR / SEEK_CUR / SEEK_END)
+ *
+ * \return state of the function. Return 0 if okay
+ */
+int device_seek(int device_id, off_t offset, int whence) {
+    int ret = EVIEWITF_OK;
+
+    if (lseek(file_descriptors[device_id], offset, whence) != offset) {
+        ret = EVIEWITF_FAIL;
+    }
+
+    return ret;
+}
+/**
  * \fn int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Copy frame from physical memory to the given buffer location
  *
@@ -261,7 +281,7 @@ int device_close(int device_id) {
  *        we assume this value has been tested by the caller
  * \param frame_buffer: buffer to store the incoming frame
  * \param buffer_size: buffer size for coherency check
-
+ *
  * \return state of the function. Return 0 if okay
  */
 int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
@@ -279,8 +299,8 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         if (device->operations.read == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
+            /* Then read */
             if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                ;
                 ret = EVIEWITF_FAIL;
             }
         }
@@ -318,7 +338,6 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
             ret = EVIEWITF_FAIL;
         } else {
             if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
-                ;
                 ret = EVIEWITF_FAIL;
             }
         }

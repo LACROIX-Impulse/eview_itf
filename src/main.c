@@ -1,7 +1,7 @@
 /**
  * \file main.c
  * \brief Main program entry for communication between A53 and R7 CPUs
- * \author esoftthings
+ * \author LACROIX Impulse
  *
  * Main program entry to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -19,7 +19,7 @@
 #define FPS_MAX_VALUE     60
 
 const char *argp_program_version = "eviewitf-" VERSION;
-const char *argp_program_bug_address = "<support-ecube@esoftthings.com>";
+const char *argp_program_bug_address = "<support-ecube@lacroix.group>";
 
 /* Program documentation */
 static char doc[] =

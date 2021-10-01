@@ -1,8 +1,8 @@
 /**
  * \file
  * \brief Header for eViewItf API regarding cameras
- * \author eSoftThings
- * \copyright Copyright (c) 2015-2020 eSoftThings. All rights reserved.
+ * \author LACROIX Impulse
+ * \copyright Copyright (c) 2019-2021 LACROIX Impulse
  * \ingroup camera
  *
  * Communication API between A53 and R7 CPUs for camera devices
@@ -95,6 +95,36 @@ int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t* att
  * eviewitf_camera_get_attributes..
  */
 int eviewitf_camera_get_frame(int cam_id, uint8_t* frame_buffer, uint32_t buffer_size);
+
+/**
+ * \fn int eviewitf_camera_get_frame_segment(int cam_id, uint8_t* buffer, uint32_t size, uint32_t offset)
+ * \brief Get a copy (from eView context memory) of a segment of the latest frame received from a
+ * camera. Segment from offset to offset + buffer_size
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] buffer buffer to store the incoming segment
+ * \param[in] size buffer size of the segment
+ * \param[in] offset offset of the segment from frame buffer start adress
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The buffer must be allocated by the customer application before to call this function.
+ * The size to be allocated for a particular segement can be retrieved from frame metadata and can retrieved through a
+ * call to eviewitf_camera_get_frame_metadata.
+ */
+int eviewitf_camera_get_frame_segment(int cam_id, uint8_t* buffer, uint32_t size, uint32_t offset);
+
+/**
+ * \fn int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_t* frame_metadata)
+ * \brief Read frame metadata (which is a frame segment)
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] frame_metadata pointer on metadata structure to be filled
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * The metadata that can be retrieved by this functions are the ones defined in the structure
+ eviewitf_frame_metadata_info_t.
+ */
+int eviewitf_camera_get_frame_metadata(int cam_id, eviewitf_frame_metadata_info_t* frame_metadata);
 
 /**
  * \fn int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
