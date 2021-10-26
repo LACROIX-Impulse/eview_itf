@@ -8,8 +8,9 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include "eviewitf/eviewitf-structs.h"
+#include "eviewitf-structs.h"
 #include "camera.h"
+#include "pipeline.h"
 #include <string.h>
 
 const char *argp_program_version = "eviewitf-" VERSION;
@@ -25,6 +26,13 @@ int main(int argc, char **argv) {
     }
 
     /*  Here : test every modules, and goto out after parse*/
+
+    if (!strcmp("pipeline", argv[1])) {
+        argc--;
+        argv++;
+        ret = pipeline_parse(argc, argv);
+        goto out;
+    }
 
     if (!strcmp("camera", argv[1])) {
         argc--;

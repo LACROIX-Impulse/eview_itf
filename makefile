@@ -25,8 +25,10 @@ LIBDEPS += $(BUILDDIR)/src/eviewitf_camera_seek.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf_pipeline.o
 LIBDEPS += $(BUILDDIR)/src/mfis_communication.o
 LIBDEPS += $(BUILDDIR)/src/modules/camera.o
+LIBDEPS += $(BUILDDIR)/src/modules/pipeline.o
 
 .PHONY: libewiewitf
 libewiewitf: $(LIBDEPS)
