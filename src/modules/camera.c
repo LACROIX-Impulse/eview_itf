@@ -1,8 +1,8 @@
 /**
- * @ingroup     xxx
+ * @ingroup     modules_camera
  * @author      LACROIX - Impulse
  * @copyright   Copyright (c) 2021 LACROIX - Impulse. All rights reserved.
- * @brief       xxx
+ * @brief       Camera module
  *
  * @{
  */
