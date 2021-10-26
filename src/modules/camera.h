@@ -51,7 +51,12 @@ struct camera_pattern_mode {
     const char *name;
 };
 
-void camera_init();
+/**
+ * @brief Parse the parameters and execute the  function
+ * @param[in] argc arguments count
+ * @param[in] argv arguments
+ * @return
+ */
 int camera_parse(int argc, char **argv);
 
 #endif /* _CAMERA_H */

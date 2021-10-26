@@ -272,9 +272,20 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
 /* argp parser. */
 static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
 
-static struct camera_arguments arguments;
+/**
+ * @brief Parse the parameters and execute the  function
+ * @param[in] argc arguments count
+ * @param[in] argv arguments
+ * @return
+ */
+int camera_parse(int argc, char **argv) {
+    int ret = EVIEWITF_OK;
+    struct camera_arguments arguments;
+    uint32_t register_value = 0;
+    /* cropping deparse variables */
+    char *cropping_args;
+    uint32_t cropp_x1, cropp_y1, cropp_x2, cropp_y2;
 
-void camera_init() {
     /* Default values. */
     arguments.camera_id = -1;
     arguments.streamer_id = -1;
@@ -303,14 +314,6 @@ void camera_init() {
     arguments.x_offset = -1;
     arguments.y_offset = -1;
     arguments.cmd_pattern = -1;
-}
-
-int camera_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
-    uint32_t register_value = 0;
-    /* cropping deparse variables */
-    char *cropping_args;
-    uint32_t cropp_x1, cropp_y1, cropp_x2, cropp_y2;
 
     /* Parse arguments; every option seen by parse_opt will
           be reflected in arguments. */

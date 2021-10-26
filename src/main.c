@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
 
     // if no argv
     if (argc == 1) {
-        camera_init();
         ret = camera_parse(argc, argv);
         goto out;
     }
@@ -31,7 +30,6 @@ int main(int argc, char **argv) {
         argc--;
         argv++;
     }
-    camera_init();
     ret = camera_parse(argc, argv);
 
 out:
