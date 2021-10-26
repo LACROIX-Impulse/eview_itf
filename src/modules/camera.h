@@ -51,10 +51,8 @@ struct camera_pattern_mode {
     const char *name;
 };
 
-
 void camera_init();
 int camera_parse(int argc, char **argv);
-
 
 #endif /* _CAMERA_H */
 /** @} */

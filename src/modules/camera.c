@@ -22,64 +22,64 @@
 
 /* Program documentation */
 static char camera_doc[] =
-        "eviewitf -- Program for communication between A53 and R7 CPUs"
-        "\v"
-        "Available camera patterns:\n"
-        " none, solid-red, solid-green, solid-blue, solid-vbar, solid-vbar-faded,\n"
-        " custom0, custom1, custom2, custom3, custom4\n";
+    "eviewitf -- Program for communication between A53 and R7 CPUs"
+    "\v"
+    "Available camera patterns:\n"
+    " none, solid-red, solid-green, solid-blue, solid-vbar, solid-vbar-faded,\n"
+    " custom0, custom1, custom2, custom3, custom4\n";
 
 /* Arguments description */
 static char camera_args_doc[] =
-        "change display:  -d -c[0-7]\n"
-        "change display:  -d -s[0-7]\n"
-        "record:          -c[0-7] -r[???] (-p[PATH])\n"
-        "play recordings: -s[0-7] -f[5-60] -p[PATH]\n"
-        "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
-        "read register:   -c[0-7] -Ra[0x????]\n"
-        "reboot a camera: -x -c[0-7]\n"
-        "set blending:    -b[PATH] -o[0-1]\n"
-        "stop blending:   -n\n"
-        "set R7 heartbeat state: -H[0-1]\n"
-        "set R7 boot mode:-B[0-?]\n"
-        "start cropping:  -Ux1:y1:x2:y2\n"
-        "stop cropping:   -u\n"
-        "monitoring info: -m\n"
-        "set exposure:    -c[0-7] -e[???] -g[???]\n"
-        "get exposure:    -c[0-7] -E\n"
-        "set offset:      -c[0-7] -jx:[X] -jy:[Y]\n"
-        "get offset:      -c[0-7] -J\n"
-        "set pattern:     -c[0-7] -t[pattern]\n"
-        "get pattern:     -c[0-7] -T";
+    "change display:  -d -c[0-7]\n"
+    "change display:  -d -s[0-7]\n"
+    "record:          -c[0-7] -r[???] (-p[PATH])\n"
+    "play recordings: -s[0-7] -f[5-60] -p[PATH]\n"
+    "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
+    "read register:   -c[0-7] -Ra[0x????]\n"
+    "reboot a camera: -x -c[0-7]\n"
+    "set blending:    -b[PATH] -o[0-1]\n"
+    "stop blending:   -n\n"
+    "set R7 heartbeat state: -H[0-1]\n"
+    "set R7 boot mode:-B[0-?]\n"
+    "start cropping:  -Ux1:y1:x2:y2\n"
+    "stop cropping:   -u\n"
+    "monitoring info: -m\n"
+    "set exposure:    -c[0-7] -e[???] -g[???]\n"
+    "get exposure:    -c[0-7] -E\n"
+    "set offset:      -c[0-7] -jx:[X] -jy:[Y]\n"
+    "get offset:      -c[0-7] -J\n"
+    "set pattern:     -c[0-7] -t[pattern]\n"
+    "get pattern:     -c[0-7] -T";
 
 /* Program options */
 static struct argp_option camera_options[] = {
-        {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
-        {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
-        {"display", 'd', 0, 0, "Select camera as display", 0},
-        {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
-        {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
-        {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
-        {"read", 'R', 0, 0, "Read register", 0},
-        {"write", 'W', 0, 0, "Write register", 0},
-        {"reboot", 'x', 0, 0, "Software reboot camera", 0},
-        {"fps", 'f', "FPS", 0, "Set playback FPS", 0},
-        {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
-        {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
-        {"no-blending", 'n', 0, 0, "Stop the blending", 0},
-        {"heartbeat", 'H', "STATE", 0, "Set R7 heartbeat state", 0},
-        {"boot", 'B', "MODE", 0, "Select R7 boot mode", 0},
-        {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
-        {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
-        {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
-        {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format", 0},
-        {"exposure", 'E', 0, 0, "Get camera exposure value", 0},
-        {"exposure", 'e', "EXPOSURE", 0, "Set camera exposure delay", 0},
-        {"gain", 'g', "GAIN", 0, "Set camera gain", 0},
-        {"offset", 'j', "OFFSET", 0, "Set camera frame offset", 0},
-        {"offset", 'J', 0, 0, "Get camera frame offset", 0},
-        {"pattern", 't', "PATTERN", 0, "Set camera test pattern", 0},
-        {"pattern", 'T', 0, 0, "Get camera test pattern", 0},
-        {0},
+    {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
+    {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
+    {"display", 'd', 0, 0, "Select camera as display", 0},
+    {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
+    {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
+    {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
+    {"read", 'R', 0, 0, "Read register", 0},
+    {"write", 'W', 0, 0, "Write register", 0},
+    {"reboot", 'x', 0, 0, "Software reboot camera", 0},
+    {"fps", 'f', "FPS", 0, "Set playback FPS", 0},
+    {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
+    {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
+    {"no-blending", 'n', 0, 0, "Stop the blending", 0},
+    {"heartbeat", 'H', "STATE", 0, "Set R7 heartbeat state", 0},
+    {"boot", 'B', "MODE", 0, "Select R7 boot mode", 0},
+    {"blending interface", 'o', "BLENDING", 0, "Select blending interface on which command occurs", 0},
+    {"cropping start", 'U', "COORDINATES", 0, "Start the cropping according to coordinates", 0},
+    {"cropping stop", 'u', 0, 0, "Stop the cropping according", 0},
+    {"raw monitoring info", 'm', 0, 0, "Get monitoring info in RAW format", 0},
+    {"exposure", 'E', 0, 0, "Get camera exposure value", 0},
+    {"exposure", 'e', "EXPOSURE", 0, "Set camera exposure delay", 0},
+    {"gain", 'g', "GAIN", 0, "Set camera gain", 0},
+    {"offset", 'j', "OFFSET", 0, "Set camera frame offset", 0},
+    {"offset", 'J', 0, 0, "Get camera frame offset", 0},
+    {"pattern", 't', "PATTERN", 0, "Set camera test pattern", 0},
+    {"pattern", 'T', 0, 0, "Get camera test pattern", 0},
+    {0},
 };
 
 /* clang-format off */
@@ -99,7 +99,6 @@ static struct camera_pattern_mode patterns[] = {
         { 0, NULL },
 };
 /* clang-format on */
-
 
 /* Gets the pattern value related to the given string */
 static int str2pattern(const char *pattern) {
@@ -275,8 +274,7 @@ static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_
 
 static struct camera_arguments arguments;
 
-void camera_init(){
-
+void camera_init() {
     /* Default values. */
     arguments.camera_id = -1;
     arguments.streamer_id = -1;
@@ -305,10 +303,9 @@ void camera_init(){
     arguments.x_offset = -1;
     arguments.y_offset = -1;
     arguments.cmd_pattern = -1;
-
 }
 
-int camera_parse(int argc, char **argv){
+int camera_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
     uint32_t register_value = 0;
     /* cropping deparse variables */
@@ -318,8 +315,6 @@ int camera_parse(int argc, char **argv){
     /* Parse arguments; every option seen by parse_opt will
           be reflected in arguments. */
     argp_parse(&camera_argp, argc, argv, 0, 0, &arguments);
-
-
 
     /* Select camera for display */
     if ((arguments.camera_id >= 0) && arguments.display) {
@@ -642,8 +637,6 @@ int camera_parse(int argc, char **argv){
         }
     }
     return ret;
-
 }
-
 
 /** @ */

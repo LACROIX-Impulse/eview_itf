@@ -15,12 +15,11 @@
 const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@lacroix.group>";
 
-
 int main(int argc, char **argv) {
     int ret = EVIEWITF_OK;
 
     // if no argv
-    if(argc == 1){
+    if (argc == 1) {
         camera_init();
         ret = camera_parse(argc, argv);
         goto out;
@@ -28,7 +27,7 @@ int main(int argc, char **argv) {
 
     /*  Here : test every modules, and goto out after parse*/
 
-    if(!strcmp("camera", argv[1])) {
+    if (!strcmp("camera", argv[1])) {
         argc--;
         argv++;
     }
