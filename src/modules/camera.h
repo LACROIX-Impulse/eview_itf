@@ -1,10 +1,10 @@
 /**
- * @ingroup     module_camera
- * @author      LACROIX - Impulse
- * @copyright   Copyright (c) 2021 LACROIX - Impulse. All rights reserved.
- * @brief       Camera module (default one)
+ * \file camera.h
+ * \brief Module camera
+ * \author LACROIX Impulse
  *
- * @{
+ * The module Camera handles operations that relate to streams and cameras
+ *
  */
 #ifndef _CAMERA_H
 #define _CAMERA_H
@@ -60,4 +60,4 @@ struct camera_pattern_mode {
 int camera_parse(int argc, char **argv);
 
 #endif /* _CAMERA_H */
-/** @} */
+

@@ -1,10 +1,10 @@
 /**
- * @ingroup     modules_camera
- * @author      LACROIX - Impulse
- * @copyright   Copyright (c) 2021 LACROIX - Impulse. All rights reserved.
- * @brief       Camera module
+ * \file camera.h
+ * \brief Module camera
+ * \author LACROIX Impulse
  *
- * @{
+ * The module Camera handles operations that relate to streams and cameras
+ *
  */
 #include "camera.h"
 
@@ -641,5 +641,3 @@ int camera_parse(int argc, char **argv) {
     }
     return ret;
 }
-
-/** @ */
