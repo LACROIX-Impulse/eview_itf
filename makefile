@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 LDFLAGS=
-INC = -I include
+INC = -I include -I include/eviewitf -I src -I src/modules
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
 TARGETIP ?= 192.168.0.82
@@ -26,6 +26,7 @@ LIBDEPS += $(BUILDDIR)/src/eviewitf_device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_ssd.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf_streamer.o
 LIBDEPS += $(BUILDDIR)/src/mfis_communication.o
+LIBDEPS += $(BUILDDIR)/src/modules/camera.o
 
 .PHONY: libewiewitf
 libewiewitf: $(LIBDEPS)
@@ -61,7 +62,7 @@ version:
 ipk: eviewitf
 	scripts/build_ipk.sh $(VERSION)
 
-CLANG_FORMAT_DIRS = include src
+CLANG_FORMAT_DIRS = include src src/modules
 
 .PHONY: clangformat
 clangformat:
