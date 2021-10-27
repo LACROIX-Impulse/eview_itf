@@ -1,9 +1,9 @@
 /**
  * \file
- * \brief Communication API between A53 and R7 CPUs for camera devices
+ * \brief Communication API between A53 and R7 CPUs for pipeline devices
  * \author LACROIX Impulse
  *
- * API to communicate with the R7 CPU from the A53 (Linux).
+ * API to communicate with the R7 pipeline from the A53 (Linux).
  *
  */
 #include <unistd.h>

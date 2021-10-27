@@ -7,7 +7,7 @@
  *
  * Communication API between A53 and R7 CPUs for pipelines related operations
  *
- * \addtogroup camera
+ * \addtogroup pipeline
  * \{
  */
 
