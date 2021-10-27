@@ -110,7 +110,7 @@ int pipeline_parse(int argc, char **argv) {
     argp_parse(&pipeline_argp, argc, argv, 0, 0, &arguments);
 
     /* Starts the pipeline */
-    if (arguments.pipeline_id >= 0 && arguments.start) {
+    if (arguments.pipeline_id != -1 && arguments.start) {
         eviewitf_init();
         ret = eviewitf_pipeline_start((uint8_t)arguments.pipeline_id);
         if (ret >= 0) {
@@ -121,7 +121,7 @@ int pipeline_parse(int argc, char **argv) {
         eviewitf_deinit();
     }
     /* Stop the pipeline */
-    if (arguments.pipeline_id >= 0 && arguments.stop) {
+    if (arguments.pipeline_id != -1 && arguments.stop) {
         eviewitf_init();
         ret = eviewitf_pipeline_stop((uint8_t)arguments.pipeline_id);
         if (ret >= 0) {
@@ -132,7 +132,7 @@ int pipeline_parse(int argc, char **argv) {
         eviewitf_deinit();
     }
     /* Configure the pipeline */
-    if (arguments.pipeline_id >= 0 && arguments.configure) {
+    if (arguments.pipeline_id != -1 && arguments.configure) {
         eviewitf_init();
         ret = eviewitf_pipeline_configure((uint8_t)arguments.pipeline_id, arguments.width, arguments.height);
         if (ret >= 0) {
