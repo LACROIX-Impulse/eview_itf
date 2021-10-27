@@ -51,7 +51,7 @@ int eviewitf_pipeline_stop(int pipeline_id);
  *
  * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
  * \param[in] frame_width frame width between 0 to 4096
- * \param[in] frame_width frame height between 0 to 4096
+ * \param[in] frame_height frame height between 0 to 4096
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_pipeline_configure(int pipeline_id, uint32_t frame_width, uint32_t frame_height);
