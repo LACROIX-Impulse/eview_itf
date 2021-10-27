@@ -22,31 +22,25 @@ extern "C" {
 #endif
 
 /**
- * \def EVIEWITF_MAX_PIPELINE
- * \brief Max number of pipeline devices
- */
-#define EVIEWITF_MAX_PIPELINE 2
-
-/**
- * \fn eviewitf_pipeline_start(int pipeline_id)
+ * \fn eviewitf_pipeline_start(uint8_t pipeline_id)
  * \brief Starts a pipeline
  *
  * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_pipeline_start(int pipeline_id);
+int eviewitf_pipeline_start(uint8_t pipeline_id);
 
 /**
- * \fn eviewitf_pipeline_stop(int pipeline_id)
+ * \fn eviewitf_pipeline_stop(uint8_t pipeline_id)
  * \brief Starts a pipeline
  *
  * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_pipeline_stop(int pipeline_id);
+int eviewitf_pipeline_stop(uint8_t pipeline_id);
 
 /**
- * \fn  eviewitf_pipeline_configure(int pipeline_id, uint32_t frame_width, uint32_t frame_height)
+ * \fn  eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height)
  * \brief Configure a pipeline
  *
  * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
@@ -54,7 +48,7 @@ int eviewitf_pipeline_stop(int pipeline_id);
  * \param[in] frame_height frame height between 0 to 4096
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_pipeline_configure(int pipeline_id, uint32_t frame_width, uint32_t frame_height);
+int eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height);
 
 #ifdef __cplusplus
 }
