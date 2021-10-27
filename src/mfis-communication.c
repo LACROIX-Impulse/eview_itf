@@ -19,7 +19,7 @@
 #include <pthread.h>
 
 #include "eviewitf.h"
-#include "mfis_communication.h"
+#include "mfis-communication.h"
 #include "mfis-ioctl.h"
 
 /******************************************************************************************

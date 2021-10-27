@@ -18,7 +18,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 
 /******************************************************************************************
  * Private definitions

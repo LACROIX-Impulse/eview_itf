@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include "eviewitf.h"
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 
 #define FPS_MIN_VALUE     5
 #define FPS_DEFAULT_VALUE 30

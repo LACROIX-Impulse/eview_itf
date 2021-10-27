@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include "eviewitf.h"
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
 struct pipeline_arguments {

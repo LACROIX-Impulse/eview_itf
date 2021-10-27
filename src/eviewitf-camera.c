@@ -11,9 +11,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 #include "cam-ioctl.h"
-#include "mfis_communication.h"
+#include "mfis-communication.h"
 
 /**
  * \fn int camera_open(int cam_id)

@@ -8,9 +8,9 @@
  */
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 #include "pipeline-ioctl.h"
-#include "mfis_communication.h"
+#include "mfis-communication.h"
 
 /**
  * \fn eviewitf_pipeline_start(uint8_tv pipeline_id)
