@@ -75,5 +75,12 @@ int eviewitf_pipeline_stop(int pipeline_id){
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_pipeline_configure(int pipeline_id, uint32_t frame_width, uint32_t frame_height){
-    return 0;
+    int ret;
+    struct pipeline_geometry geometry = {
+            .height = frame_height,
+            .width = frame_width
+    };
+    ret = mfis_ioctl_request(MFIS_DEV_PIPELINE, pipeline_id, IOCSPIPELINECONFIGURE, &geometry);
+
+    return ret;
 }

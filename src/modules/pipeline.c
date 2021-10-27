@@ -39,8 +39,8 @@ static char pipeline_args_doc[] =
 static struct argp_option pipeline_options[] = {
     {"pipeline", 'p', "ID", 0, "Select pipeline on which command occurs", 0},
     {"configure", 'c', 0, 0, "Configure the pipeline", 0},
-    {"width", 'w', 0, 0, "Set frame width", 0},
-    {"height", 'h', 0, 0, "Set frame height", 0},
+    {"width", 'w', "VALUE", 0, "Set frame width", 0},
+    {"height", 'h', "VALUE", 0, "Set frame height", 0},
     {"start", 's', 0, 0, "Start the pipeline", 0},
     {"stop", 'S', 0, 0, "Stop the pipeline", 0},
     {0},
@@ -103,15 +103,15 @@ int pipeline_parse(int argc, char **argv) {
     arguments.start = 0;
     arguments.stop = 0;
     arguments.configure = 0;
-    arguments.width = -1;
-    arguments.height = -1;
+    arguments.width = 0;
+    arguments.height = 0;
 
     /* Parse arguments; every option seen by parse_opt will
           be reflected in arguments. */
     argp_parse(&pipeline_argp, argc, argv, 0, 0, &arguments);
 
     /* Starts the pipeline */
-    if ((arguments.pipeline_id >= 0) && arguments.start) {
+    if (arguments.pipeline_id >= 0 && arguments.start) {
         eviewitf_init();
         ret = eviewitf_pipeline_start(arguments.pipeline_id);
         if (ret >= 0) {
@@ -122,13 +122,24 @@ int pipeline_parse(int argc, char **argv) {
         eviewitf_deinit();
     }
     /* Stop the pipeline */
-    if ((arguments.pipeline_id >= 0) && arguments.stop) {
+    if (arguments.pipeline_id >= 0 && arguments.stop) {
         eviewitf_init();
         ret = eviewitf_pipeline_stop(arguments.pipeline_id);
         if (ret >= 0) {
             fprintf(stdout, "Pipeline %d stoped\n", arguments.pipeline_id);
         } else {
             fprintf(stdout, "Failed to stop pipeline %d\n", arguments.pipeline_id);
+        }
+        eviewitf_deinit();
+    }
+    /* Configure the pipeline */
+    if (arguments.pipeline_id >= 0 && arguments.configure ) {
+        eviewitf_init();
+        ret = eviewitf_pipeline_configure(arguments.pipeline_id, arguments.width, arguments.height);
+        if (ret >= 0) {
+            fprintf(stdout, "Pipeline %d configured\n", arguments.pipeline_id);
+        } else {
+            fprintf(stdout, "Failed to configure pipeline %d\n", arguments.pipeline_id);
         }
         eviewitf_deinit();
     }
