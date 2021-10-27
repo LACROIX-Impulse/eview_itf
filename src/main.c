@@ -8,7 +8,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include "eviewitf-structs.h"
+#include "eviewitf/eviewitf-structs.h"
 #include "camera.h"
 #include "pipeline.h"
 #include <string.h>

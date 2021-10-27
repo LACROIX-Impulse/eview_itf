@@ -12,11 +12,11 @@
 
 #include <stdint.h>
 
-#include "eviewitf-structs.h"
-#include "eviewitf-camera.h"
-#include "eviewitf-streamer.h"
-#include "eviewitf-blender.h"
-#include "eviewitf-pipeline.h"
+#include "eviewitf/eviewitf-structs.h"
+#include "eviewitf/eviewitf-camera.h"
+#include "eviewitf/eviewitf-streamer.h"
+#include "eviewitf/eviewitf-blender.h"
+#include "eviewitf/eviewitf-pipeline.h"
 
 #ifdef __cplusplus
 extern "C" {
