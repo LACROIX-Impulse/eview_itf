@@ -20,8 +20,6 @@
 #define FPS_DEFAULT_VALUE 30
 #define FPS_MAX_VALUE     60
 
-
-
 /* Used by main to communicate with parse_opt. */
 struct camera_arguments {
     int camera_id;

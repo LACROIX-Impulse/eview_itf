@@ -137,5 +137,4 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
 int camera_seek_display(int device_id);
 int camera_seek_get_attributes(int device_id, eviewitf_device_attributes_t *attributes);
 
-
 #endif /* EVIEWITF_PRIV_H */

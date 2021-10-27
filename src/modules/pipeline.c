@@ -16,8 +16,6 @@
 #include "eviewitf.h"
 #include "eviewitf_priv.h"
 
-
-
 /* Used by main to communicate with parse_opt. */
 struct pipeline_arguments {
     int pipeline_id;
@@ -133,7 +131,7 @@ int pipeline_parse(int argc, char **argv) {
         eviewitf_deinit();
     }
     /* Configure the pipeline */
-    if (arguments.pipeline_id >= 0 && arguments.configure ) {
+    if (arguments.pipeline_id >= 0 && arguments.configure) {
         eviewitf_init();
         ret = eviewitf_pipeline_configure(arguments.pipeline_id, arguments.width, arguments.height);
         if (ret >= 0) {

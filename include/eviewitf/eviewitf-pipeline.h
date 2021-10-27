@@ -56,7 +56,6 @@ int eviewitf_pipeline_stop(int pipeline_id);
  */
 int eviewitf_pipeline_configure(int pipeline_id, uint32_t frame_width, uint32_t frame_height);
 
-
 #ifdef __cplusplus
 }
 #endif

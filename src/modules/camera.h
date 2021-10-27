@@ -20,4 +20,3 @@
 int camera_parse(int argc, char **argv);
 
 #endif /* _CAMERA_H */
-

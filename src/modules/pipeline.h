@@ -3,7 +3,7 @@
  * \brief Module pipeline
  * \author LACROIX Impulse
  *
- * The module Pipeline handles operations that relate to pipeline 
+ * The module Pipeline handles operations that relate to pipeline
  *
  */
 #ifndef _PIPELINE_H
@@ -20,4 +20,3 @@
 int pipeline_parse(int argc, char **argv);
 
 #endif /* _PIPELINE_H */
-
