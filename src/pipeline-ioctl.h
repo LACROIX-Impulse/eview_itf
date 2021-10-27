@@ -19,20 +19,10 @@ struct pipeline_geometry {
 };
 
 /**
- * @brief Pipeline geometry
- */
-struct pipeline_configure {
-    uint8_t pipeline_id;
-    struct pipeline_geometry geometry;
-};
-
-/**
  * @brief Pipeline I/O operations
  */
-#define IOCGPIPELINESTATE     MFIS_IOR(0, sizeof(uint8_t))                   /* Gets the pipeline state */
-#define IOCGPIPELINEGEOMETRY  MFIS_IOR(1, sizeof(struct pipeline_geometry))  /* Gets the pipeline geometry */
-#define IOCSPIPELINECONFIGURE MFIS_IOW(2, sizeof(struct pipeline_configure)) /* Configures the pipeline */
-#define IOCSPIPELINESTART     MFIS_IOW(3, sizeof(uint8_t))            /* Starts the pipeline */
-#define IOCSPIPELINESTOP      MFIS_IOW(4, sizeof(uint8_t))            /* Stops the pipeline */
+#define IOCSPIPELINECONFIGURE MFIS_IOW(0, sizeof(struct pipeline_geometry)) /* Configures the pipeline */
+#define IOCSPIPELINESTART     MFIS_IOW(1, sizeof(uint8_t))                  /* Starts the pipeline */
+#define IOCSPIPELINESTOP      MFIS_IOW(2, sizeof(uint8_t))                  /* Stops the pipeline */
 
 #endif /* _PIPEINE_IOCTL_H */
