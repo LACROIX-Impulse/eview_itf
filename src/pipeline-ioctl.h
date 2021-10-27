@@ -1,5 +1,5 @@
-#ifndef _PIPEINE_IOCTL_H
-#define _PIPEINE_IOCTL_H
+#ifndef _PIPELINE_IOCTL_H
+#define _PIPELINE_IOCTL_H
 
 #include "mfis-ioctl.h"
 
@@ -25,4 +25,4 @@ struct pipeline_geometry {
 #define IOCSPIPELINESTART     MFIS_IOW(1, sizeof(uint8_t))                  /* Starts the pipeline */
 #define IOCSPIPELINESTOP      MFIS_IOW(2, sizeof(uint8_t))                  /* Stops the pipeline */
 
-#endif /* _PIPEINE_IOCTL_H */
+#endif /* _PIPELINE_IOCTL_H */

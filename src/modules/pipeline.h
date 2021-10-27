@@ -1,5 +1,5 @@
 /**
- * \file pipeline.h
+ * \file
  * \brief Module pipeline
  * \author LACROIX Impulse
  *

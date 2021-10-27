@@ -1,5 +1,5 @@
 /**
- * \file camera.h
+ * \file
  * \brief Module camera
  * \author LACROIX Impulse
  *

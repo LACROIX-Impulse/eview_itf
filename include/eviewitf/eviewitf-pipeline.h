@@ -1,11 +1,11 @@
 /**
  * \file
- * \brief Header for eViewItf API regarding cameras
+ * \brief Header for eViewItf API regarding pipelines
  * \author LACROIX Impulse
  * \copyright Copyright (c) 2019-2021 LACROIX Impulse
- * \ingroup camera
+ * \ingroup pipeline
  *
- * Communication API between A53 and R7 CPUs for camera devices
+ * Communication API between A53 and R7 CPUs for pipelines related operations
  *
  * \addtogroup camera
  * \{

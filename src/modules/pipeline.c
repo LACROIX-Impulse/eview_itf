@@ -1,5 +1,5 @@
 /**
- * \file pipeline.c
+ * \file
  * \brief Module pipeline
  * \author LACROIX Impulse
  *
@@ -29,6 +29,7 @@ struct pipeline_arguments {
 
 /* Arguments description */
 static char pipeline_args_doc[] =
+    "module pipeline: pipeline\n"
     "configure:      -p[0-1] -c -w[0-4096] -h[0-4096]\n"
     "start:          -p[0-1] -s\n"
     "stop:           -p[0-1] -S";

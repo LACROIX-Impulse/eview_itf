@@ -1,5 +1,5 @@
 /**
- * \file camera.c
+ * \file
  * \brief Module camera
  * \author LACROIX Impulse
  *
@@ -70,6 +70,7 @@ static char camera_doc[] =
 
 /* Arguments description */
 static char camera_args_doc[] =
+    "module camera (default) : camera\n"
     "change display:  -d -c[0-7]\n"
     "change display:  -d -s[0-7]\n"
     "record:          -c[0-7] -r[???] (-p[PATH])\n"
