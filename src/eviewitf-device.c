@@ -12,8 +12,8 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
-#include "mfis_communication.h"
+#include "eviewitf-priv.h"
+#include "mfis-communication.h"
 
 /******************************************************************************************
  * Private definitions

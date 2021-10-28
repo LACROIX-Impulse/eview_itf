@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mfis_communication.h"
-#include "eviewitf_priv.h"
+#include "mfis-communication.h"
+#include "eviewitf-priv.h"
 
 /******************************************************************************************
  * Private definitions
