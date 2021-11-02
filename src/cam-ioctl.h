@@ -71,11 +71,11 @@ struct cam_exp {
 #define IOCSCAMRATE    MFIS_IOR(7, sizeof(uint8_t))         /* Sets the sensor frame rate */
 #define IOCGCAMREADOUT MFIS_IOR(8, sizeof(uint8_t))         /* Gets the sensor image readout */
 #define IOCSCAMREADOUT MFIS_IOW(9, sizeof(uint8_t))         /* Sets the sensor image readout */
-#define IOCGCAMREG     MFIS_IOW(10, sizeof(struct cam_reg)) /* Sets the sensor image readout */
-#define IOCSCAMREG     MFIS_IOW(11, sizeof(struct cam_reg)) /* Sets the sensor image readout */
+#define IOCGCAMREG     MFIS_IOR(10, sizeof(struct cam_reg)) /* Sets the sensor register */
+#define IOCSCAMREG     MFIS_IOW(11, sizeof(struct cam_reg)) /* Sets the sensor register */
 #define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))       /* Gets the sensor temperature */
 #define IOCGCAMOFFSET  MFIS_IOR(13, sizeof(struct cam_pt))  /* Gets the frame offset */
-#define IOCSCAMOFFSET  MFIS_IOR(14, sizeof(struct cam_pt))  /* Sets the frame offset */
+#define IOCSCAMOFFSET  MFIS_IOW(14, sizeof(struct cam_pt))  /* Sets the frame offset */
 #define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
 #define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
 #define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */
