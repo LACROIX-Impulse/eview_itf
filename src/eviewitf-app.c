@@ -11,7 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cam-ioctl.h"
 #include "mfis-communication.h"
+#include "mfis-ioctl.h"
 #include "eviewitf-priv.h"
 #include "eviewitf-ssd.h"
 
@@ -74,28 +76,12 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
  */
 int eviewitf_app_reset_camera(int cam_id) {
     int ret = EVIEWITF_OK;
-    int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        request[0] = EVIEWITF_MFIS_FCT_CAM_RESET;
-        request[1] = cam_id;
-        ret = mfis_send_request(request);
-
-        if (ret < EVIEWITF_OK) {
-            ret = EVIEWITF_FAIL;
-        } else {
-            /* Check returned answer state */
-            if (request[0] != EVIEWITF_MFIS_FCT_CAM_RESET) {
-                ret = EVIEWITF_FAIL;
-            } else if (request[1] == EVIEWITF_MFIS_FCT_RETURN_ERROR) {
-                ret = EVIEWITF_FAIL;
-            } else if (request[1] == EVIEWITF_MFIS_FCT_INV_PARAM) {
-                ret = EVIEWITF_INVALID_PARAM;
-            }
-        }
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCCAMREBOOT, NULL);
     }
     return ret;
 }
