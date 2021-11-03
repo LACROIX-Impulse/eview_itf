@@ -19,7 +19,7 @@
 #include <pthread.h>
 
 #include "eviewitf.h"
-#include "mfis_communication.h"
+#include "mfis-communication.h"
 #include "mfis-ioctl.h"
 
 /******************************************************************************************
@@ -191,6 +191,8 @@ int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param
         ret = EVIEWITF_FAIL;
     } else if (hdr->result == EVIEWITF_MFIS_FCT_INV_PARAM) {
         ret = EVIEWITF_INVALID_PARAM;
+    } else if (hdr->result == EVIEWITF_MFIS_FCT_RETURN_BLOCKED) {
+        ret = EVIEWITF_BLOCKED;
     }
 
 out_ret:

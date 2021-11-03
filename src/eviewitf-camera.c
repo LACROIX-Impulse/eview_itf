@@ -11,29 +11,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
+#include "eviewitf-priv.h"
 #include "cam-ioctl.h"
-#include "mfis_communication.h"
-
-/******************************************************************************************
- * Private definitions
- ******************************************************************************************/
-
-/******************************************************************************************
- * Private structures
- ******************************************************************************************/
-
-/******************************************************************************************
- * Private enumerations
- ******************************************************************************************/
-
-/******************************************************************************************
- * Private variables
- ******************************************************************************************/
-
-/******************************************************************************************
- * Functions
- ******************************************************************************************/
+#include "mfis-communication.h"
 
 /**
  * \fn int camera_open(int cam_id)
@@ -448,4 +428,58 @@ int eviewitf_camera_get_test_pattern(int cam_id, uint8_t *pattern) {
  */
 int eviewitf_camera_set_test_pattern(int cam_id, uint8_t pattern) {
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMTP, &pattern);
+}
+
+/**
+ * \fn eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t* reg_value)
+ * \brief Get a parameter of a camera.
+ * \ingroup cameras
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] reg_address Register address
+ * \param[out] reg_value Register Value
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_parameter(int cam_id, uint32_t reg_address, uint32_t *reg_value) {
+    int ret = EVIEWITF_OK;
+    struct cam_reg reg;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else if (reg_value == NULL) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        reg.reg = reg_address;
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMREG, &reg);
+        *reg_value = reg.val;
+    }
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value)
+ * \brief Set a parameter of a camera.
+ * \ingroup cameras
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[in] reg_address Register address
+ * \param[in] reg_value Register Value to set
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg_value) {
+    int ret = EVIEWITF_OK;
+    struct cam_reg reg;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        reg.reg = reg_address;
+        reg.val = reg_value;
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMREG, &reg);
+    }
+
+    return ret;
 }

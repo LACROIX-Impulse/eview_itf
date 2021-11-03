@@ -12,8 +12,8 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include "eviewitf_priv.h"
-#include "mfis_communication.h"
+#include "eviewitf-priv.h"
+#include "mfis-communication.h"
 
 /******************************************************************************************
  * Private definitions
@@ -300,7 +300,8 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
             ret = EVIEWITF_FAIL;
         } else {
             /* Then read */
-            if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+            if (device->operations.read(file_descriptors[device_id], frame_buffer, buffer_size) !=
+                (ssize_t)buffer_size) {
                 ret = EVIEWITF_FAIL;
             }
         }
@@ -337,7 +338,8 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
         if (device->operations.write == NULL) {
             ret = EVIEWITF_FAIL;
         } else {
-            if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) < 0) {
+            if (device->operations.write(file_descriptors[device_id], frame_buffer, buffer_size) !=
+                (ssize_t)buffer_size) {
                 ret = EVIEWITF_FAIL;
             }
         }

@@ -15,8 +15,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "eviewitf_ssd.h"
-#include "eviewitf_priv.h"
+#include "eviewitf-ssd.h"
+#include "eviewitf-priv.h"
 
 #define SSD_MAX_FILENAME_SIZE     512
 #define SSD_SIZE_DIR_NAME_PATTERN 7
