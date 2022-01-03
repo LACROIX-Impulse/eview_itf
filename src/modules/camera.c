@@ -426,8 +426,6 @@ int camera_parse(int argc, char **argv) {
 
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d rebooted \n", arguments.camera_id);
-        } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "You send a wrong camera Id\n");
         } else {
             fprintf(stdout, "Fail to reboot camera %d  \n", arguments.camera_id);
         }
