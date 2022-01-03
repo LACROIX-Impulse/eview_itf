@@ -457,15 +457,11 @@ int camera_parse(int argc, char **argv) {
             ret = eviewitf_app_set_blending_from_file(arguments.blender_id, arguments.path_blend_frame);
             if (ret >= EVIEWITF_OK) {
                 fprintf(stdout, "Blending applied\n");
-            } else if (ret == EVIEWITF_INVALID_PARAM) {
-                fprintf(stdout, "You sent a wrong parameter\n");
             } else {
-                fprintf(stdout, "Fail to set blending\n");
+                fprintf(stdout, "Failed to set blending\n");
             }
-        } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "You sent a wrong parameter to Start blending\n");
         } else {
-            fprintf(stdout, "Start blending Fail\n");
+            fprintf(stdout, "Failed to select blender %d\n", arguments.blender_id);
         }
 
         eviewitf_deinit();
@@ -476,10 +472,8 @@ int camera_parse(int argc, char **argv) {
         ret = eviewitf_display_select_blender(-1);
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Blending stopped\n");
-        } else if (ret == EVIEWITF_INVALID_PARAM) {
-            fprintf(stdout, "An error occurred\n");
         } else {
-            fprintf(stdout, "Fail\n");
+            fprintf(stdout, "Failed to stop blending\n");
         }
     }
 
