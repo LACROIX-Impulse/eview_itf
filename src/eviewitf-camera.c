@@ -7,8 +7,9 @@
  *
  */
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "eviewitf-priv.h"
@@ -249,16 +250,7 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                 ret = EVIEWITF_FAIL;
             } else {
                 /* Metadata are present and valid */
-                if (frame_metadata != NULL) {
-                    frame_metadata->frame_width = metadata->frame_width;
-                    frame_metadata->frame_height = metadata->frame_height;
-                    frame_metadata->frame_bpp = metadata->frame_bpp;
-                    frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
-                    frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
-                    frame_metadata->frame_sync = metadata->frame_sync;
-                    frame_metadata->frame_size = metadata->frame_size;
-                    frame_metadata->magic_number = metadata->magic_number;
-                }
+                memcpy(frame_metadata, metadata, sizeof(eviewitf_frame_metadata_info_t));
             }
         }
     } else {
@@ -268,16 +260,7 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
 
     if (ret != EVIEWITF_OK) {
         /* No metadata available */
-        if (frame_metadata != NULL) {
-            frame_metadata->frame_width = 0;
-            frame_metadata->frame_height = 0;
-            frame_metadata->frame_bpp = 0;
-            frame_metadata->frame_timestamp_lsb = 0;
-            frame_metadata->frame_timestamp_msb = 0;
-            frame_metadata->frame_sync = 0;
-            frame_metadata->frame_size = 0;
-            frame_metadata->magic_number = 0;
-        }
+        memset(frame_metadata, 0, sizeof(eviewitf_frame_metadata_info_t));
     }
 
     return ret;
