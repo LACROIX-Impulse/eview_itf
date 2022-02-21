@@ -59,6 +59,16 @@ struct cam_exp {
 };
 
 /**
+ * @brief Sensor CFA digital gains
+ */
+struct cam_dg {
+    uint16_t cf00; /* CFA 00 digital gain */
+    uint16_t cf01; /* CFA 01 digital gain */
+    uint16_t cf10; /* CFA 10 digital gain */
+    uint16_t cf11; /* CFA 11 digital gain */
+};
+
+/**
  * @brief Camera I/O operations
  */
 #define IOCGCAMSTATE   MFIS_IOR(0, sizeof(uint32_t))        /* Gets the sensor state */
@@ -76,6 +86,8 @@ struct cam_exp {
 #define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))       /* Gets the sensor temperature */
 #define IOCGCAMOFFSET  MFIS_IOR(13, sizeof(struct cam_pt))  /* Gets the frame offset */
 #define IOCSCAMOFFSET  MFIS_IOW(14, sizeof(struct cam_pt))  /* Sets the frame offset */
+#define IOCGCAMDG      MFIS_IOR(15, sizeof(struct cam_dg))  /* Gets the sensor CFA digital gains parameters */
+#define IOCSCAMDG      MFIS_IOR(16, sizeof(struct cam_dg))  /* Sets the sensor CFA digital gains parameters */
 #define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
 #define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
 #define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */
