@@ -28,6 +28,10 @@
 #define DEVICE_CAMERA_MAX_LENGTH  20
 #define DEVICE_BLENDER_MAX_LENGTH 20
 
+#define FPS_MIN_VALUE     2
+#define FPS_DEFAULT_VALUE 30
+#define FPS_MAX_VALUE     60
+
 /******************************************************************************************
  * Private Structures
  ******************************************************************************************/

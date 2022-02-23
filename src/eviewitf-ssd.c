@@ -174,8 +174,12 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
     DIR *dir;
 
     /* Test the fps value */
-    if (5 > fps) {
-        printf("Bad fps value. Please enter a value greater than or equal to 5\n");
+    if (fps < FPS_MIN_VALUE) {
+        printf("Bad fps value. Please enter a value greater than or equal to %d\n", FPS_MIN_VALUE);
+        return -1;
+    }
+    if (fps > FPS_MAX_VALUE) {
+        printf("Bad fps value. Please enter a value lower than or equal to %d\n", FPS_MAX_VALUE);
         return -1;
     }
 
