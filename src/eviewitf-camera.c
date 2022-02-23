@@ -7,8 +7,9 @@
  *
  */
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "eviewitf-priv.h"
@@ -249,16 +250,7 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
                 ret = EVIEWITF_FAIL;
             } else {
                 /* Metadata are present and valid */
-                if (frame_metadata != NULL) {
-                    frame_metadata->frame_width = metadata->frame_width;
-                    frame_metadata->frame_height = metadata->frame_height;
-                    frame_metadata->frame_bpp = metadata->frame_bpp;
-                    frame_metadata->frame_timestamp_lsb = metadata->frame_timestamp_lsb;
-                    frame_metadata->frame_timestamp_msb = metadata->frame_timestamp_msb;
-                    frame_metadata->frame_sync = metadata->frame_sync;
-                    frame_metadata->frame_size = metadata->frame_size;
-                    frame_metadata->magic_number = metadata->magic_number;
-                }
+                memcpy(frame_metadata, metadata, sizeof(eviewitf_frame_metadata_info_t));
             }
         }
     } else {
@@ -268,16 +260,7 @@ int eviewitf_camera_extract_metadata(uint8_t *buf, uint32_t buffer_size,
 
     if (ret != EVIEWITF_OK) {
         /* No metadata available */
-        if (frame_metadata != NULL) {
-            frame_metadata->frame_width = 0;
-            frame_metadata->frame_height = 0;
-            frame_metadata->frame_bpp = 0;
-            frame_metadata->frame_timestamp_lsb = 0;
-            frame_metadata->frame_timestamp_msb = 0;
-            frame_metadata->frame_sync = 0;
-            frame_metadata->frame_size = 0;
-            frame_metadata->magic_number = 0;
-        }
+        memset(frame_metadata, 0, sizeof(eviewitf_frame_metadata_info_t));
     }
 
     return ret;
@@ -304,6 +287,49 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *ga
     *gain_thou = exposure_value.gain_thou;
 
     return ret;
+}
+
+/**
+ * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t
+ * *dg_cf11) \brief Get camera's CFA patterns digital gains.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] dg_cf00 pointer to the returned CFA 00 digital gain
+ * \param[out] dg_cf01 pointer to the returned CFA 01 digital gain
+ * \param[out] dg_cf10 pointer to the returned CFA 10 digital gain
+ * \param[out] dg_cf11 pointer to the returned CFA 11 digital gain
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10,
+                                      uint16_t *dg_cf11) {
+    int ret;
+    struct cam_dg dg;
+    if ((dg_cf00 == NULL) || (dg_cf01 == NULL) || (dg_cf10 == NULL) || (dg_cf11 == NULL)) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+
+    ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMDG, &dg);
+    *dg_cf00 = dg.cf00;
+    *dg_cf01 = dg.cf01;
+    *dg_cf10 = dg.cf10;
+    *dg_cf11 = dg.cf11;
+
+    return ret;
+}
+
+/**
+ * \fn eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps)
+ * \brief Get camera's frame rate.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] fps pointer to the returned camera frame rate
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps) {
+    if (!fps) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, fps);
 }
 
 /**
@@ -366,6 +392,39 @@ int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain
     exposure_value.exp_us = exposure_us;
     exposure_value.gain_thou = gain_thou;
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMEXP, &exposure_value);
+}
+
+/**
+ * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t
+ * dg_cf11) \brief Set camera's CFA patterns digital gains.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] dg_cf00 CFA 00 digital gain
+ * \param[out] dg_cf01 CFA 01 digital gain
+ * \param[out] dg_cf10 CFA 10 digital gain
+ * \param[out] dg_cf11 CFA 11 digital gain
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10,
+                                      uint16_t dg_cf11) {
+    struct cam_dg dg;
+    dg.cf00 = dg_cf00;
+    dg.cf01 = dg_cf01;
+    dg.cf10 = dg_cf10;
+    dg.cf11 = dg_cf11;
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMDG, &dg);
+}
+
+/**
+ * \fn eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps)
+ * \brief Set camera's frame rate.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] fps camera frame rate
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps) {
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMRATE, &fps);
 }
 
 /**
