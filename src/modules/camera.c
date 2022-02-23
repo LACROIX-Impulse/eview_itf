@@ -16,10 +16,6 @@
 #include "eviewitf.h"
 #include "eviewitf-priv.h"
 
-#define FPS_MIN_VALUE     5
-#define FPS_DEFAULT_VALUE 30
-#define FPS_MAX_VALUE     60
-
 /* Used by main to communicate with parse_opt. */
 struct camera_arguments {
     int camera_id;
@@ -74,7 +70,7 @@ static char camera_args_doc[] =
     "change display:  -d -c[0-7]\n"
     "change display:  -d -s[0-7]\n"
     "record:          -c[0-7] -r[???] (-p[PATH])\n"
-    "play recordings: -s[0-7] -f[5-60] -p[PATH]\n"
+    "play recordings: -s[0-7] -f[2-60] -p[PATH]\n"
     "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
     "read register:   -c[0-7] -Ra[0x????]\n"
     "reboot a camera: -x -c[0-7]\n"
@@ -90,7 +86,9 @@ static char camera_args_doc[] =
     "set offset:      -c[0-7] -jx:[X] -jy:[Y]\n"
     "get offset:      -c[0-7] -J\n"
     "set pattern:     -c[0-7] -t[pattern]\n"
-    "get pattern:     -c[0-7] -T";
+    "get pattern:     -c[0-7] -T\n"
+    "set frame rate:  -c[0-7] -f[2-60]\n"
+    "get frame rate:  -c[0-7] -F";
 
 /* Program options */
 static struct argp_option camera_options[] = {
@@ -103,7 +101,8 @@ static struct argp_option camera_options[] = {
     {"read", 'R', 0, 0, "Read register", 0},
     {"write", 'W', 0, 0, "Write register", 0},
     {"reboot", 'x', 0, 0, "Software reboot camera", 0},
-    {"fps", 'f', "FPS", 0, "Set playback FPS", 0},
+    {"fps", 'f', "FPS", 0, "Set frame rate", 0},
+    {"fps", 'F', 0, 0, "Get frame rate", 0},
     {"play", 'p', "PATH", 0, "Play a stream in <PATH> as a virtual camera", 0},
     {"blending", 'b', "PATH", 0, "Set the blending frame <PATH> over the display", 0},
     {"no-blending", 'n', 0, 0, "Stop the blending", 0},
@@ -221,6 +220,9 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
             if ((arguments->fps_value < FPS_MIN_VALUE) || (arguments->fps_value > FPS_MAX_VALUE)) {
                 argp_usage(state);
             }
+            break;
+        case 'F':
+            arguments->fps_value = -2;
             break;
         case 'g':
             arguments->gain = atoi(arg);
@@ -616,6 +618,31 @@ int camera_parse(int argc, char **argv) {
             fprintf(stdout, "Not possible to get max exposure\n");
         } else {
             fprintf(stdout, "Fail to get max exposure on camera id %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* Set camera frame rate */
+    if ((arguments.camera_id >= 0) && (arguments.fps_value >= FPS_MIN_VALUE)) {
+        ret = eviewitf_camera_set_frame_rate(arguments.camera_id, arguments.fps_value);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera frame rate set to %d fps on camera id %d\n", arguments.fps_value,
+                    arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to set camera frame rate on camera id %d\n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Fail to set camera frame rate on camera id %d\n", arguments.camera_id);
+        }
+    }
+    /* Get camera frame rate */
+    if ((arguments.camera_id >= 0) && (arguments.fps_value == -2)) {
+        uint16_t fps;
+        ret = eviewitf_camera_get_frame_rate(arguments.camera_id, &fps);
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera frame rate is %d fps on camera id %d\n", fps, arguments.camera_id);
+        } else if (ret == EVIEWITF_BLOCKED) {
+            fprintf(stdout, "Not possible to get camera frame rate on camera id %d\n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Fail to get camera frame rate on camera id %d\n", arguments.camera_id);
         }
     }
 
