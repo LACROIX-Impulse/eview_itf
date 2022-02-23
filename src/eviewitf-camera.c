@@ -318,6 +318,21 @@ int eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *d
 }
 
 /**
+ * \fn eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps)
+ * \brief Get camera's frame rate.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] fps pointer to the returned camera frame rate
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps) {
+    if (!fps) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, fps);
+}
+
+/**
  * \fn eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
  * \brief Get camera's minimum exposure time and gain.
  *
@@ -398,6 +413,18 @@ int eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_
     dg.cf10 = dg_cf10;
     dg.cf11 = dg_cf11;
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMDG, &dg);
+}
+
+/**
+ * \fn eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps)
+ * \brief Set camera's frame rate.
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] fps camera frame rate
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps) {
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMRATE, &fps);
 }
 
 /**
