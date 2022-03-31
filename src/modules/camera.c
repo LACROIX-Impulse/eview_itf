@@ -29,6 +29,8 @@ struct camera_arguments {
     int reg_value;
     int read;
     int write;
+    int start;
+    int stop;
     int reboot;
     int fps_value;
     int play;
@@ -73,6 +75,8 @@ static char camera_args_doc[] =
     "play recordings: -s[0-7] -f[2-60] -p[PATH]\n"
     "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
     "read register:   -c[0-7] -Ra[0x????]\n"
+    "start a camera:  -S -c[0-7]\n"
+    "stop a camera:   -P -c[0-7]\n"
     "reboot a camera: -x -c[0-7]\n"
     "set blending:    -b[PATH] -o[0-1]\n"
     "stop blending:   -n\n"
@@ -100,6 +104,8 @@ static struct argp_option camera_options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
     {"read", 'R', 0, 0, "Read register", 0},
     {"write", 'W', 0, 0, "Write register", 0},
+    {"start", 'S', 0, 0, "Software start camera", 0},
+    {"stop", 'P', 0, 0, "Software stop camera", 0},
     {"reboot", 'x', 0, 0, "Software reboot camera", 0},
     {"fps", 'f', "FPS", 0, "Set frame rate", 0},
     {"fps", 'F', 0, 0, "Get frame rate", 0},
@@ -297,6 +303,12 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
         case 'x':
             arguments->reboot = 1;
             break;
+        case 'S':
+            arguments->start = 1;
+            break;
+        case 'P':
+            arguments->stop = 1;
+            break;
         case ARGP_KEY_ARG:
             argp_usage(state);
             break;
@@ -340,6 +352,8 @@ int camera_parse(int argc, char **argv) {
     arguments.reg_value = 0;
     arguments.read = 0;
     arguments.write = 0;
+    arguments.start = 0;
+    arguments.stop = 0;
     arguments.reboot = 0;
     arguments.play = 0;
     arguments.fps_value = -1;
@@ -422,6 +436,29 @@ int camera_parse(int argc, char **argv) {
                     arguments.camera_id);
         }
     }
+
+    /* start a camera */
+    if ((arguments.camera_id >= 0) && (arguments.start)) {
+        ret = eviewitf_app_start_camera(arguments.camera_id);
+
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera %d started \n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Fail to start camera %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* stop a camera */
+    if ((arguments.camera_id >= 0) && (arguments.stop)) {
+        ret = eviewitf_app_stop_camera(arguments.camera_id);
+
+        if (ret >= EVIEWITF_OK) {
+            fprintf(stdout, "Camera %d stopped \n", arguments.camera_id);
+        } else {
+            fprintf(stdout, "Fail to stop camera %d  \n", arguments.camera_id);
+        }
+    }
+
     /* reboot a camera */
     if ((arguments.camera_id >= 0) && arguments.reboot) {
         ret = eviewitf_app_reset_camera(arguments.camera_id);
