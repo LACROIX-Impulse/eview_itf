@@ -69,7 +69,7 @@ int eviewitf_camera_open(int cam_id);
 int eviewitf_camera_close(int cam_id);
 
 /**
- * \fn eviewitf_camera_start
+ * \fn int eviewitf_camera_start(int cam_id)
  * \brief Request R7 to start camera, currently not exposed in libeviewitf
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
