@@ -108,7 +108,7 @@ int eviewitf_app_start_camera(int cam_id) {
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_app_stop_camera(int cam_id) {
+int eviewitf_camera_stop(int cam_id) {
     int ret = EVIEWITF_OK;
 
     /* Test camera id */

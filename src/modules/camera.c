@@ -62,9 +62,9 @@ static char camera_args_doc[] =
     "play recordings: -s[0-7] -f[2-60] -p[PATH]\n"
     "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
     "read register:   -c[0-7] -Ra[0x????]\n"
-    "start a camera:  -S -c[0-7]\n"
-    "stop a camera:   -P -c[0-7]\n"
-    "reboot a camera: -x -c[0-7]\n"
+    "start a camera:  -c[0-7] -s\n"
+    "stop a camera:   -c[0-7] -S\n"
+    "reboot a camera: -c[0-7] -x\n"
     "monitoring info: -m\n"
     "set exposure:    -c[0-7] -e[???] -g[???]\n"
     "get exposure:    -c[0-7] -E\n"
@@ -83,8 +83,8 @@ static struct argp_option camera_options[] = {
     {"value", 'v', "VALUE", 0, "VALUE to write in the register", 0},
     {"read", 'R', 0, 0, "Read register", 0},
     {"write", 'W', 0, 0, "Write register", 0},
-    {"start", 'S', 0, 0, "Software start camera", 0},
-    {"stop", 'P', 0, 0, "Software stop camera", 0},
+    {"start", 's', 0, 0, "Software start camera", 0},
+    {"stop", 'S', 0, 0, "Software stop camera", 0},
     {"reboot", 'x', 0, 0, "Software reboot camera", 0},
     {"fps", 'f', "FPS", 0, "Set frame rate", 0},
     {"fps", 'F', 0, 0, "Get frame rate", 0},
@@ -229,10 +229,10 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
         case 'x':
             arguments->reboot = 1;
             break;
-        case 'S':
+        case 's':
             arguments->start = 1;
             break;
-        case 'P':
+        case 'S':
             arguments->stop = 1;
             break;
         case ARGP_KEY_ARG:
