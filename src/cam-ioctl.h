@@ -91,7 +91,5 @@ struct cam_dg {
 #define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
 #define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
 #define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */
-#define IOCCAMSTART    MFIS_IO(101)                         /* Start command */
-#define IOCCAMSTOP     MFIS_IO(102)                         /* Stop command */
 
 #endif /* _CAM_IOCTL_H */

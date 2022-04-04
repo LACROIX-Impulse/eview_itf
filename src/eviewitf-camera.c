@@ -83,6 +83,44 @@ int eviewitf_camera_close(int cam_id) {
 }
 
 /**
+ * \fn eviewitf_app_start_camera
+ * \brief Request R7 to start camera, currently not exposed in libeviewitf
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_app_start_camera(int cam_id) {
+    int ret = EVIEWITF_OK;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMSTATE, NULL);
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_app_stop_camera
+ * \brief Request R7 to stop camera, currently not exposed in libeviewitf
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_app_stop_camera(int cam_id) {
+    int ret = EVIEWITF_OK;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMSTATE, NULL);
+    }
+    return ret;
+}
+
+/**
  * \fn int eviewitf_camera_get_frame(int cam_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Copy frame from physical memory to the given buffer location
  *
