@@ -317,7 +317,7 @@ int camera_parse(int argc, char **argv) {
 
     /* start a camera */
     if ((arguments.camera_id >= 0) && (arguments.start)) {
-        ret = eviewitf_app_start_camera(arguments.camera_id);
+        ret = eviewitf_camera_start(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d started \n", arguments.camera_id);
@@ -328,7 +328,7 @@ int camera_parse(int argc, char **argv) {
 
     /* stop a camera */
     if ((arguments.camera_id >= 0) && (arguments.stop)) {
-        ret = eviewitf_app_stop_camera(arguments.camera_id);
+        ret = eviewitf_camera_stop(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {
             fprintf(stdout, "Camera %d stopped \n", arguments.camera_id);

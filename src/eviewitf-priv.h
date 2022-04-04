@@ -102,8 +102,6 @@ typedef struct {
  ******************************************************************************************/
 
 /* App eViewItf */
-int eviewitf_app_start_camera(int cam_id);
-int eviewitf_app_stop_camera(int cam_id);
 int eviewitf_app_reset_camera(int cam_id);
 int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
 int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);

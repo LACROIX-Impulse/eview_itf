@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 LDFLAGS=
-INC = -I include -I src -I src/modules
+INC = -I include -I include/eviewitf -I src -I src/modules
 BUILDDIR = build
 DESTDIR ?= ${SDKTARGETSYSROOT}
 TARGETIP ?= 192.168.0.82
