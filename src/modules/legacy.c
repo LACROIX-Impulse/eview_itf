@@ -1,12 +1,12 @@
 /**
  * \file
- * \brief Module camera
+ * \brief Module legacy
  * \author LACROIX Impulse
  *
  * The module Camera handles operations that relate to streams and cameras
  *
  */
-#include "camera.h"
+#include "legacy.h"
 
 #include <argp.h>
 #include <stdlib.h>
@@ -17,7 +17,7 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct camera_arguments {
+struct legacy_arguments {
     int camera_id;
     int streamer_id;
     int display;
@@ -51,13 +51,13 @@ struct camera_arguments {
 };
 
 /* Possible patterns */
-struct camera_pattern_mode {
+struct legacy_pattern_mode {
     uint8_t tp;
     const char *name;
 };
 
 /* Program documentation */
-static char camera_doc[] =
+static char legacy_doc[] =
     "eviewitf -- Program for communication between A53 and R7 CPUs"
     "\v"
     "Available camera patterns:\n"
@@ -65,7 +65,7 @@ static char camera_doc[] =
     " custom0, custom1, custom2, custom3, custom4\n";
 
 /* Arguments description */
-static char camera_args_doc[] =
+static char legacy_args_doc[] =
     "module:          [camera(default)|pipeline]\n"
     "change display:  -d -c[0-7]\n"
     "change display:  -d -s[0-7]\n"
@@ -91,7 +91,7 @@ static char camera_args_doc[] =
     "get frame rate:  -c[0-7] -F";
 
 /* Program options */
-static struct argp_option camera_options[] = {
+static struct argp_option legacy_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
     {"display", 'd', 0, 0, "Select camera as display", 0},
@@ -123,7 +123,7 @@ static struct argp_option camera_options[] = {
 };
 
 /* clang-format off */
-static struct camera_pattern_mode patterns[] = {
+static struct legacy_pattern_mode patterns[] = {
         { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
         { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
         { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
@@ -158,9 +158,9 @@ static const char *pattern2str(uint8_t tp) {
 }
 
 /* Parse a single option. */
-static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
+static error_t legacy_parse_opt(int key, char *arg, struct argp_state *state) {
     /* Get the input argument from argp_parse */
-    struct camera_arguments *arguments = state->input;
+    struct legacy_arguments *arguments = state->input;
 
     switch (key) {
         case 'a':
@@ -313,7 +313,7 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 /* argp parser. */
-static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
+static struct argp legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, legacy_doc, NULL, NULL, NULL};
 
 /**
  * @brief Parse the parameters and execute the  function
@@ -321,9 +321,9 @@ static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_
  * @param[in] argv arguments
  * @return
  */
-int camera_parse(int argc, char **argv) {
+int legacy_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
-    struct camera_arguments arguments;
+    struct legacy_arguments arguments;
     uint32_t register_value = 0;
     /* cropping deparse variables */
     char *cropping_args;
@@ -360,7 +360,7 @@ int camera_parse(int argc, char **argv) {
 
     /* Parse arguments; every option seen by parse_opt will
           be reflected in arguments. */
-    argp_parse(&camera_argp, argc, argv, 0, 0, &arguments);
+    argp_parse(&legacy_argp, argc, argv, 0, 0, &arguments);
 
     /* Select camera for display */
     if ((arguments.camera_id >= 0) && arguments.display) {
