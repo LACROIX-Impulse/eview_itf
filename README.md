@@ -12,7 +12,7 @@ Setup Yocto SDK to set target toolchain.
 ```
 $ LD_LIBRARY_PATH= source /path/to/poky/2.4.2/environment-setup-aarch64-poky-linux
 ```
-Note: unset LD_LIBARY_PATH may be necessary while sourcing environment
+Note: unset LD_LIBRARY_PATH may be necessary while sourcing environment
 
 ## Generate library
 

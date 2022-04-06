@@ -69,6 +69,24 @@ int eviewitf_camera_open(int cam_id);
 int eviewitf_camera_close(int cam_id);
 
 /**
+ * \fn int eviewitf_camera_start(int cam_id)
+ * \brief Request to start a camera
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_start(int cam_id);
+
+/**
+ * \fn int eviewitf_camera_stop(int cam_id)
+ * \brief Request to stop a camera
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+* \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_camera_stop(int cam_id);
+
+/**
  * \fn int eviewitf_camera_get_attributes(int cam_id, eviewitf_device_attributes_t* attributes)
  * \brief Get the attributes of a camera such as buffer size
  *
