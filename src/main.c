@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     }
 
     ret = legacy_parse(argc, argv);
-    
+
 out:
     exit(-ret);
 }
