@@ -12,7 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "eviewitf-camera.h"
+#include "eviewitf/eviewitf-camera.h"
 #include "eviewitf-priv.h"
 #include "cam-ioctl.h"
 #include "mfis-communication.h"
