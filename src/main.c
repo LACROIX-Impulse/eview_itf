@@ -11,6 +11,7 @@
 #include "eviewitf/eviewitf-structs.h"
 #include "camera.h"
 #include "pipeline.h"
+#include "legacy.h"
 #include <string.h>
 
 const char *argp_program_version = "eviewitf-" VERSION;
@@ -26,7 +27,6 @@ int main(int argc, char **argv) {
     }
 
     /*  Here : test every modules, and goto out after parse*/
-
     if (!strcmp("pipeline", argv[1])) {
         argc--;
         argv++;
@@ -34,11 +34,14 @@ int main(int argc, char **argv) {
         goto out;
     }
 
-    if (!strcmp("camera", argv[1])) {
+    else if (!strcmp("camera", argv[1])) {
         argc--;
         argv++;
+        ret = camera_parse(argc, argv);
+        goto out;
     }
-    ret = camera_parse(argc, argv);
+
+    ret = legacy_parse(argc, argv);
 
 out:
     exit(-ret);
