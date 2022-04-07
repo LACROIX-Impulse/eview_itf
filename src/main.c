@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
     }
 
     /*  Here : test every modules, and goto out after parse*/
-
     if (!strcmp("pipeline", argv[1])) {
         argc--;
         argv++;
