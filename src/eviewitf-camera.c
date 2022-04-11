@@ -370,7 +370,7 @@ int eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps) {
     if (!fps) {
         return EVIEWITF_INVALID_PARAM;
     }
-    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, fps);
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, (void *)fps);
 }
 
 /**
