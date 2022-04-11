@@ -77,8 +77,8 @@ struct cam_dg {
 #define IOCSCAMEXP     MFIS_IOW(3, sizeof(struct cam_exp))  /* Sets the sensor exposure parameters */
 #define IOCGCAMEXPMIN  MFIS_IOR(4, sizeof(struct cam_exp))  /* Gets the sensor min exposure parameters */
 #define IOCGCAMEXPMAX  MFIS_IOR(5, sizeof(struct cam_exp))  /* Gets the sensor max exposure parameters */
-#define IOCGCAMRATE    MFIS_IOW(6, sizeof(uint16_t))        /* Gets the sensor frame rate */
-#define IOCSCAMRATE    MFIS_IOR(7, sizeof(uint16_t))        /* Sets the sensor frame rate */
+#define IOCGCAMRATE    MFIS_IOR(6, sizeof(uint16_t))        /* Gets the sensor frame rate */
+#define IOCSCAMRATE    MFIS_IOW(7, sizeof(uint16_t))        /* Sets the sensor frame rate */
 #define IOCGCAMREADOUT MFIS_IOR(8, sizeof(uint8_t))         /* Gets the sensor image readout */
 #define IOCSCAMREADOUT MFIS_IOW(9, sizeof(uint8_t))         /* Sets the sensor image readout */
 #define IOCGCAMREG     MFIS_IOR(10, sizeof(struct cam_reg)) /* Sets the sensor register */

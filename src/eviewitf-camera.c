@@ -12,6 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "eviewitf/eviewitf-camera.h"
 #include "eviewitf-priv.h"
 #include "cam-ioctl.h"
 #include "mfis-communication.h"
@@ -80,6 +81,46 @@ int eviewitf_camera_close(int cam_id) {
     }
 
     return device_close(cam_id + EVIEWITF_OFFSET_CAMERA);
+}
+
+/**
+ * \fn eviewitf_camera_start
+ * \brief Request R7 to start camera, currently not exposed in libeviewitf
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_camera_start(int cam_id) {
+    int ret = EVIEWITF_OK;
+    int param = CAM_STATE_RUNNING;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMSTATE, &param);
+    }
+    return ret;
+}
+
+/**
+ * \fn eviewitf_camera_stop
+ * \brief Request R7 to stop camera, currently not exposed in libeviewitf
+ *
+ * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \return state of the function. Return 0 if okay
+ */
+int eviewitf_camera_stop(int cam_id) {
+    int ret = EVIEWITF_OK;
+    int param = CAM_STATE_SUSPENDED;
+
+    /* Test camera id */
+    if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
+        ret = EVIEWITF_INVALID_PARAM;
+    } else {
+        ret = mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMSTATE, &param);
+    }
+    return ret;
 }
 
 /**
@@ -329,7 +370,7 @@ int eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps) {
     if (!fps) {
         return EVIEWITF_INVALID_PARAM;
     }
-    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, fps);
+    return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCGCAMRATE, (void *)fps);
 }
 
 /**
