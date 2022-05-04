@@ -20,7 +20,11 @@ function getVersion ()
             else #GITBRANCH
                 # Use branch name and short commit ID
                 VERSION=${GITBRANCH}-${GITREV}
-                
+                if [ "$BRANCH" == "RELEASE-TEST" ]
+                then
+                    GITBRANCHTESTRELEASE=$(git branch --list | grep "*" | cut -c-27 | cut -c-15 --complement)
+                    VERSION=${GITBRANCHTESTRELEASE}-${GITREV}
+                fi
             fi
         else
             VERSION=${GITTAG}
@@ -32,4 +36,23 @@ function getVersion ()
     echo ${VERSION}
 }
 
-echo $(getVersion)
+#echo $(getVersion)
+
+case "$1" in
+
+-h|--help)
+    echo "Use the -n or --nexus if this branch is a release-test branch to get the version we want to push to the nexus repository"
+    exit 0
+    ;;
+
+-n|--nexus)
+    BRANCH=RELEASE-TEST
+    echo $(getVersion)
+    exit 0
+    ;;
+
+*)
+    BRANCH=OTHER
+    echo $(getVersion)
+    ;;
+esac

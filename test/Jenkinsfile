@@ -59,7 +59,7 @@ pipeline {
             }
             environment {
                 VERSION = sh(script: './test/version.sh', , returnStdout: true).trim()
-                NEXUS_ARTIFACT_NAME = sh(script: './test/versionfeature.sh', , returnStdout: true).trim()
+                NEXUS_ARTIFACT_NAME = sh(script: './test/version.sh --nexus', , returnStdout: true).trim()
             }
             steps {
                 nexusPublisher nexusInstanceId: 'Nexus3', nexusRepositoryId: 'eCube-releases', packages:
