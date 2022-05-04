@@ -43,7 +43,7 @@ pipeline {
                 }
             }
             environment {
-               VERSION = sh(script: 'make version', , returnStdout: true).trim()
+               VERSION = sh(script: './test/version.sh', , returnStdout: true).trim()
             }
             steps {
                 nexusPublisher nexusInstanceId: 'Nexus3', nexusRepositoryId: 'eCube-releases', packages:
@@ -51,6 +51,23 @@ pipeline {
                         mavenCoordinate: [artifactId: 'eviewitf', groupId: 'group.lacroix.ecube', packaging: 'tar', version: "${env.VERSION}"]]]
             }
         }
+        stage('Publish feature branch') {
+            when {
+                anyOf {
+                    branch "release-test/*"
+                }
+            }
+            environment {
+                VERSION = sh(script: './test/version.sh', , returnStdout: true).trim()
+                NEXUS_ARTIFACT_NAME = sh(script: './test/versionfeature.sh', , returnStdout: true).trim()
+            }
+            steps {
+                nexusPublisher nexusInstanceId: 'Nexus3', nexusRepositoryId: 'eCube-releases', packages:
+                    [[$class: 'MavenPackage', mavenAssetList: [[classifier: '', extension: 'tar', filePath: "build/eviewitf-${env.VERSION}.tar"]],
+                        mavenCoordinate: [artifactId: 'eviewitf', groupId: 'group.lacroix-test.ecube', packaging: 'tar', version: "${env.NEXUS_ARTIFACT_NAME}"]]]
+            }
+        }
+
     }
     post {
         always {
