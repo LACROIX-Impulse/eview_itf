@@ -52,6 +52,7 @@
  */
 #define MFIS_DEV_CAM      (0) /* Camera I/O operations */
 #define MFIS_DEV_PIPELINE (1) /* Pipeline I/O operations */
+#define MFIS_DEV_VIDEO    (2) /* Video I/O operations */
 
 /**
  * @brief MFIS IOCTL header (little endian)

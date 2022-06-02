@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "pipeline.h"
 #include "legacy.h"
+#include "video.h"
 #include <string.h>
 
 const char *argp_program_version = "eviewitf-" VERSION;
@@ -38,6 +39,12 @@ int main(int argc, char **argv) {
         argc--;
         argv++;
         ret = camera_parse(argc, argv);
+        goto out;
+    }
+    else if (!strcmp("video", argv[1])) {
+        argc--;
+        argv++;
+        ret = video_parse(argc, argv);
         goto out;
     }
 
