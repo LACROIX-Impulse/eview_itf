@@ -22,12 +22,13 @@ extern "C" {
  *        A negative value is therefore an error
  */
 typedef enum {
-    EVIEWITF_OK,                   /*!< No issues */
-    EVIEWITF_BLOCKED = -1,         /*!< eViewItf is blocked in a process / wait for an eView answer */
-    EVIEWITF_INVALID_PARAM = -2,   /*!< Bad parameters have been set in a function call */
-    EVIEWITF_NOT_INITIALIZED = -3, /*!< The API is not initialized before a function call */
-    EVIEWITF_NOT_OPENED = -4,      /*!< The targeted device is not opened */
-    EVIEWITF_FAIL = -5,            /*!< Something has failed during the function call */
+    EVIEWITF_OK,                       /*!< No issues */
+    EVIEWITF_BLOCKED = -1,             /*!< eViewItf is blocked in a process / wait for an eView answer */
+    EVIEWITF_INVALID_PARAM = -2,       /*!< Bad parameters have been set in a function call */
+    EVIEWITF_NOT_INITIALIZED = -3,     /*!< The API is not initialized before a function call */
+    EVIEWITF_NOT_OPENED = -4,          /*!< The targeted device is not opened */
+    EVIEWITF_FAIL = -5,                /*!< Something has failed during the function call */
+    EVIEWITF_ALREADY_INITIALIZED = -6, /*!< The API is already initialized */
 } eviewitf_return_code;
 
 /**
