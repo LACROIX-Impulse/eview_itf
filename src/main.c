@@ -40,8 +40,7 @@ int main(int argc, char **argv) {
         argv++;
         ret = camera_parse(argc, argv);
         goto out;
-    }
-    else if (!strcmp("video", argv[1])) {
+    } else if (!strcmp("video", argv[1])) {
         argc--;
         argv++;
         ret = video_parse(argc, argv);

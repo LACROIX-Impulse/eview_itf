@@ -29,7 +29,6 @@ struct video_arguments {
     enum video_action action;
 };
 
-
 /* Program documentation */
 static char video_doc[] =
     "eviewitf -- Program for communication between A53 and R7 CPUs"
@@ -48,7 +47,6 @@ static struct argp_option video_options[] = {
     {"resume", 'r', 0, 0, "Resume video display", 0},
     {0},
 };
-
 
 /* Parse a single option. */
 static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
@@ -106,7 +104,6 @@ int video_parse(int argc, char **argv) {
 
     /* Resume video for a camera */
     if ((arguments.camera_id >= 0) && (arguments.action == VIDEO_ACTION_RESUME)) {
-
         ret = eviewitf_video_resume(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {
@@ -118,7 +115,6 @@ int video_parse(int argc, char **argv) {
 
     /* Suspend video for a camera */
     if ((arguments.camera_id >= 0) && (arguments.action == VIDEO_ACTION_SUSPEND)) {
-
         ret = eviewitf_video_suspend(arguments.camera_id);
 
         if (ret >= EVIEWITF_OK) {

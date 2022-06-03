@@ -41,7 +41,6 @@ extern "C" {
  */
 int eviewitf_video_resume(int cam_id);
 
-
 /**
  * \fn int eviewitf_video_suspend(int cam_id)
  * \brief Suspend video display for a camera device (act on the R7 VIN IP, not on the sensor nor the serdes)

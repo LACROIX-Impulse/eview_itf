@@ -52,8 +52,7 @@
  */
 #define MFIS_DEV_CAM      (0) /* Camera I/O operations */
 #define MFIS_DEV_PIPELINE (1) /* Pipeline I/O operations */
-//FIXME PR REVIEW: eview has a #define MFIS_DEV_SERIALIZER (2). Even if not used we must either remove it or set mfis_dev_video to 3
-#define MFIS_DEV_VIDEO    (3) /* Video I/O operations */
+#define MFIS_DEV_VIDEO (3) /* Video I/O operations */
 
 /**
  * @brief MFIS IOCTL header (little endian)

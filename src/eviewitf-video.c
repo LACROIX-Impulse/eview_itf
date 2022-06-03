@@ -28,8 +28,7 @@
  * A camera must be opened before to be able to use it (get_frame, poll, get_parameter, set_parameter).
  * A camera should not be opened by two different process at the same time.
  */
-int eviewitf_video_resume(int cam_id)
-{
+int eviewitf_video_resume(int cam_id) {
     int ret = EVIEWITF_OK;
     int param = VIDEO_STATE_RUNNING;
 
@@ -37,14 +36,13 @@ int eviewitf_video_resume(int cam_id)
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        printf("src/eviewitf-video.c %s(cam_id=%d)\n", __FUNCTION__, cam_id );
+        printf("src/eviewitf-video.c %s(cam_id=%d)\n", __FUNCTION__, cam_id);
         printf("send ioctl MFIS_DEV_VIDEO (%d), cam_id (%d), IOCSVIDSTATE (%lu), param = VIDEO_STATE_RUNNING (%d)\n",
                MFIS_DEV_VIDEO, cam_id, IOCSVIDSTATE, param);
         ret = mfis_ioctl_request(MFIS_DEV_VIDEO, cam_id, IOCSVIDSTATE, &param);
     }
     return ret;
 }
-
 
 /**
  * \fn int eviewitf_video_suspend(int cam_id)
@@ -56,8 +54,7 @@ int eviewitf_video_resume(int cam_id)
  * A camera must already been selected for display
  * A camera should not be opened by two different process at the same time.
  */
-int eviewitf_video_suspend(int cam_id)
-{
+int eviewitf_video_suspend(int cam_id) {
     int ret = EVIEWITF_OK;
     int param = VIDEO_STATE_SUSPENDED;
 
@@ -65,7 +62,7 @@ int eviewitf_video_suspend(int cam_id)
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
     } else {
-        printf("src/eviewitf-video.c %s(cam_id=%d)\n", __FUNCTION__, cam_id );
+        printf("src/eviewitf-video.c %s(cam_id=%d)\n", __FUNCTION__, cam_id);
         printf("send ioctl MFIS_DEV_VIDEO (%d), cam_id (%d), IOCSVIDSTATE (%d), param = VIDEO_STATE_SUSPENDED (%d)\n",
                MFIS_DEV_VIDEO, cam_id, IOCSVIDSTATE, param);
         ret = mfis_ioctl_request(MFIS_DEV_VIDEO, cam_id, IOCSVIDSTATE, &param);

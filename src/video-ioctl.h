@@ -12,7 +12,6 @@
 /**
  * @brief Video I/O operations
  */
-#define IOCSVIDSTATE   MFIS_IOW(0, sizeof(uint32_t))        /* Sets the VIN state */
-
+#define IOCSVIDSTATE MFIS_IOW(0, sizeof(uint32_t)) /* Sets the VIN state */
 
 #endif /* _VIDEO_IOCTL_H */
