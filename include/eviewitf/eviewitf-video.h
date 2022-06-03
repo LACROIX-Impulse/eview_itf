@@ -7,7 +7,7 @@
  *
  * Communication API between A53 and R7 CPUs for video display
  *
- * \addtogroup camera
+ * \addtogroup video
  * \{
  */
 

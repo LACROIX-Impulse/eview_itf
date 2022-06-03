@@ -8,6 +8,7 @@
 #define EVIEWITF_PRIV_H
 
 #include <stdint.h>
+#include <fcntl.h>
 
 #include "eviewitf.h"
 

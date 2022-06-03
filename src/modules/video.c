@@ -17,6 +17,10 @@
 #include "eviewitf-priv.h"
 #include "eviewitf/eviewitf-video.h"
 
+/**
+ * \enum video_action
+ * \brief Implemented action for video module
+ */
 enum video_action {
     VIDEO_ACTION_NC = 0,
     VIDEO_ACTION_RESUME,
