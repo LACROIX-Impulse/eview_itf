@@ -245,8 +245,7 @@ int eviewitf_camera_get_frame_rate(int cam_id, uint16_t* fps);
 int eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps);
 
 /**
- * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t
- * dg_cf11)
+ * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t * dg_cf11)
  * \brief Set camera's CFA patterns digital gains.
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
