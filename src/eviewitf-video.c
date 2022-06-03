@@ -7,13 +7,13 @@
  *
  */
 #include "eviewitf/eviewitf-video.h"
-#include "eviewitf-priv.h"
 #include "video-ioctl.h"
 #include "mfis-communication.h"
+#include "eviewitf/eviewitf-camera.h"
 
 /**
  * \fn int eviewitf_video_resume(int cam_id)
- * \brief Resume video display for a camera device (act on the R7 VIN IP, not on the sensor nor the serdes)
+ * \brief Resume video display for a camera device
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return return code as specified by the eviewitf_return_code enumeration.
@@ -36,7 +36,7 @@ int eviewitf_video_resume(int cam_id) {
 
 /**
  * \fn int eviewitf_video_suspend(int cam_id)
- * \brief Suspend video display for a camera device (act on the R7 VIN IP, not on the sensor nor the serdes)
+ * \brief Suspend video display for a camera device
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return return code as specified by the eviewitf_return_code enumeration.
