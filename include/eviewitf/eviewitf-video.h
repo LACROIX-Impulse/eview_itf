@@ -21,12 +21,6 @@
 extern "C" {
 #endif
 
-/**
- * \def EVIEWITF_MAX_CAMERA
- * \brief Max number of camera devices
- */
-#define EVIEWITF_MAX_CAMERA 8
-
 /** @} */
 
 /**
