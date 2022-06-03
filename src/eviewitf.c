@@ -62,7 +62,7 @@ int eviewitf_init(void) {
 
     /* Check if init has been done */
     if (eviewitf_global_init != 0) {
-        ret = EVIEWITF_FAIL;
+        ret = EVIEWITF_ALREADY_INITIALIZED;
     } else {
         /* Prepare TX buffer */
         request[0] = EVIEWITF_MFIS_FCT_INIT;
