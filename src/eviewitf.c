@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "mfis-communication.h"
 #include "eviewitf-priv.h"
@@ -30,6 +31,8 @@
 
 static uint8_t eviewitf_global_init = 0;
 static char eview_version[MAX_VERSION_SIZE];
+static pthread_mutex_t eviewitf_init_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t eviewitf_deinit_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /******************************************************************************************
  * Functions
@@ -58,12 +61,15 @@ int eviewitf_init(void) {
     int ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
-    mfis_init();
+    /* Critical section */
+    pthread_mutex_lock(&eviewitf_init_mutex);
 
     /* Check if init has been done */
     if (eviewitf_global_init != 0) {
         ret = EVIEWITF_ALREADY_INITIALIZED;
     } else {
+        mfis_init();
+
         /* Prepare TX buffer */
         request[0] = EVIEWITF_MFIS_FCT_INIT;
 
@@ -84,6 +90,8 @@ int eviewitf_init(void) {
         }
     }
 
+    /* End of critical section */
+    pthread_mutex_unlock(&eviewitf_init_mutex);
     return ret;
 }
 
@@ -99,6 +107,9 @@ int eviewitf_init(void) {
 int eviewitf_deinit(void) {
     int ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
+
+    /* Critical section */
+    pthread_mutex_lock(&eviewitf_deinit_mutex);
 
     /* Check if init has been done */
     if (eviewitf_global_init == 0) {
@@ -120,6 +131,9 @@ int eviewitf_deinit(void) {
     }
 
     mfis_deinit();
+
+    /* End of critical section */
+    pthread_mutex_unlock(&eviewitf_deinit_mutex);
 
     return ret;
 }
