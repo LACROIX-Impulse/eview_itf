@@ -50,9 +50,10 @@
 /**
  * I/O device types
  */
-#define MFIS_DEV_CAM      (0) /* Camera I/O operations */
-#define MFIS_DEV_PIPELINE (1) /* Pipeline I/O operations */
-#define MFIS_DEV_VIDEO    (3) /* Video I/O operations */
+#define MFIS_DEV_CAM        (0) /* Camera I/O operations */
+#define MFIS_DEV_PIPELINE   (1) /* Pipeline I/O operations */
+#define MFIS_DEV_SERIALIZER (2) /* Serializer I/O operations */
+#define MFIS_DEV_VIDEO      (3) /* Video I/O operations (VIN only) */
 
 /**
  * @brief MFIS IOCTL header (little endian)
@@ -62,6 +63,7 @@ struct mfis_ioctl {
     uint8_t devtype;
     uint8_t requester;
     uint8_t devid;
+    uint16_t error;
     uint16_t result;
     uint16_t cmd;
     uint32_t arg[0];
