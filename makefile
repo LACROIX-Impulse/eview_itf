@@ -21,6 +21,7 @@ LIBDEPS = $(BUILDDIR)/src/eviewitf.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-app.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-blender.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-camera.o
+LIBDEPS += $(BUILDDIR)/src/eviewitf-video.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-camera_seek.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-device.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-ssd.o
@@ -28,6 +29,7 @@ LIBDEPS += $(BUILDDIR)/src/eviewitf-streamer.o
 LIBDEPS += $(BUILDDIR)/src/eviewitf-pipeline.o
 LIBDEPS += $(BUILDDIR)/src/mfis-communication.o
 LIBDEPS += $(BUILDDIR)/src/modules/camera.o
+LIBDEPS += $(BUILDDIR)/src/modules/video.o
 LIBDEPS += $(BUILDDIR)/src/modules/legacy.o
 LIBDEPS += $(BUILDDIR)/src/modules/pipeline.o
 
