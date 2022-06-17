@@ -25,6 +25,7 @@ enum video_action {
     VIDEO_ACTION_NC = 0,
     VIDEO_ACTION_RESUME,
     VIDEO_ACTION_SUSPEND,
+    VIDEO_ACTION_STATE,
 };
 
 /* Used by main to communicate with parse_opt. */
@@ -49,6 +50,7 @@ static struct argp_option video_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"suspend", 's', 0, 0, "Suspend video display", 0},
     {"resume", 'r', 0, 0, "Resume video display", 0},
+    {"state", 'S', 0, 0, "Gets the video state", 0},
     {0},
 };
 
@@ -69,6 +71,9 @@ static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'r':
             arguments->action = VIDEO_ACTION_RESUME;
+            break;
+        case 'S':
+            arguments->action = VIDEO_ACTION_STATE;
             break;
         case ARGP_KEY_ARG:
             argp_usage(state);
@@ -125,6 +130,21 @@ int video_parse(int argc, char **argv) {
             fprintf(stdout, "Video for camera %d suspended \n", arguments.camera_id);
         } else {
             fprintf(stdout, "Fail to suspend video for camera %d  \n", arguments.camera_id);
+        }
+    }
+
+    /* Gets the video state for a camera */
+    if ((arguments.camera_id >= 0) && (arguments.action == VIDEO_ACTION_STATE)) {
+        char sstate[16] = "unknown";
+        uint32_t state;
+
+        ret = eviewitf_video_get_state(arguments.camera_id, &state);
+        if (ret >= EVIEWITF_OK) {
+            if (state == EVIEWITF_VIDEO_STATE_RUNNING) snprintf(sstate, 16, "running");
+            if (state == EVIEWITF_VIDEO_STATE_SUSPENDED) snprintf(sstate, 16, "suspended");
+            fprintf(stdout, "Video for camera %d is %s \n", arguments.camera_id, sstate);
+        } else {
+            fprintf(stdout, "Fail to get the video state for camera %d  \n", arguments.camera_id);
         }
     }
 
