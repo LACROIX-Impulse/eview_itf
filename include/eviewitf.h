@@ -14,6 +14,7 @@
 
 #include "eviewitf/eviewitf-structs.h"
 #include "eviewitf/eviewitf-camera.h"
+#include "eviewitf/eviewitf-video.h"
 #include "eviewitf/eviewitf-streamer.h"
 #include "eviewitf/eviewitf-blender.h"
 #include "eviewitf/eviewitf-pipeline.h"

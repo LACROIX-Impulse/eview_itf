@@ -57,7 +57,7 @@ static char camera_doc[] =
 
 /* Arguments description */
 static char camera_args_doc[] =
-    "module:          [camera(default)|pipeline]\n"
+    "module:          [camera(default)|pipeline|video]\n"
     "record:          -c[0-7] -r[???] (-p[PATH])\n"
     "play recordings: -s[0-7] -f[2-60] -p[PATH]\n"
     "write register:  -c[0-7] -Wa[0x????] -v[0x??]\n"
