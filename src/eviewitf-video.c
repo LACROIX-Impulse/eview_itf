@@ -41,7 +41,7 @@ int eviewitf_video_resume(int cam_id) {
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return return code as specified by the eviewitf_return_code enumeration.
  *
- * A camera must already been selected for display
+ * A camera must be opened before to be able to use it (get_frame, poll, get_parameter, set_parameter).
  * A camera should not be opened by two different process at the same time.
  */
 int eviewitf_video_suspend(int cam_id) {
@@ -55,4 +55,22 @@ int eviewitf_video_suspend(int cam_id) {
         ret = mfis_ioctl_request(MFIS_DEV_VIDEO, cam_id, IOCSVIDSTATE, &param);
     }
     return ret;
+}
+
+/**
+ * \fn int eviewitf_video_get_state(int cam_id)
+ * \brief Gets the video state for a camera device
+ *
+ * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * \param[out] state pointer to the returned camera frame rate
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ *
+ * A camera must be opened before to be able to use it (get_frame, poll, get_parameter, set_parameter).
+ * A camera should not be opened by two different process at the same time.
+ */
+int eviewitf_video_get_state(int cam_id, uint32_t *state) {
+    if (!state) {
+        return EVIEWITF_INVALID_PARAM;
+    }
+    return mfis_ioctl_request(MFIS_DEV_VIDEO, cam_id, IOCGVIDSTATE, (void *)state);
 }
