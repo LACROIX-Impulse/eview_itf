@@ -189,7 +189,7 @@ static uint8_t get_font_value(int i, int j) { return font_basic[i][j]; }
 
 /**
  * \fn void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewitf_yuv_color_attributes_t *yuv)
- * \brief Converts an RGB color into an YUV one
+ * \brief Converts an RGB color into an YUV one (BT.709 Computer RGB to YUV)
  *
  * \param rgb: RGB color to convert
  * \param yuv: YUV converted color
@@ -212,9 +212,10 @@ static void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewit
     yuv->v = (uint8_t)v_val;
 }
 
+/* clang-format off */
 /**
- * \fn void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y,
- * eviewitf_yuv_color_attributes_t color) \brief Sets a pixel to the desired YUV color into an YUV422sp frame
+ * \fn void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_yuv_color_attributes_t color)
+ * \brief Sets a pixel to the desired YUV color into an YUV422sp frame
  *
  * \param frame: YUV422sp frame
  * \param x: Row pixel position
@@ -222,6 +223,7 @@ static void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewit
  * \param color: YUV pixel color
  *
  */
+/* clang-format on */
 static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y,
                                eviewitf_yuv_color_attributes_t color) {
     if ((x % 2u) != 0u) {
@@ -238,9 +240,10 @@ static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, u
     frame->buffer[x + ((y + frame->height) * frame->width) + 1u] = color.v;
 }
 
+/* clang-format off */
 /**
- * \fn void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
- * eviewitf_yuv_color_attributes_t color) \brief Draws an horizontal line to the desired YUV color into an YUV422sp
+ * \fn void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_yuv_color_attributes_t color)
+ * \brief Draws an horizontal line to the desired YUV color into an YUV422sp
  * frame
  *
  * \param frame: YUV422sp frame
@@ -250,6 +253,7 @@ static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, u
  * \param color: YUV pixel color
  *
  */
+/* clang-format on */
 static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
                                  eviewitf_yuv_color_attributes_t color) {
     if ((x % 2u) != 0u) x++;
@@ -266,9 +270,10 @@ static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x,
     }
 }
 
+/* clang-format off */
 /**
- * \fn uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
- * eviewitf_yuv_color_attributes_t color, uint8_t disp) \brief Draws a character in the desired YUV color into an
+ * \fn uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_yuv_color_attributes_t color, uint8_t disp)
+ * \brief Draws a character in the desired YUV color into an
  * YUV422sp frame
  *
  * \param frame: YUV422sp frame
@@ -281,6 +286,7 @@ static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x,
  *
  * \return The row position after writting the character
  */
+/* clang-format on */
 static uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
                                    eviewitf_yuv_color_attributes_t color, uint8_t disp) {
     uint32_t max_x = x;
@@ -323,9 +329,10 @@ static uint32_t get_yuv422sp_str_length(char *str, uint32_t sz) {
     return ret;
 }
 
+/* clang-format off */
 /**
- * \fn uint32_t plot_yuv422sp_str(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char *str, uint32_t sz,
- * eviewitf_text_align align, eviewitf_yuv_color_attributes_t color) \brief Plots a string in the desired YUV color into
+ * \fn uint32_t plot_yuv422sp_str(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char *str, uint32_t sz, eviewitf_text_align align, eviewitf_yuv_color_attributes_t color)
+ * \brief Plots a string in the desired YUV color into
  * an YUV422sp frame
  *
  * \param frame: YUV422sp frame
@@ -333,10 +340,12 @@ static uint32_t get_yuv422sp_str_length(char *str, uint32_t sz) {
  * \param y: Column pixel position
  * \param str: String to draw
  * \param sz: Character size
+ * \param align: Text alignment position
  * \param color: YUV pixel color
  *
  * \return The row position after writting the string
  */
+/* clang-format on */
 static uint32_t plot_yuv422sp_str(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char *str, uint32_t sz,
                                   eviewitf_text_align align, eviewitf_yuv_color_attributes_t color) {
     uint32_t txt_sz = get_yuv422sp_str_length(str, sz);

@@ -210,6 +210,7 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
  */
 int eviewitf_camera_get_exposure(int cam_id, uint32_t* exposure_us, uint32_t* gain_thou);
 
+/* clang-format off */
 /**
  * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t* dg_cf11)
  * \brief Get camera's CFA patterns digital gains.
@@ -222,6 +223,7 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t* exposure_us, uint32_t* ga
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_get_digital_gains(int cam_id, uint16_t* dg_cf00, uint16_t* dg_cf01, uint16_t* dg_cf10, uint16_t* dg_cf11);
+/* clang-format on */
 
 /**
  * \fn eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps)
@@ -243,6 +245,7 @@ int eviewitf_camera_get_frame_rate(int cam_id, uint16_t* fps);
  */
 int eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps);
 
+/* clang-format off */
 /**
  * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t dg_cf11)
  * \brief Set camera's CFA patterns digital gains.
@@ -255,6 +258,7 @@ int eviewitf_camera_set_frame_rate(int cam_id, uint16_t fps);
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t dg_cf11);
+/* clang-format on */
 
 /**
  * \fn eviewitf_camera_get_min_exposure(int cam_id, uint32_t *exposure_us, uint32_t *gain_thou)
