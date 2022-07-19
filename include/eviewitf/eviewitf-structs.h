@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API structures
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  *
  * Structures used for communication API between A53 and R7 CPUs
  */
@@ -79,6 +79,87 @@ typedef struct {
     uint32_t height;      /*!< The frame height (in pixels) */
     uint16_t dt;          /*!< The data type (Y only, YUV, RGB…) */
 } eviewitf_device_attributes_t;
+
+/**
+ * \enum eviewitf_frame_format
+ * \brief eViewItf frame format supported to draw bounding boxes.
+ */
+typedef enum {
+    EVIEWITF_FRAME_FORMAT_YUV422SP, /*!< YUV422 semi planar frame format */
+} eviewitf_frame_format;
+
+/**
+ * \enum eviewitf_bounding_box_display_state
+ * \brief  Bounding box feature to be displayed or not.
+ */
+typedef enum {
+    EVIEWITF_BOUNDING_BOX_DISPLAY_DISABLED, /*!< Feature will not be displayed */
+    EVIEWITF_BOUNDING_BOX_DISPLAY_ENABLED,  /*!< Feature will be displayed */
+} eviewitf_bounding_box_display_state;
+
+/**
+ * \enum eviewitf_bounding_box_label
+ * \brief eViewItf bounding boxes label supported.
+ */
+typedef enum {
+    EVIEWITF_BOUNDING_BOX_LABEL_PERSON,        /*!< Person bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_BICYCLE,       /*!< Bicycle bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_CAR,           /*!< Car bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_MOTORCYCLE,    /*!< Motorcycle bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_AIRPLANE,      /*!< Airplane bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_BUS,           /*!< Bus bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_TRAIN,         /*!< Train bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_TRUCK,         /*!< Truck bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_BOAT,          /*!< Boat bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_TRAFFIC_LIGHT, /*!< Traffic Light bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_FIRE_HYDRANT,  /*!< Fire hydrant bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_STOP_SIGN,     /*!< Stop sign bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_PARKING_METER, /*!< Parking meter bounding box label */
+    EVIEWITF_BOUNDING_BOX_LABEL_UNLABELED,     /*!< Unlabeled bounding box label */
+} eviewitf_bounding_box_label;
+
+/**
+ * \struct eviewitf_rgb_color_attributes_t
+ * \brief Structure to set an RGB color
+ *
+ */
+typedef struct {
+    uint8_t red;   /*!< Red channel value */
+    uint8_t green; /*!< Green channel value */
+    uint8_t blue;  /*!< Blue channel value */
+} eviewitf_rgb_color_attributes_t;
+
+/**
+ * \struct eviewitf_frame_attributes_t
+ * \brief Structure to set a frame attributes
+ *
+ */
+typedef struct {
+    uint8_t *buffer;              /*!< Pointer to the frame */
+    uint32_t width;               /*!< Frame width */
+    uint32_t height;              /*!< Frame height */
+    eviewitf_frame_format format; /*!< Frame format*/
+} eviewitf_frame_attributes_t;
+
+/**
+ * \struct eviewitf_bounding_box_attributes_t
+ * \brief Structure to set a bounding box attributes
+ *
+ */
+typedef struct {
+    uint32_t x_offset;                               /*!< Bounding box upper right position */
+    uint32_t y_offset;                               /*!< Bounding box lower left position */
+    uint32_t width;                                  /*!< Bounding box width */
+    uint32_t height;                                 /*!< Bounding box height */
+    uint8_t line_width;                              /*!< Bounding box line width */
+    uint8_t text_size;                               /*!< Bounding box text size */
+    eviewitf_rgb_color_attributes_t line_color;      /*!< Bounding box line color */
+    eviewitf_rgb_color_attributes_t text_color;      /*!< Bounding box text color */
+    eviewitf_bounding_box_label label;               /*!< Bounding box label value */
+    uint8_t score;                                   /*!< Bounding box score value (between 0 and 100) */
+    eviewitf_bounding_box_display_state label_state; /*!< Bounding box label to be displayed */
+    eviewitf_bounding_box_display_state score_state; /*!< Bounding box score to be displayed */
+} eviewitf_bounding_box_attributes_t;
 
 #ifdef __cplusplus
 }

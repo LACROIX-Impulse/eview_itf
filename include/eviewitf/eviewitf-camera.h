@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API regarding cameras
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  * \ingroup camera
  *
  * Communication API between A53 and R7 CPUs for camera devices
@@ -31,18 +31,18 @@ extern "C" {
  * \brief Possible camera test patterns
  * @{
  */
-#define EVIEWITF_TEST_PATTERN_NONE             (0)   /* No test pattern */
-#define EVIEWITF_TEST_PATTERN_SOLID_RED        (1)   /* Solid color - red */
-#define EVIEWITF_TEST_PATTERN_SOLID_GREEN      (2)   /* Solid color - green */
-#define EVIEWITF_TEST_PATTERN_SOLID_BLUE       (3)   /* Solid color - blue */
-#define EVIEWITF_TEST_PATTERN_SOLID_VBAR       (4)   /* Vertical bars */
-#define EVIEWITF_TEST_PATTERN_SOLID_VBAR_FADED (5)   /* Vertical bars faded */
-#define EVIEWITF_TEST_PATTERN_CUSTOM0          (16)  /* Custom pattern */
-#define EVIEWITF_TEST_PATTERN_CUSTOM1          (17)  /* Custom pattern */
-#define EVIEWITF_TEST_PATTERN_CUSTOM2          (18)  /* Custom pattern */
-#define EVIEWITF_TEST_PATTERN_CUSTOM3          (19)  /* Custom pattern */
-#define EVIEWITF_TEST_PATTERN_CUSTOM4          (20)  /* Custom pattern */
-#define EVIEWITF_TEST_PATTERN_UNKNOWN          (255) /* Unknown test pattern */
+#define EVIEWITF_TEST_PATTERN_NONE             (0)   /*!< No test pattern */
+#define EVIEWITF_TEST_PATTERN_SOLID_RED        (1)   /*!< Solid color - red */
+#define EVIEWITF_TEST_PATTERN_SOLID_GREEN      (2)   /*!< Solid color - green */
+#define EVIEWITF_TEST_PATTERN_SOLID_BLUE       (3)   /*!< Solid color - blue */
+#define EVIEWITF_TEST_PATTERN_SOLID_VBAR       (4)   /*!< Vertical bars */
+#define EVIEWITF_TEST_PATTERN_SOLID_VBAR_FADED (5)   /*!< Vertical bars faded */
+#define EVIEWITF_TEST_PATTERN_CUSTOM0          (16)  /*!< Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM1          (17)  /*!< Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM2          (18)  /*!< Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM3          (19)  /*!< Custom pattern */
+#define EVIEWITF_TEST_PATTERN_CUSTOM4          (20)  /*!< Custom pattern */
+#define EVIEWITF_TEST_PATTERN_UNKNOWN          (255) /*!< Unknown test pattern */
 /** @} */
 
 /**
@@ -211,8 +211,8 @@ int eviewitf_camera_set_parameter(int cam_id, uint32_t reg_address, uint32_t reg
 int eviewitf_camera_get_exposure(int cam_id, uint32_t* exposure_us, uint32_t* gain_thou);
 
 /**
- * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t
- * *dg_cf11) \brief Get camera's CFA patterns digital gains.
+ * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t* dg_cf11)
+ * \brief Get camera's CFA patterns digital gains.
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \param[out] dg_cf00 pointer to the returned CFA 00 digital gain
@@ -221,8 +221,7 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t* exposure_us, uint32_t* ga
  * \param[out] dg_cf11 pointer to the returned CFA 11 digital gain
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_camera_get_digital_gains(int cam_id, uint16_t* dg_cf00, uint16_t* dg_cf01, uint16_t* dg_cf10,
-                                      uint16_t* dg_cf11);
+int eviewitf_camera_get_digital_gains(int cam_id, uint16_t* dg_cf00, uint16_t* dg_cf01, uint16_t* dg_cf10, uint16_t* dg_cf11);
 
 /**
  * \fn eviewitf_camera_get_frame_rate(int cam_id, uint16_t *fps)

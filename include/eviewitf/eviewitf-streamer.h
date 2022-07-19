@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API regarding streamers
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  * \ingroup streamer
  *
  * Communication API between A53 and R7 CPUs for streamer devices
