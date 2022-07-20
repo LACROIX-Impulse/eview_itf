@@ -5,10 +5,10 @@
  * \defgroup streamer Streamer (functions that concern the streamers)
  * \defgroup blender Blender (functions that concern the blenders)
  * \defgroup display Display (functions that concern the display)
+ * \defgroup plot Plot (functions that concern the plot)
  */
-
 
 /**
  * @example example1.c
- * Here is an example of how the API can be used to receive and process a frame 
+ * Here is an example of how the API can be used to receive and process a frame
  * */

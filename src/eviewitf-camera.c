@@ -330,9 +330,10 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *ga
     return ret;
 }
 
+/* clang-format off */
 /**
- * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t
- * *dg_cf11) \brief Get camera's CFA patterns digital gains.
+ * \fn eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10, uint16_t dg_cf11)
+ * \brief Get camera's CFA patterns digital gains.
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \param[out] dg_cf00 pointer to the returned CFA 00 digital gain
@@ -341,6 +342,7 @@ int eviewitf_camera_get_exposure(int cam_id, uint32_t *exposure_us, uint32_t *ga
  * \param[out] dg_cf11 pointer to the returned CFA 11 digital gain
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
+/* clang-format on */
 int eviewitf_camera_get_digital_gains(int cam_id, uint16_t *dg_cf00, uint16_t *dg_cf01, uint16_t *dg_cf10,
                                       uint16_t *dg_cf11) {
     int ret;
@@ -435,9 +437,9 @@ int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain
     return mfis_ioctl_request(MFIS_DEV_CAM, cam_id, IOCSCAMEXP, &exposure_value);
 }
 
+/* clang-format off */
 /**
- * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t
- * dg_cf11)
+ * \fn eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10, uint16_t dg_cf11)
  * \brief Set camera's CFA patterns digital gains.
  *
  * \param[in] cam_id id of the camera between 0 and EVIEWITF_MAX_CAMERA
@@ -447,6 +449,7 @@ int eviewitf_camera_set_exposure(int cam_id, uint32_t exposure_us, uint32_t gain
  * \param[out] dg_cf11 CFA 11 digital gain
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
+/* clang-format on */
 int eviewitf_camera_set_digital_gains(int cam_id, uint16_t dg_cf00, uint16_t dg_cf01, uint16_t dg_cf10,
                                       uint16_t dg_cf11) {
     struct cam_dg dg;
