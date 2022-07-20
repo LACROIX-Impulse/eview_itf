@@ -21,16 +21,31 @@
 extern "C" {
 #endif
 
+/* clang-format off */
 /**
- * \fn eviewitf_plot_bounding_box(eviewitf_frame_attributes_t *frame, eviewitf_bounding_box_attributes_t *bounding_box)
- * \brief Plots a bouding box into a frame
+ * \fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
+ * \brief Plots a rectangle into a frame
  *
- * \param frame: frame pointer where to draw the bounding box
- * \param bounding_box: bounding box pointer to draw
+ * \param frame: frame pointer where to plot the rectangle
+ * \param rect: rectangle pointer to plot
  *
  * \return Return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_plot_bounding_box(eviewitf_frame_attributes_t *frame, eviewitf_bounding_box_attributes_t *bounding_box);
+/* clang-format on */
+int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect);
+
+/* clang-format off */
+/**
+ * \fn eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text)
+ * \brief Plots a text into a frame
+ *
+ * \param frame: frame pointer where to plot the text
+ * \param text: text pointer to plot
+ *
+ * \return Return code as specified by the eviewitf_return_code enumeration.
+ */
+/* clang-format on */
+int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text);
 
 #ifdef __cplusplus
 }

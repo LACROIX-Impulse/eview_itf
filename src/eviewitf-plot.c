@@ -156,17 +156,7 @@ static uint8_t font_basic[128][8] = {
  ******************************************************************************************/
 
 /**
- * \enum eviewitf_text_align
- * \brief eViewItf bounding boxes text alignment supported.
- */
-typedef enum {
-    EVIEWITF_TEXT_ALIGN_LEFT,
-    EVIEWITF_TEXT_ALIGN_CENTER,
-    EVIEWITF_TEXT_ALIGN_RIGHT,
-} eviewitf_text_align;
-
-/**
- * \struct eviewitf_yuv_color_attributes_t
+ * \struct eviewitf_plot_yuv_color_attributes_t
  * \brief Structure to set an YUV color
  *
  */
@@ -174,7 +164,7 @@ typedef struct {
     uint8_t y; /*!< Y channel value */
     uint8_t u; /*!< U channel value */
     uint8_t v; /*!< V channel value */
-} eviewitf_yuv_color_attributes_t;
+} eviewitf_plot_yuv_color_attributes_t;
 
 /**
  * \fn uint8_t get_font_value(int i, int j)
@@ -188,14 +178,15 @@ typedef struct {
 static uint8_t get_font_value(int i, int j) { return font_basic[i][j]; }
 
 /**
- * \fn void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewitf_yuv_color_attributes_t *yuv)
- * \brief Converts an RGB color into an YUV one (BT.709 Computer RGB to YUV)
+ * \fn void rgb_color_to_plot_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb, eviewitf_plot_yuv_color_attributes_t
+ * *yuv) \brief Converts an RGB color into an YUV one (BT.709 Computer RGB to YUV)
  *
  * \param rgb: RGB color to convert
  * \param yuv: YUV converted color
  *
  */
-static void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewitf_yuv_color_attributes_t *yuv) {
+static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
+                                   eviewitf_plot_yuv_color_attributes_t *yuv) {
     int r_val = (int)rgb->red;
     int g_val = (int)rgb->green;
     int b_val = (int)rgb->blue;
@@ -214,7 +205,7 @@ static void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewit
 
 /* clang-format off */
 /**
- * \fn void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_yuv_color_attributes_t color)
+ * \fn void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
  * \brief Sets a pixel to the desired YUV color into an YUV422sp frame
  *
  * \param frame: YUV422sp frame
@@ -224,8 +215,8 @@ static void rgb_color_to_yuv_color(eviewitf_rgb_color_attributes_t *rgb, eviewit
  *
  */
 /* clang-format on */
-static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y,
-                               eviewitf_yuv_color_attributes_t color) {
+static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
+                               eviewitf_plot_yuv_color_attributes_t color) {
     if ((x % 2u) != 0u) {
         return;
     }
@@ -242,9 +233,8 @@ static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, u
 
 /* clang-format off */
 /**
- * \fn void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_yuv_color_attributes_t color)
- * \brief Draws an horizontal line to the desired YUV color into an YUV422sp
- * frame
+ * \fn void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
+ * \brief Plots an horizontal line to the desired YUV color into an YUV422sp frame
  *
  * \param frame: YUV422sp frame
  * \param x: Row pixel position
@@ -254,8 +244,8 @@ static void set_yuv422sp_pixel(eviewitf_frame_attributes_t *frame, uint32_t x, u
  *
  */
 /* clang-format on */
-static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
-                                 eviewitf_yuv_color_attributes_t color) {
+static void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
+                                 eviewitf_plot_yuv_color_attributes_t color) {
     if ((x % 2u) != 0u) x++;
 
     /* Y value */
@@ -272,14 +262,14 @@ static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x,
 
 /* clang-format off */
 /**
- * \fn uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_yuv_color_attributes_t color, uint8_t disp)
- * \brief Draws a character in the desired YUV color into an
+ * \fn uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_plot_yuv_color_attributes_t color, uint8_t disp)
+ * \brief Plots a character in the desired YUV color into an
  * YUV422sp frame
  *
  * \param frame: YUV422sp frame
  * \param x: Row pixel position
  * \param y: Column pixel position
- * \param c: Character to draw
+ * \param c: Character to plot
  * \param sz: Character size
  * \param color: YUV pixel color
  * \param disp: Will be plotted if disp is not equal to 0
@@ -287,8 +277,13 @@ static void draw_yuv422sp_h_line(eviewitf_frame_attributes_t *frame, uint32_t x,
  * \return The row position after writting the character
  */
 /* clang-format on */
-static uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
-                                   eviewitf_yuv_color_attributes_t color, uint8_t disp) {
+static uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
+                                   eviewitf_plot_yuv_color_attributes_t color, uint8_t disp) {
+    uint32_t x_min = 5000u;
+    uint32_t x_max = 0u;
+    uint32_t y_min = 5000u;
+    uint32_t y_max = 0u;
+
     uint32_t max_x = x;
     uint32_t cnt_row = 0;
     for (uint8_t l = 0u; l < 8u; l++) {
@@ -299,6 +294,11 @@ static uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t 
             for (uint32_t incx = 0; incx < sz; incx++) {
                 for (uint32_t incy = 0; incy < sz; incy++) {
                     if (v > 0u && disp > 0u) {
+                        if (x_min > x + cnt_col + incx) x_min = x + cnt_col + incx;
+                        if (x_max < x + cnt_col + incx) x_max = x + cnt_col + incx;
+                        if (y_min > y + cnt_row + incy) y_min = y + cnt_row + incy;
+                        if (y_max < y + cnt_row + incy) y_max = y + cnt_row + incy;
+
                         set_yuv422sp_pixel(frame, x + cnt_col + incx, y + cnt_row + incy, color);
                     }
                     max_x = x + cnt_col + incx;
@@ -308,85 +308,61 @@ static uint32_t plot_yuv422sp_char(eviewitf_frame_attributes_t *frame, uint32_t 
         }
         cnt_row += sz;
     }
+
     return max_x;
 }
 
 /**
- * \fn get_yuv422sp_str_length(char *str, uint32_t sz)
+ * \fn get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text)
  * \brief Gets the string length in pixel
  *
- * \param str: string
- * \param sz: Text size
+ * \param text: Text attributes pointer
  *
  * \return The string length in pixel
  */
-static uint32_t get_yuv422sp_str_length(char *str, uint32_t sz) {
-    eviewitf_yuv_color_attributes_t color;
+static uint32_t get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text) {
+    eviewitf_plot_yuv_color_attributes_t color;
     uint32_t ret = 0;
-    for (size_t i = 0; i < strlen(str); i++) {
-        ret = plot_yuv422sp_char(NULL, ret, 0, str[i], sz, color, 0) + sz;
+    size_t len = strlen(text->text);
+
+    for (size_t i = 0; i < len; i++) {
+        ret = plot_yuv422sp_char(NULL, ret, 0, text->text[i], text->size, color, 0) + text->size;
     }
     return ret;
 }
 
 /* clang-format off */
 /**
- * \fn uint32_t plot_yuv422sp_str(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char *str, uint32_t sz, eviewitf_text_align align, eviewitf_yuv_color_attributes_t color)
- * \brief Plots a string in the desired YUV color into
- * an YUV422sp frame
+ * \fn uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text, eviewitf_plot_yuv_color_attributes_t color)
+ * \brief Plots a text in the desired YUV color into an YUV422sp frame
  *
- * \param frame: YUV422sp frame
- * \param x: Row pixel position
- * \param y: Column pixel position
- * \param str: String to draw
- * \param sz: Character size
- * \param align: Text alignment position
- * \param color: YUV pixel color
+ * \param frame: Frame attributes pointer
+ * \param text: Text attributes pointer
+ * \param color: YUV text pixel color
  *
- * \return The row position after writting the string
+ * \return The row position in pixel after writting the string
  */
 /* clang-format on */
-static uint32_t plot_yuv422sp_str(eviewitf_frame_attributes_t *frame, uint32_t x, uint32_t y, char *str, uint32_t sz,
-                                  eviewitf_text_align align, eviewitf_yuv_color_attributes_t color) {
-    uint32_t txt_sz = get_yuv422sp_str_length(str, sz);
+static uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text,
+                                  eviewitf_plot_yuv_color_attributes_t color) {
+    uint32_t ret = text->x;
+    uint32_t txt_sz = get_yuv422sp_str_length(text);
     uint32_t off = 0;
-    if (align == EVIEWITF_TEXT_ALIGN_CENTER) {
+    size_t len = strlen(text->text);
+
+    if (text->alignment == EVIEWITF_PLOT_TEXT_ALIGN_CENTER) {
         off = txt_sz / 2u;
-    } else if (align == EVIEWITF_TEXT_ALIGN_RIGHT) {
+    } else if (text->alignment == EVIEWITF_PLOT_TEXT_ALIGN_RIGHT) {
         off = txt_sz;
     } else {
         off = 0u;
     }
-    uint32_t ret = x - off;
-    for (size_t i = 0; i < strlen(str); i++) {
-        ret = plot_yuv422sp_char(frame, ret, y, str[i], sz, color, 1) + sz;
+    ret -= off;
+
+    for (size_t i = 0; i < len; i++) {
+        ret = plot_yuv422sp_char(frame, ret, text->y, text->text[i], text->size, color, 1) + text->size;
     }
     return ret;
-}
-
-/**
- * \fn uint32_t char *label_to_str(eviewitf_bounding_box_label label)
- * \brief Converts a label into the string associated
- *
- * \param label: label definition value
- *
- * \return The string associated to the label definition value
- */
-static char *label_to_str(eviewitf_bounding_box_label label) {
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_PERSON) return "Person";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_BICYCLE) return "Bicycle";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_CAR) return "Car";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_MOTORCYCLE) return "Motorcycle";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_AIRPLANE) return "Airplane";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_BUS) return "Bus";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_TRAIN) return "Train";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_TRUCK) return "Truck";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_BOAT) return "Boat";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_TRAFFIC_LIGHT) return "Traffic Light";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_FIRE_HYDRANT) return "Fire Hydrant";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_STOP_SIGN) return "Stop Sign";
-    if (label == EVIEWITF_BOUNDING_BOX_LABEL_PARKING_METER) return "Parking Meter";
-    return "Unlabeled";
 }
 
 /******************************************************************************************
@@ -401,89 +377,77 @@ static char *label_to_str(eviewitf_bounding_box_label label) {
  * Functions
  ******************************************************************************************/
 
+/* clang-format off */
 /**
- * \fn eviewitf_plot_bounding_box(eviewitf_frame_attributes_t *frame, eviewitf_bounding_box_attributes_t *bounding_box)
- * \brief Plots a bouding box into a frame
+ * \fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
+ * \brief Plots a rectangle into a frame
  *
- * \param frame: frame pointer where to draw the bounding box
- * \param bounding_box: bounding box pointer to draw
+ * \param frame: frame pointer where to plot the rectangle
+ * \param rect: rectangle pointer to plot
  *
  * \return Return code as specified by the eviewitf_return_code enumeration.
  */
-int eviewitf_plot_bounding_box(eviewitf_frame_attributes_t *frame, eviewitf_bounding_box_attributes_t *bounding_box) {
-    if (frame->format == EVIEWITF_FRAME_FORMAT_YUV422SP) {
-        eviewitf_yuv_color_attributes_t yuv_line_color;
-        eviewitf_yuv_color_attributes_t yuv_text_color;
-        uint32_t x_off = bounding_box->x_offset;
-        uint32_t y_off = bounding_box->y_offset;
-        uint32_t width = bounding_box->width;
-        uint32_t height = bounding_box->height;
-        uint8_t l_width = bounding_box->line_width;
-        uint8_t t_size = bounding_box->text_size;
-        uint8_t score = bounding_box->score;
-        uint32_t x_txt = 0;
-        uint32_t y_txt = 0;
-        uint32_t l_txt = 0;
-        eviewitf_bounding_box_label label = bounding_box->label;
+/* clang-format on */
+int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect) {
+    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
+        eviewitf_plot_yuv_color_attributes_t yuv_color;
+        uint8_t l_width = rect->line_width;
+        uint32_t offset = 0;
 
         if ((l_width % 2u) != 0u) {
             l_width++;
         }
 
-        rgb_color_to_yuv_color(&bounding_box->line_color, &yuv_line_color);
-        rgb_color_to_yuv_color(&bounding_box->text_color, &yuv_text_color);
-
-        for (uint32_t y = y_off; y < y_off + l_width; y++) {
-            /* Top */
-            draw_yuv422sp_h_line(frame, x_off, width, y, yuv_line_color);
-            /* Bottom */
-            draw_yuv422sp_h_line(frame, x_off, width, y + height - l_width, yuv_line_color);
-        }
-
-        for (uint32_t y = y_off + l_width; y < y_off + height - l_width; y++) {
-            /* Left */
-            draw_yuv422sp_h_line(frame, x_off, l_width, y, yuv_line_color);
-            /* Right */
-            draw_yuv422sp_h_line(frame, x_off + width - l_width, l_width, y, yuv_line_color);
-        }
-
-        if (bounding_box->label_state == EVIEWITF_BOUNDING_BOX_DISPLAY_ENABLED) {
-            /* Label */
-            x_txt = x_off + l_width;
-            y_txt = y_off + l_width;
-            l_txt = get_yuv422sp_str_length(label_to_str(label), t_size);
-
-            for (uint32_t y = y_txt; y < y_txt + t_size * 8u * 2u; y++) {
-                draw_yuv422sp_h_line(frame, x_txt, l_txt + t_size * 4u, y, yuv_line_color);
+        /* Rectangle outline */
+        if (l_width > 0u && rect->line_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
+            rgb_color_to_yuv_color(&rect->line_color, &yuv_color);
+            offset = l_width;
+            for (uint32_t y = rect->y; y < rect->y + l_width; y++) {
+                /* Top */
+                plot_yuv422sp_h_line(frame, rect->x, rect->width, y, yuv_color);
+                /* Bottom */
+                plot_yuv422sp_h_line(frame, rect->x, rect->width, y + rect->height - l_width, yuv_color);
             }
 
-            x_txt += t_size * 2u;
-            y_txt += t_size * 2u;
-
-            plot_yuv422sp_str(frame, x_txt, y_txt, label_to_str(label), t_size, EVIEWITF_TEXT_ALIGN_LEFT,
-                              yuv_text_color);
-        }
-
-        if (bounding_box->score_state == EVIEWITF_BOUNDING_BOX_DISPLAY_ENABLED) {
-            /* Score */
-            char buf[10];
-            (void)sprintf(buf, "%d%%", score);
-
-            l_txt = get_yuv422sp_str_length(buf, t_size);
-            x_txt = x_off + width - l_width - l_txt - t_size * 2u;
-            y_txt = y_off + l_width;
-
-            for (uint32_t y = y_txt; y < y_txt + t_size * 8u * 2u; y++) {
-                draw_yuv422sp_h_line(frame, x_txt, x_off + width - l_width - x_txt, y, yuv_line_color);
+            for (uint32_t y = rect->y + l_width; y < rect->y + rect->height - l_width; y++) {
+                /* Left */
+                plot_yuv422sp_h_line(frame, rect->x, l_width, y, yuv_color);
+                /* Right */
+                plot_yuv422sp_h_line(frame, rect->x + rect->width - l_width, l_width, y, yuv_color);
             }
-
-            x_txt += l_txt + t_size * 2u;
-            y_txt += t_size * 2u;
-
-            plot_yuv422sp_str(frame, x_txt, y_txt, buf, t_size, EVIEWITF_TEXT_ALIGN_RIGHT, yuv_text_color);
         }
+
+        /* Rectangle fill */
+        if (rect->fill_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
+            rgb_color_to_yuv_color(&rect->fill_color, &yuv_color);
+            for (uint32_t y = rect->y + offset; y < rect->y + rect->height - offset; y++) {
+                plot_yuv422sp_h_line(frame, rect->x + offset, rect->width - 2u * offset, y, yuv_color);
+            }
+        }
+
         return EVIEWITF_OK;
     }
 
+    return EVIEWITF_FAIL;
+}
+
+/* clang-format off */
+/**
+ * \fn eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text)
+ * \brief Plots a text into a frame
+ *
+ * \param frame: frame pointer where to plot the text
+ * \param text: text pointer to plot
+ *
+ * \return Return code as specified by the eviewitf_return_code enumeration.
+ */
+/* clang-format on */
+int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
+    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
+        eviewitf_plot_yuv_color_attributes_t yuv_color;
+        rgb_color_to_yuv_color(&text->color, &yuv_color);
+        plot_yuv422sp_str(frame, text, yuv_color);
+        return EVIEWITF_OK;
+    }
     return EVIEWITF_FAIL;
 }
