@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API structures
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  *
  * Structures used for communication API between A53 and R7 CPUs
  */
@@ -79,6 +79,92 @@ typedef struct {
     uint32_t height;      /*!< The frame height (in pixels) */
     uint16_t dt;          /*!< The data type (Y only, YUV, RGB…) */
 } eviewitf_device_attributes_t;
+
+/**
+ * \enum eviewitf_plot_frame_format
+ * \brief eViewItf frame format supported about plot features.
+ */
+typedef enum {
+    EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP, /*!< YUV422 semi planar frame format */
+} eviewitf_plot_frame_format;
+
+/**
+ * \enum eviewitf_plot_display_state
+ * \brief  Plot feature to be displayed or not.
+ */
+typedef enum {
+    EVIEWITF_PLOT_DISPLAY_ENABLED,  /*!< Feature will be displayed */
+    EVIEWITF_PLOT_DISPLAY_DISABLED, /*!< Feature will not be displayed */
+} eviewitf_plot_display_state;
+
+/**
+ * \enum eviewitf_plot_text_align
+ * \brief eViewItf text plot alignment definitions.
+ */
+typedef enum {
+    EVIEWITF_PLOT_TEXT_ALIGN_LEFT,   /*!< Text align left regarding x position */
+    EVIEWITF_PLOT_TEXT_ALIGN_CENTER, /*!< Text align center regarding x positions */
+    EVIEWITF_PLOT_TEXT_ALIGN_RIGHT,  /*!< Text align right regarding x positions */
+} eviewitf_plot_text_align;
+
+/**
+ * \struct eviewitf_plot_rgb_color_attributes_t
+ * \brief Structure to set an RGB color
+ *
+ */
+typedef struct {
+    uint8_t red;   /*!< Red channel value */
+    uint8_t green; /*!< Green channel value */
+    uint8_t blue;  /*!< Blue channel value */
+} eviewitf_plot_rgb_color_attributes_t;
+
+/**
+ * \struct eviewitf_plot_frame_attributes_t
+ * \brief Structure to set a frame attributes regarding plot features.
+ *
+ */
+typedef struct {
+    uint8_t *buffer;                   /*!< Pointer to the frame */
+    uint32_t width;                    /*!< Frame width */
+    uint32_t height;                   /*!< Frame height */
+    eviewitf_plot_frame_format format; /*!< Frame format*/
+} eviewitf_plot_frame_attributes_t;
+
+/**
+ * \struct eviewitf_plot_text_attributes_t
+ * \brief Structure to set a text to plot attributes.
+ *
+ */
+typedef struct {
+    eviewitf_plot_rgb_color_attributes_t color; /*!< RGB text color */
+    uint32_t x;                                 /*!< Text horizontal position in pixel */
+    uint32_t y;                                 /*!< Text vertical position in pixel */
+    char *text;                                 /*!< Text to be plotted */
+    uint8_t size;                               /*!< Text size */
+    eviewitf_plot_text_align alignment;         /*!< Text alignment regarding x position */
+} eviewitf_plot_text_attributes_t;
+
+/**
+ * \brief Text font size in pixel definition
+ */
+#define EVIEWITF_PLOT_TEXT_FONT_PIXEL_SIZE (8u)
+
+/**
+ * \struct eviewitf_plot_rectangle_attributes_t
+ * \brief Structure to set a rectangle to plot attributes.
+ *
+ */
+typedef struct {
+    uint32_t x;                                      /*!< Rectangle upper right position */
+    uint32_t y;                                      /*!< Rectangle lower left position */
+    uint32_t width;                                  /*!< Rectangle width */
+    uint32_t height;                                 /*!< Rectangle height */
+    uint8_t line_width;                              /*!< Rectangle line width */
+    eviewitf_plot_rgb_color_attributes_t line_color; /*!< Rectangle line color */
+    eviewitf_plot_display_state line_state;          /*!< Rectangle line to be displayed */
+    eviewitf_plot_rgb_color_attributes_t fill_color; /*!< Rectangle fill color */
+    eviewitf_plot_display_state fill_state;          /*!< Rectangle to be filled */
+} eviewitf_plot_rectangle_attributes_t;
 
 #ifdef __cplusplus
 }

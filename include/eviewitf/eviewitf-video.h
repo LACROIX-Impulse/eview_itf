@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API regarding video display
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  * \ingroup video
  *
  * Communication API between A53 and R7 CPUs for video display
@@ -25,8 +25,8 @@ extern "C" {
  * @brief Possible video states
  * @{
  */
-#define EVIEWITF_VIDEO_STATE_RUNNING   (0x01) /* Video is running (play) */
-#define EVIEWITF_VIDEO_STATE_SUSPENDED (0x02) /* Video is suspended (pause) */
+#define EVIEWITF_VIDEO_STATE_RUNNING   (0x01) /*!< Video is running (play) */
+#define EVIEWITF_VIDEO_STATE_SUSPENDED (0x02) /*!< Video is suspended (pause) */
 /** @} */
 
 /**

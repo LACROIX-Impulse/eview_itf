@@ -2,7 +2,7 @@
  * \file
  * \brief Header for eViewItf API
  * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2021 LACROIX Impulse
+ * \copyright Copyright (c) 2019-2022 LACROIX Impulse
  *
  * Communication API between A53 and R7 CPUs
  */
@@ -18,6 +18,7 @@
 #include "eviewitf/eviewitf-streamer.h"
 #include "eviewitf/eviewitf-blender.h"
 #include "eviewitf/eviewitf-pipeline.h"
+#include "eviewitf/eviewitf-plot.h"
 
 #ifdef __cplusplus
 extern "C" {
