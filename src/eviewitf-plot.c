@@ -217,18 +217,24 @@ static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
 /* clang-format on */
 static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
                                eviewitf_plot_yuv_color_attributes_t color) {
+    uint32_t idx = 0;
+
     if ((x % 2u) != 0u) {
         return;
     }
 
-    /* Y value */
-    frame->buffer[x + (y * frame->width) + 0u] = color.y;
-    frame->buffer[x + (y * frame->width) + 1u] = color.y;
+    idx = x + (y * frame->width);
+
+    /* Y values */
+    frame->buffer[idx] = color.y;
+    frame->buffer[idx + 1u] = color.y;
+
+    idx += frame->width * frame->height;
 
     /* U value */
-    frame->buffer[x + ((y + frame->height) * frame->width) + 0u] = color.u;
+    frame->buffer[idx] = color.u;
     /* V value */
-    frame->buffer[x + ((y + frame->height) * frame->width) + 1u] = color.v;
+    frame->buffer[idx + 1u] = color.v;
 }
 
 /* clang-format off */
