@@ -125,9 +125,9 @@ typedef struct {
  */
 typedef struct {
     uint8_t *buffer;                   /*!< Pointer to the frame */
-    uint32_t width;                    /*!< Frame width */
-    uint32_t height;                   /*!< Frame height */
-    eviewitf_plot_frame_format format; /*!< Frame format*/
+    uint32_t width;                    /*!< Frame width (in pixels) */
+    uint32_t height;                   /*!< Frame height (in pixels) */
+    eviewitf_plot_frame_format format; /*!< Frame format */
 } eviewitf_plot_frame_attributes_t;
 
 /**
@@ -137,8 +137,8 @@ typedef struct {
  */
 typedef struct {
     eviewitf_plot_rgb_color_attributes_t color; /*!< RGB text color */
-    uint32_t x;                                 /*!< Text horizontal position in pixel */
-    uint32_t y;                                 /*!< Text vertical position in pixel */
+    uint32_t x;                                 /*!< Text upper left horizontal position (in pixels) */
+    uint32_t y;                                 /*!< Text upper left vertical position (in pixels) */
     char *text;                                 /*!< Text to be plotted */
     uint8_t size;                               /*!< Text size */
     eviewitf_plot_text_align alignment;         /*!< Text alignment regarding x position */
@@ -155,11 +155,11 @@ typedef struct {
  *
  */
 typedef struct {
-    uint32_t x;                                      /*!< Rectangle upper right position */
-    uint32_t y;                                      /*!< Rectangle lower left position */
-    uint32_t width;                                  /*!< Rectangle width */
-    uint32_t height;                                 /*!< Rectangle height */
-    uint8_t line_width;                              /*!< Rectangle line width */
+    uint32_t x;                                      /*!< Rectangle upper left horizontal position (in pixels) */
+    uint32_t y;                                      /*!< Rectangle upper left vertical position (in pixels) */
+    uint32_t width;                                  /*!< Rectangle width (in pixels) */
+    uint32_t height;                                 /*!< Rectangle height (in pixels) */
+    uint8_t line_width;                              /*!< Rectangle line width (in pixels) */
     eviewitf_plot_rgb_color_attributes_t line_color; /*!< Rectangle line color */
     eviewitf_plot_display_state line_state;          /*!< Rectangle line to be displayed */
     eviewitf_plot_rgb_color_attributes_t fill_color; /*!< Rectangle fill color */
