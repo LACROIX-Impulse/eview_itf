@@ -86,6 +86,7 @@ typedef struct {
  */
 typedef enum {
     EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP, /*!< YUV422 semi planar frame format */
+    EVIEWITF_PLOT_FRAME_FORMAT_RGB888IL, /*!< RGB888 interleave frame format */
 } eviewitf_plot_frame_format;
 
 /**
