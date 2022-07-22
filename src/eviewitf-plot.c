@@ -154,6 +154,10 @@ static uint8_t font_basic[128][8] = {
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
+/**
+ * \brief Number of bytes for RGB definition.
+ */
+#define NB_COMPONENTS_RGB (3u)
 
 /**
  * \struct eviewitf_plot_yuv_color_attributes_t
@@ -206,9 +210,9 @@ static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
 /* clang-format off */
 /**
  * \fn void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
- * \brief Sets a pixel to the desired YUV color into an YUV422sp frame
+ * \brief Sets a pixel to the desired YUV color into an YUV422 semi-planar frame
  *
- * \param frame: YUV422sp frame
+ * \param frame: YUV422 semi-planar frame
  * \param x: Row pixel position
  * \param y: Column pixel position
  * \param color: YUV pixel color
@@ -222,6 +226,8 @@ static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
     if ((x % 2u) != 0u) {
         return;
     }
+
+    if (x > frame->width || y > frame->height) return;
 
     idx = x + (y * frame->width);
 
@@ -239,10 +245,62 @@ static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
 
 /* clang-format off */
 /**
- * \fn void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
- * \brief Plots an horizontal line to the desired YUV color into an YUV422sp frame
+ * \fn void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * \brief Sets a pixel to the desired RGB color into an RGB888 interleave frame
  *
- * \param frame: YUV422sp frame
+ * \param frame: RGB888 interleave frame
+ * \param x: Row pixel position
+ * \param y: Column pixel position
+ * \param color: RGB pixel color
+ *
+ */
+/* clang-format on */
+static void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
+                               eviewitf_plot_rgb_color_attributes_t color) {
+    uint32_t idx = NB_COMPONENTS_RGB * (x + y * frame->width);
+    if (x > frame->width || y > frame->height) return;
+    /* R value */
+    frame->buffer[idx++] = color.red;
+    /* G value */
+    frame->buffer[idx++] = color.green;
+    /* B value */
+    frame->buffer[idx++] = color.blue;
+}
+
+/* clang-format off */
+/**
+ * \fn void set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * \brief Sets a pixel to the desired RGB color into a frame
+ *
+ * \param frame: Frame attributes pointer
+ * \param x: Row pixel position
+ * \param y: Column pixel position
+ * \param color: RGB pixel color
+ *
+ */
+/* clang-format on */
+static int set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
+                     eviewitf_plot_rgb_color_attributes_t color) {
+    int ret = EVIEWITF_INVALID_PARAM;
+    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
+        eviewitf_plot_yuv_color_attributes_t yuv_color;
+        rgb_color_to_yuv_color(&color, &yuv_color);
+        set_yuv422sp_pixel(frame, x, y, yuv_color);
+        ret = EVIEWITF_OK;
+    } else if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_RGB888IL) {
+        set_rgb888il_pixel(frame, x, y, color);
+        ret = EVIEWITF_OK;
+    }
+
+    return ret;
+}
+
+/* clang-format off */
+/**
+ * \fn void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
+ * \brief Plots an horizontal line to the desired YUV color into an YUV422 semi-planar frame
+ *
+ * \param frame: YUV422 semi-planar frame
  * \param x: Row pixel position
  * \param len: Line length
  * \param y: Column pixel position
@@ -252,27 +310,53 @@ static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
 /* clang-format on */
 static void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
                                  eviewitf_plot_yuv_color_attributes_t color) {
+    uint8_t uv_color[2] = {color.u, color.v};
+    uint32_t idx = 0;
+
     if ((x % 2u) != 0u) x++;
 
-    /* Y value */
-    memset(&frame->buffer[x + (y * frame->width)], color.y, len);
+    if (x > frame->width || y > frame->height) return;
 
-    uint32_t xval = x + ((y + frame->height) * frame->width);
-    uint8_t uv_color[2] = {color.u, color.v};
+    idx = x + y * frame->width;
+
+    /* Y values */
+    memset(&frame->buffer[idx], color.y, len);
+
+    idx += frame->width * frame->height;
+
     for (uint32_t xx = 0; xx < len; xx += 2u) {
         /* UV values */
-        memcpy(&frame->buffer[xval], uv_color, sizeof(uint16_t));
-        xval += 2u;
+        memcpy(&frame->buffer[idx], uv_color, sizeof(uint16_t));
+        idx += 2u;
+    }
+}
+
+/* clang-format off */
+/**
+ * \fn void plot_rgb888il_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * \brief Plots an horizontal line to the desired YUV color into an RGB888 interleave frame
+ *
+ * \param frame: RGB888 interleave frame
+ * \param x: Row pixel position
+ * \param len: Line length
+ * \param y: Column pixel position
+ * \param color: RGB pixel color
+ *
+ */
+/* clang-format on */
+static void plot_rgb888il_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
+                                 eviewitf_plot_rgb_color_attributes_t color) {
+    for (uint32_t xx = x; xx < x + len; xx++) {
+        set_rgb888il_pixel(frame, xx, y, color);
     }
 }
 
 /* clang-format off */
 /**
  * \fn uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_plot_yuv_color_attributes_t color, uint8_t disp)
- * \brief Plots a character in the desired YUV color into an
- * YUV422sp frame
+ * \brief Plots a character in the desired YUV color into an YUV422semi-planar frame
  *
- * \param frame: YUV422sp frame
+ * \param frame: YUV422 semi-planar frame
  * \param x: Row pixel position
  * \param y: Column pixel position
  * \param c: Character to plot
@@ -283,8 +367,8 @@ static void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32
  * \return The row position after writting the character
  */
 /* clang-format on */
-static uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
-                                   eviewitf_plot_yuv_color_attributes_t color, uint8_t disp) {
+static uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
+                          eviewitf_plot_rgb_color_attributes_t color, uint8_t disp) {
     uint32_t x_min = 5000u;
     uint32_t x_max = 0u;
     uint32_t y_min = 5000u;
@@ -305,7 +389,7 @@ static uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint
                         if (y_min > y + cnt_row + incy) y_min = y + cnt_row + incy;
                         if (y_max < y + cnt_row + incy) y_max = y + cnt_row + incy;
 
-                        set_yuv422sp_pixel(frame, x + cnt_col + incx, y + cnt_row + incy, color);
+                        set_pixel(frame, x + cnt_col + incx, y + cnt_row + incy, color);
                     }
                     max_x = x + cnt_col + incx;
                 }
@@ -318,6 +402,21 @@ static uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint
     return max_x;
 }
 
+static int plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
+                       eviewitf_plot_rgb_color_attributes_t color) {
+    int ret = EVIEWITF_INVALID_PARAM;
+    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
+        eviewitf_plot_yuv_color_attributes_t yuv_color;
+        rgb_color_to_yuv_color(&color, &yuv_color);
+        plot_yuv422sp_h_line(frame, x, len, y, yuv_color);
+        ret = EVIEWITF_OK;
+    } else if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_RGB888IL) {
+        plot_rgb888il_h_line(frame, x, len, y, color);
+        ret = EVIEWITF_OK;
+    }
+    return ret;
+}
+
 /**
  * \fn get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text)
  * \brief Gets the string length in pixel
@@ -326,13 +425,12 @@ static uint32_t plot_yuv422sp_char(eviewitf_plot_frame_attributes_t *frame, uint
  *
  * \return The string length in pixel
  */
-static uint32_t get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text) {
-    eviewitf_plot_yuv_color_attributes_t color;
+static uint32_t get_str_length(eviewitf_plot_text_attributes_t *text) {
     uint32_t ret = 0;
     size_t len = strlen(text->text);
 
     for (size_t i = 0; i < len; i++) {
-        ret = plot_yuv422sp_char(NULL, ret, 0, text->text[i], text->size, color, 0) + text->size;
+        ret = plot_char(NULL, ret, 0, text->text[i], text->size, text->color, 0) + text->size;
     }
     return ret;
 }
@@ -340,7 +438,7 @@ static uint32_t get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text) {
 /* clang-format off */
 /**
  * \fn uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text, eviewitf_plot_yuv_color_attributes_t color)
- * \brief Plots a text in the desired YUV color into an YUV422sp frame
+ * \brief Plots a text in the desired YUV color into an YUV422 semi-planar frame
  *
  * \param frame: Frame attributes pointer
  * \param text: Text attributes pointer
@@ -349,10 +447,10 @@ static uint32_t get_yuv422sp_str_length(eviewitf_plot_text_attributes_t *text) {
  * \return The row position in pixel after writting the string
  */
 /* clang-format on */
-static uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text,
-                                  eviewitf_plot_yuv_color_attributes_t color) {
+static uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text,
+                         eviewitf_plot_rgb_color_attributes_t color) {
     uint32_t ret = text->x;
-    uint32_t txt_sz = get_yuv422sp_str_length(text);
+    uint32_t txt_sz = get_str_length(text);
     uint32_t off = 0;
     size_t len = strlen(text->text);
 
@@ -366,7 +464,7 @@ static uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eview
     ret -= off;
 
     for (size_t i = 0; i < len; i++) {
-        ret = plot_yuv422sp_char(frame, ret, text->y, text->text[i], text->size, color, 1) + text->size;
+        ret = plot_char(frame, ret, text->y, text->text[i], text->size, color, 1) + text->size;
     }
     return ret;
 }
@@ -395,46 +493,48 @@ static uint32_t plot_yuv422sp_str(eviewitf_plot_frame_attributes_t *frame, eview
  */
 /* clang-format on */
 int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect) {
-    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
-        eviewitf_plot_yuv_color_attributes_t yuv_color;
-        uint8_t l_width = rect->line_width;
-        uint32_t offset = 0;
+    uint8_t l_width = rect->line_width;
+    uint32_t offset = 0;
+    int ret = EVIEWITF_OK;
 
-        if ((l_width % 2u) != 0u) {
-            l_width++;
-        }
-
-        /* Rectangle outline */
-        if (l_width > 0u && rect->line_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
-            rgb_color_to_yuv_color(&rect->line_color, &yuv_color);
-            offset = l_width;
-            for (uint32_t y = rect->y; y < rect->y + l_width; y++) {
-                /* Top */
-                plot_yuv422sp_h_line(frame, rect->x, rect->width, y, yuv_color);
-                /* Bottom */
-                plot_yuv422sp_h_line(frame, rect->x, rect->width, y + rect->height - l_width, yuv_color);
-            }
-
-            for (uint32_t y = rect->y + l_width; y < rect->y + rect->height - l_width; y++) {
-                /* Left */
-                plot_yuv422sp_h_line(frame, rect->x, l_width, y, yuv_color);
-                /* Right */
-                plot_yuv422sp_h_line(frame, rect->x + rect->width - l_width, l_width, y, yuv_color);
-            }
-        }
-
-        /* Rectangle fill */
-        if (rect->fill_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
-            rgb_color_to_yuv_color(&rect->fill_color, &yuv_color);
-            for (uint32_t y = rect->y + offset; y < rect->y + rect->height - offset; y++) {
-                plot_yuv422sp_h_line(frame, rect->x + offset, rect->width - 2u * offset, y, yuv_color);
-            }
-        }
-
-        return EVIEWITF_OK;
+    if ((l_width % 2u) != 0u) {
+        l_width++;
     }
 
-    return EVIEWITF_FAIL;
+    /* Rectangle outline */
+    if (l_width > 0u && rect->line_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
+        offset = l_width;
+        for (uint32_t y = rect->y; y < rect->y + l_width; y++) {
+            /* Top */
+            ret = plot_h_line(frame, rect->x, rect->width, y, rect->line_color);
+            if (ret != EVIEWITF_OK) goto rect_out;
+
+            /* Bottom */
+            ret = plot_h_line(frame, rect->x, rect->width, y + rect->height - l_width, rect->line_color);
+            if (ret != EVIEWITF_OK) goto rect_out;
+        }
+
+        for (uint32_t y = rect->y + l_width; y < rect->y + rect->height - l_width; y++) {
+            /* Left */
+            ret = plot_h_line(frame, rect->x, l_width, y, rect->line_color);
+            if (ret != EVIEWITF_OK) goto rect_out;
+
+            /* Right */
+            ret = plot_h_line(frame, rect->x + rect->width - l_width, l_width, y, rect->line_color);
+            if (ret != EVIEWITF_OK) goto rect_out;
+        }
+    }
+
+    /* Rectangle fill */
+    if (rect->fill_state == EVIEWITF_PLOT_DISPLAY_ENABLED) {
+        for (uint32_t y = rect->y + offset; y < rect->y + rect->height - offset; y++) {
+            ret = plot_h_line(frame, rect->x + offset, rect->width - 2u * offset, y, rect->fill_color);
+            if (ret != EVIEWITF_OK) goto rect_out;
+        }
+    }
+
+rect_out:
+    return ret;
 }
 
 /* clang-format off */
@@ -449,11 +549,6 @@ int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_pl
  */
 /* clang-format on */
 int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
-    if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
-        eviewitf_plot_yuv_color_attributes_t yuv_color;
-        rgb_color_to_yuv_color(&text->color, &yuv_color);
-        plot_yuv422sp_str(frame, text, yuv_color);
-        return EVIEWITF_OK;
-    }
-    return EVIEWITF_FAIL;
+    (void)plot_str(frame, text, text->color);
+    return EVIEWITF_OK;
 }
