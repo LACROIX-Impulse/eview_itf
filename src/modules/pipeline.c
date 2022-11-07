@@ -21,6 +21,7 @@ struct pipeline_arguments {
     int pipeline_id;
     int state;
     int configure;
+    int reboot;
     int start;
     int stop;
     uint32_t width;
@@ -32,7 +33,8 @@ static char pipeline_args_doc[] =
     "module pipeline: pipeline\n"
     "configure:      -p[0-255] -c -w[0-4096] -h[0-4096]\n"
     "start:          -p[0-255] -s\n"
-    "stop:           -p[0-255] -S";
+    "stop:           -p[0-255] -S\n"
+    "reboot:         -p[0-255] -R\n";
 
 /* Program options */
 static struct argp_option pipeline_options[] = {
@@ -41,6 +43,7 @@ static struct argp_option pipeline_options[] = {
     {"width", 'w', "VALUE", 0, "Set frame width", 0},
     {"height", 'h', "VALUE", 0, "Set frame height", 0},
     {"start", 's', 0, 0, "Start the pipeline", 0},
+    {"reboot", 'R', 0, 0, "Reboot the pipeline R7/A53", 0},
     {"stop", 'S', 0, 0, "Stop the pipeline", 0},
     {0},
 };
@@ -71,6 +74,9 @@ static error_t pipeline_parse_opt(int key, char *arg, struct argp_state *state) 
             break;
         case 'S':
             arguments->stop = 1;
+            break;
+        case 'R':
+            arguments->reboot = 1;
             break;
         case 'p':
             arguments->pipeline_id = atoi(arg);
@@ -125,9 +131,20 @@ int pipeline_parse(int argc, char **argv) {
         eviewitf_init();
         ret = eviewitf_pipeline_stop((uint8_t)arguments.pipeline_id);
         if (ret >= 0) {
-            fprintf(stdout, "Pipeline %d stoped\n", arguments.pipeline_id);
+            fprintf(stdout, "Pipeline %d stopped\n", arguments.pipeline_id);
         } else {
             fprintf(stdout, "Failed to stop pipeline %d\n", arguments.pipeline_id);
+        }
+        eviewitf_deinit();
+    }
+    /* Reboot the pipeline R7/A53 */
+    if (arguments.pipeline_id != -1 && arguments.reboot) {
+        eviewitf_init();
+        ret = eviewitf_pipeline_reboot((uint8_t)arguments.pipeline_id);
+        if (ret >= 0) {
+            fprintf(stdout, "Pipeline %d rebooted\n", arguments.pipeline_id);
+        } else {
+            fprintf(stdout, "Failed to reboot pipeline %d\n", arguments.pipeline_id);
         }
         eviewitf_deinit();
     }

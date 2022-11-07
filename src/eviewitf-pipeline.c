@@ -43,6 +43,21 @@ int eviewitf_pipeline_stop(uint8_t pipeline_id) {
 }
 
 /**
+ * \fn eviewitf_pipeline_reboot(void)
+ * \brief Reboots a pipeline R7/A53
+ *
+ * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_pipeline_reboot(uint8_t pipeline_id) {
+    int ret;
+
+    ret = mfis_ioctl_request(MFIS_DEV_PIPELINE, pipeline_id, IOCPIPELINEREBOOT, NULL);
+
+    return ret;
+}
+
+/**
  * \fn  eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height)
  * \brief Configure a pipeline
  *
