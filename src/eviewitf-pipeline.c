@@ -43,6 +43,21 @@ int eviewitf_pipeline_stop(uint8_t pipeline_id) {
 }
 
 /**
+ * \fn eviewitf_pipeline_reboot(void)
+ * \brief Reboots a pipeline R7/A53
+ *
+ * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_pipeline_reboot(uint8_t pipeline_id) {
+    int ret;
+
+    ret = mfis_ioctl_request(MFIS_DEV_PIPELINE, pipeline_id, IOCPIPELINEREBOOT, NULL);
+
+    return ret;
+}
+
+/**
  * \fn  eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height)
  * \brief Configure a pipeline
  *
@@ -56,6 +71,24 @@ int eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint3
 
     struct pipeline_geometry geometry = {.height = frame_height, .width = frame_width};
     ret = mfis_ioctl_request(MFIS_DEV_PIPELINE, pipeline_id, IOCSPIPELINECONFIGURE, &geometry);
+
+    return ret;
+}
+
+/**
+ * \fn  eviewitf_pipeline_set_led(uint8_t pipeline_id, uint8_t led_id, uint8_t led_level)
+ * \brief Configure a pipeline
+ *
+ * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
+ * \param[in] led_id id of the pipeline led between 0 and 2
+ * \param[in] led_level level of the pipeline led between 0 and 1
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_pipeline_set_led(uint8_t pipeline_id, uint8_t led_id, uint8_t led_level) {
+    int ret;
+
+    struct pipeline_led led = {.id = led_id, .level = led_level};
+    ret = mfis_ioctl_request(MFIS_DEV_PIPELINE, pipeline_id, IOCSPIPELINESETLED, &led);
 
     return ret;
 }

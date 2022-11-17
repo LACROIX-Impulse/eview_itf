@@ -40,6 +40,15 @@ int eviewitf_pipeline_start(uint8_t pipeline_id);
 int eviewitf_pipeline_stop(uint8_t pipeline_id);
 
 /**
+ * \fn eviewitf_pipeline_reboot(uint8_t pipeline_id)
+ * \brief Reboots a pipeline R7/A53
+ *
+ * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_pipeline_reboot(uint8_t pipeline_id);
+
+/**
  * \fn  eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height)
  * \brief Configure a pipeline
  *
@@ -49,6 +58,17 @@ int eviewitf_pipeline_stop(uint8_t pipeline_id);
  * \return return code as specified by the eviewitf_return_code enumeration.
  */
 int eviewitf_pipeline_configure(uint8_t pipeline_id, uint32_t frame_width, uint32_t frame_height);
+
+/**
+ * \fn  eviewitf_pipeline_set_led(uint8_t pipeline_id, uint8_t led_id, uint8_t led_level)
+ * \brief Configure a pipeline
+ *
+ * \param[in] pipeline_id id of the pipeline between 0 and EVIEWITF_MAX_PIPELINE
+ * \param[in] led_id id of the pipeline led between 0 and 2
+ * \param[in] led_level level of the pipeline led between 0 and 1
+ * \return return code as specified by the eviewitf_return_code enumeration.
+ */
+int eviewitf_pipeline_set_led(uint8_t pipeline_id, uint8_t led_id, uint8_t led_level);
 
 #ifdef __cplusplus
 }
