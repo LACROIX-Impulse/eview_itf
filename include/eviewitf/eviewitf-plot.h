@@ -1,14 +1,14 @@
 /**
- * \file
- * \brief Header for eViewItf API regarding plots
- * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2022 LACROIX Impulse
- * \ingroup blender
+ * @file eviewitf-plot.h
+ * @brief Header for eViewItf API regarding plots
+ * @author LACROIX Impulse
+ * @copyright Copyright (c) 2019-2022 LACROIX Impulse
+ * @ingroup blender
  *
  * Communication API between A53 and R7 CPUs for plot functions
  *
- * \addtogroup plot
- * \{
+ * @addtogroup plot
+ * @{
  */
 
 #ifndef EVIEWITF_PLOT_H
@@ -23,13 +23,13 @@ extern "C" {
 
 /* clang-format off */
 /**
- * \fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
- * \brief Plots a rectangle into a frame
+ * @fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
+ * @brief Plots a rectangle into a frame
  *
- * \param frame: Frame attributes pointer where to plot the rectangle
- * \param rect: Rectangle attributes pointer to plot
+ * @param frame: Frame attributes pointer where to plot the rectangle
+ * @param rect: Rectangle attributes pointer to plot
  *
- * \return Return code as specified by the eviewitf_ret_t enumeration.
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
 eviewitf_ret_t eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame,
@@ -37,13 +37,13 @@ eviewitf_ret_t eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame,
 
 /* clang-format off */
 /**
- * \fn eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text)
- * \brief Plots a text into a frame
+ * @fn eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text)
+ * @brief Plots a text into a frame
  *
- * \param frame: Frame attributes pointer where to plot the text
- * \param text: Text attribtues pointer to plot
+ * @param frame: Frame attributes pointer where to plot the text
+ * @param text: Text attribtues pointer to plot
  *
- * \return Return code as specified by the eviewitf_ret_t enumeration.
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
 eviewitf_ret_t eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text);

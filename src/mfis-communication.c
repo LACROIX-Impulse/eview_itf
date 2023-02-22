@@ -1,7 +1,7 @@
 /**
- * \file mfis_communication.c
- * \brief Handle communication with kernel
- * \author LACROIX Impulse
+ * @file mfis-communication.c
+ * @brief Handle communication with kernel
+ * @author LACROIX Impulse
  *
  * Handle low level communication with Linux kernel drivers
  *
@@ -25,22 +25,37 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
+/**
+ * @brief mfis mutex
+ */
 pthread_mutex_t mfis_mutex;
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
+/**
+ * @fn int mfis_init()
+ * @brief Intialize mfis.
+ *
+ * @return state of the function. Return 0 if okay
+ */
 int mfis_init() { return pthread_mutex_init(&mfis_mutex, NULL); }
 
+/**
+ * @fn int mfis_deinit()
+ * @brief Deintialize mfis.
+ *
+ * @return state of the function. Return 0 if okay
+ */
 int mfis_deinit() { return pthread_mutex_destroy(&mfis_mutex); }
 
 /**
- * \fn int mfis_send_request(int32_t* request)
- * \brief Send a request to R7 CPU and return its answer.
+ * @fn int mfis_send_request(int32_t* request)
+ * @brief Send a request to R7 CPU and return its answer.
  *
- * \param request: array of 32bits containing in/out message to/from R7
- * \return state of the function. Return 0 if okay
+ * @param request: array of 32bits containing in/out message to/from R7
+ * @return state of the function. Return 0 if okay
  */
 int mfis_send_request(int32_t* request) {
     int fd, ret;
@@ -67,12 +82,12 @@ out_ret:
 }
 
 /**
- * \fn void* mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t *cameras_attributes) {
- * \brief Get cameras attributes from MFIS
+ * @fn void* mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t *cameras_attributes) {
+ * @brief Get cameras attributes from MFIS
  *
- * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes_t
+ * @param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes_t
  *
- * \return pointer to virtual address (return NULL if error).
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* cameras_attributes) {
     int fd;
@@ -102,12 +117,12 @@ eviewitf_ret_t mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* camera
 }
 
 /**
- * \fn void* mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t *blendings_attributes) {
- * \brief Get blendings attributes from MFIS
+ * @fn void* mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t *blendings_attributes) {
+ * @brief Get blendings attributes from MFIS
  *
- * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes_t
+ * @param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes_t
  *
- * \return pointer to virtual address (return NULL if error).
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* blendings_attributes) {
     int fd;
@@ -143,7 +158,7 @@ eviewitf_ret_t mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* bl
  * @param[in]  devid         Device identifier
  * @param[in]  cmd           I/O command
  * @param[in]  param         I/O parameter
- * @return EVIEWITF_OK on success, negative value on failure (see errno.h)
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param) {
     int fd;

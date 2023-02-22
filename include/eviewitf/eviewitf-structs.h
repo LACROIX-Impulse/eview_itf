@@ -1,8 +1,8 @@
 /**
- * \file
- * \brief Header for eViewItf API structures
- * \author LACROIX Impulse
- * \copyright Copyright (c) 2019-2022 LACROIX Impulse
+ * @file eviewitf-structs.h
+ * @brief Header for eViewItf API structures
+ * @author LACROIX Impulse
+ * @copyright Copyright (c) 2019-2022 LACROIX Impulse
  *
  * Structures used for communication API between A53 and R7 CPUs
  */
@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /**
- * \brief Return codes used by eViewItf API
+ * @brief Return codes used by eViewItf API
  *        A negative value is therefore an error
  */
 typedef enum eviewitf_ret {
@@ -31,7 +31,7 @@ typedef enum eviewitf_ret {
 } eviewitf_ret_t;
 
 /**
- * \brief Structure to hold offset and dt of a frame segment
+ * @brief Structure to hold offset and dt of a frame segment
  */
 typedef struct __attribute__((packed)) eviewitf_frame_segment_info {
     uint32_t offset; /*!< The segments offset (in bytes) */
@@ -39,7 +39,7 @@ typedef struct __attribute__((packed)) eviewitf_frame_segment_info {
 } __attribute__((packed)) eviewitf_frame_segment_info_t;
 
 /**
- * \brief Pointers to current camera frame metadata
+ * @brief Pointers to current camera frame metadata
  *
  * The frames metadata are extra information that can be found at the end of a frame.
  * Note: The frame synchronization flag can be used in the customer application to get a synchronization point between
@@ -61,7 +61,7 @@ typedef struct eviewitf_frame_metadata_info {
 } eviewitf_frame_metadata_info_t;
 
 /**
- * \brief Structure to get a device (camera, streamer or blender) attributes
+ * @brief Structure to get a device (camera, streamer or blender) attributes
  *
  * The device attributes gather some information on a device. The device can be a camera, a streamer or a blender.
  * Note: The data type possible values are conformed to the “MIPI Alliance Specification for CSI-2”.
@@ -77,7 +77,7 @@ typedef struct eviewitf_device_attributes {
 } eviewitf_device_attributes_t;
 
 /**
- * \brief eViewItf frame format supported about plot features.
+ * @brief eViewItf frame format supported about plot features.
  */
 typedef enum eviewitf_plot_frame_format {
     EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP, /*!< YUV422 semi planar frame format */
@@ -85,7 +85,7 @@ typedef enum eviewitf_plot_frame_format {
 } eviewitf_plot_frame_format_t;
 
 /**
- * \brief  Plot feature to be displayed or not.
+ * @brief  Plot feature to be displayed or not.
  */
 typedef enum eviewitf_plot_display_state {
     EVIEWITF_PLOT_DISPLAY_ENABLED,  /*!< Feature will be displayed */
@@ -93,7 +93,7 @@ typedef enum eviewitf_plot_display_state {
 } eviewitf_plot_display_state_t;
 
 /**
- * \brief eViewItf text plot alignment definitions.
+ * @brief eViewItf text plot alignment definitions.
  */
 typedef enum eviewitf_plot_text_align {
     EVIEWITF_PLOT_TEXT_ALIGN_LEFT,   /*!< Text align left regarding x position */
@@ -102,7 +102,7 @@ typedef enum eviewitf_plot_text_align {
 } eviewitf_plot_text_align_t;
 
 /**
- * \brief Structure to set an RGB color
+ * @brief Structure to set an RGB color
  *
  */
 typedef struct eviewitf_plot_rgb_color_attributes {
@@ -112,7 +112,7 @@ typedef struct eviewitf_plot_rgb_color_attributes {
 } eviewitf_plot_rgb_color_attributes_t;
 
 /**
- * \brief Structure to set a frame attributes regarding plot features.
+ * @brief Structure to set a frame attributes regarding plot features.
  *
  */
 typedef struct eviewitf_plot_frame_attributes {
@@ -123,7 +123,7 @@ typedef struct eviewitf_plot_frame_attributes {
 } eviewitf_plot_frame_attributes_t;
 
 /**
- * \brief Structure to set a text to plot attributes.
+ * @brief Structure to set a text to plot attributes.
  *
  */
 typedef struct eviewitf_plot_text_attributes {
@@ -136,12 +136,12 @@ typedef struct eviewitf_plot_text_attributes {
 } eviewitf_plot_text_attributes_t;
 
 /**
- * \brief Text font size in pixel definition
+ * @brief Text font size in pixel definition
  */
 #define EVIEWITF_PLOT_TEXT_FONT_PIXEL_SIZE (8u)
 
 /**
- * \brief Structure to set a rectangle to plot attributes.
+ * @brief Structure to set a rectangle to plot attributes.
  *
  */
 typedef struct eviewitf_plot_rectangle_attributes {

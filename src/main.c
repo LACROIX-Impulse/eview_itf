@@ -1,7 +1,7 @@
 /**
- * \file main.c
- * \brief Main program entry for communication between A53 and R7 CPUs
- * \author LACROIX Impulse
+ * @file main.c
+ * @brief Main program entry for communication between A53 and R7 CPUs
+ * @author LACROIX Impulse
  *
  * Main program entry to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -15,9 +15,23 @@
 #include "video.h"
 #include <string.h>
 
+/**
+ * @brief Program version
+ */
 const char *argp_program_version = "eviewitf-" VERSION;
+
+/**
+ * @brief Bug email address
+ */
 const char *argp_program_bug_address = "<support-ecube@lacroix.group>";
 
+/**
+ * @fn int main(int argc, char **argv)
+ * @brief Main function
+ * @param argc arguments counter
+ * @param argv arguments array
+ * @return 0 if success, an error code otherwise
+ */
 int main(int argc, char **argv) {
     eviewitf_ret_t ret = EVIEWITF_OK;
 

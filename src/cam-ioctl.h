@@ -35,37 +35,53 @@
 #define CAMTP_UNKNOWN          (255) /* Unknown test pattern */
 
 /**
- * @brief Sensor registers
+ * @typedef cam_reg_t
+ * @brief Camera registers
+ *
+ * @struct cam_reg
+ * @brief Camera registers
  */
 typedef struct cam_reg {
-    uint32_t reg;
-    uint32_t val;
+    uint32_t reg; /*!< Register address */
+    uint32_t val; /*!< Register value */
 } cam_reg_t;
 
 /**
+ * @typedef cam_pt_t
+ * @brief Camera point
+ *
+ * @struct cam_pt
  * @brief Camera point
  */
 typedef struct cam_pt {
-    int32_t x; /* X axis */
-    int32_t y; /* Y axis */
+    int32_t x; /*!< X axis */
+    int32_t y; /*!< Y axis */
 } cam_pt_t;
 
 /**
- * @brief Sensor exposure
+ * @typedef cam_exp_t
+ * @brief Camera exposure ang gain
+ *
+ * @struct cam_exp
+ * @brief Camera exposure ang gain
  */
 typedef struct cam_exp {
-    uint32_t exp_us;    /* Exposure duration (usecs) */
-    uint32_t gain_thou; /* Gain value 1/1000 */
+    uint32_t exp_us;    /*!< Exposure duration (usecs) */
+    uint32_t gain_thou; /*!< Gain value 1/1000 */
 } cam_exp_t;
 
 /**
- * @brief Sensor CFA digital gains
+ * @typedef cam_dg_t
+ * @brief Camera CFA digital gains
+ *
+ * @struct cam_dg
+ * @brief Camera CFA digital gains
  */
 typedef struct cam_dg {
-    uint16_t cf00; /* CFA 00 digital gain */
-    uint16_t cf01; /* CFA 01 digital gain */
-    uint16_t cf10; /* CFA 10 digital gain */
-    uint16_t cf11; /* CFA 11 digital gain */
+    uint16_t cf00; /*!< CFA 00 digital gain */
+    uint16_t cf01; /*!< CFA 01 digital gain */
+    uint16_t cf10; /*!< CFA 10 digital gain */
+    uint16_t cf11; /*!< CFA 11 digital gain */
 } cam_dg_t;
 
 /**

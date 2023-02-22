@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Module pipeline
- * \author LACROIX Impulse
+ * @file pipeline.c
+ * @brief Module pipeline
+ * @author LACROIX Impulse
  *
  * The module Pipeline handles operations that relate to pipeline
  *
@@ -16,22 +16,30 @@
 #include "eviewitf.h"
 #include "eviewitf-priv.h"
 
-/* Used by main to communicate with parse_opt. */
+/**
+ * @typedef pipeline_arguments_t
+ * @brief Used by main to communicate with parse_opt
+ *
+ * @struct pipeline_arguments
+ * @brief Used by main to communicate with parse_opt
+ */
 typedef struct pipeline_arguments {
-    int pipeline_id;
-    int state;
-    int configure;
-    int reboot;
-    int start;
-    int stop;
-    uint32_t width;
-    uint32_t height;
-    int led;
-    uint8_t led_id;
-    uint8_t led_level;
+    int pipeline_id;   /*!< Identifier */
+    int state;         /*!< State*/
+    int configure;     /*!< Configure indicator */
+    int reboot;        /*!< Reboot indicator */
+    int start;         /*!< Start indicator */
+    int stop;          /*!< Stop indicator */
+    uint32_t width;    /*!< Width */
+    uint32_t height;   /*!< Height */
+    int led;           /*!< Led indicator */
+    uint8_t led_id;    /*!< Led identifier */
+    uint8_t led_level; /*!< Led level*/
 } pipeline_arguments_t;
 
-/* Arguments description */
+/**
+ * @brief Arguments description
+ */
 static char pipeline_args_doc[] =
     "module pipeline: pipeline\n"
     "configure:      -p[0-255] -c -w[0-4096] -h[0-4096]\n"
@@ -40,7 +48,9 @@ static char pipeline_args_doc[] =
     "reboot:         -p[0-255] -R\n"
     "set led:        -p[0-255] -L -i[0-2] -l[0-1]";
 
-/* Program options */
+/**
+ * @brief Program options
+ */
 static argp_option_t pipeline_options[] = {
     {"pipeline", 'p', "ID", 0, "Select pipeline on which command occurs", 0},
     {"configure", 'c', 0, 0, "Configure the pipeline", 0},
@@ -55,7 +65,14 @@ static argp_option_t pipeline_options[] = {
     {0},
 };
 
-/* Parse a single option. */
+/**
+ * @fn static error_t pipeline_parse_opt(int key, char *arg, argp_state_t *state)
+ * @brief Parse a single option
+ * @param key key
+ * @param arg arguments
+ * @param state state pointer
+ * @return error_t if failure, 0 otherwise
+ */
 static error_t pipeline_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
     pipeline_arguments_t *arguments = state->input;
@@ -112,15 +129,11 @@ static error_t pipeline_parse_opt(int key, char *arg, argp_state_t *state) {
     return 0;
 }
 
-/* argp parser. */
+/**
+ * @brief argp parser
+ */
 static argp_t pipeline_argp = {pipeline_options, pipeline_parse_opt, pipeline_args_doc, NULL, NULL, NULL, NULL};
 
-/**
- * @brief Parse the parameters and execute the  function
- * @param[in] argc arguments count
- * @param[in] argv arguments
- * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_ret_t enum)
- */
 eviewitf_ret_t pipeline_parse(int argc, char **argv) {
     eviewitf_ret_t ret = EVIEWITF_OK;
     pipeline_arguments_t arguments;

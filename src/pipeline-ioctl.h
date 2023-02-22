@@ -7,16 +7,16 @@
  * @brief Pipeline geometry
  */
 typedef struct pipeline_geometry {
-    uint32_t width;
-    uint32_t height;
+    uint32_t width;  /*!< Width */
+    uint32_t height; /*!< Height */
 } pipeline_geometry_t;
 
 /**
  * @brief Pipeline led
  */
 typedef struct pipeline_led {
-    uint8_t id;
-    uint8_t level;
+    uint8_t id;    /*!< Identtifier */
+    uint8_t level; /*!< Level */
 } pipeline_led_t;
 
 /**

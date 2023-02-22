@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Communication API between A53 and R7 CPUs
- * \author LACROIX Impulse
+ * @file eviewitf-app.c
+ * @brief Communication API between A53 and R7 CPUs
+ * @author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -34,12 +34,13 @@
  ******************************************************************************************/
 
 /**
- * \fn eviewitf_app_record_cam
- * \brief Request R7 to change camera used on display
+ * @fn eviewitf_ret_t eviewitf_app_record_cam(int cam_id, int delay, char *record_path)
+ * @brief Request R7 to change camera used on display
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \param delay: duration of the record in seconds
- * \return state of the function. Return 0 if okay
+ * @param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * @param delay: duration of the record in seconds
+ * @param record_path: record path
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
     eviewitf_ret_t ret = EVIEWITF_OK;
@@ -68,11 +69,11 @@ eviewitf_ret_t eviewitf_app_record_cam(int cam_id, int delay, char *record_path)
 }
 
 /**
- * \fn eviewitf_app_reset_camera
- * \brief Request R7 to reset camera, currently not exposed in libeviewitf
+ * @fn eviewitf_ret_t eviewitf_app_reset_camera(int cam_id)
+ * @brief Request R7 to reset camera, currently not exposed in libeviewitf
  *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- * \return state of the function. Return 0 if okay
+ * @param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t eviewitf_app_reset_camera(int cam_id) {
     eviewitf_ret_t ret = EVIEWITF_OK;
@@ -87,14 +88,14 @@ eviewitf_ret_t eviewitf_app_reset_camera(int cam_id) {
 }
 
 /**
- * \fn eviewitf_app_streamer_play
- * \brief Update the frames to be printed on a streamer
+ * @fn eviewitf_ret_t eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir)
+ * @brief Update the frames to be printed on a streamer
 
- * \param in streamer_id: id of the streamer
- * \param in fps: fps to apply on the recording
- * \param in frames_dir: path to the recording
+ * @param streamer_id: id of the streamer
+ * @param fps: fps to apply on the recording
+ * @param frames_dir: path to the recording
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
     eviewitf_ret_t ret = EVIEWITF_OK;
@@ -121,11 +122,12 @@ eviewitf_ret_t eviewitf_app_streamer_play(int streamer_id, int fps, char *frames
 }
 
 /**
- * \fn eviewitf_app_set_blending_from_file
- * \brief Set a blending frame
+ * @fn eviewitf_ret_t eviewitf_app_set_blending_from_file(int blender_id, char *frame)
+ * @brief Set a blending frame
 
- * \param in frame: path to the blending frame
- * \return state of the function. Return 0 if okay
+ * @param blender_id: blender identifier
+ * @param frame: path to the blending frame
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 eviewitf_ret_t eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
     eviewitf_ret_t ret = EVIEWITF_OK;
@@ -147,6 +149,11 @@ eviewitf_ret_t eviewitf_app_set_blending_from_file(int blender_id, char *frame) 
     return ret;
 }
 
+/**
+ * @fn eviewitf_ret_t eviewitf_app_print_monitoring_info(void)
+ * @brief Print app monitoring information
+ * @return return code as specified by the eviewitf_ret_t enumeration.
+ */
 eviewitf_ret_t eviewitf_app_print_monitoring_info(void) {
     eviewitf_ret_t ret = EVIEWITF_OK;
     uint32_t data[EVIEWITF_MONITORING_INFO_SIZE] = {0};

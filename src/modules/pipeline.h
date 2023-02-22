@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Module pipeline
- * \author LACROIX Impulse
+ * @file pipeline.h
+ * @brief Module pipeline
+ * @author LACROIX Impulse
  *
  * The module Pipeline handles operations that relate to pipeline
  *
@@ -15,7 +15,7 @@
  * @brief Parse the parameters and execute the  function
  * @param[in] argc arguments count
  * @param[in] argv arguments
- * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_ret_t enum)
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
 int pipeline_parse(int argc, char **argv);
 
