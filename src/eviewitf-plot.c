@@ -164,7 +164,7 @@ static uint8_t font_basic[128][8] = {
  * \brief Structure to set an YUV color
  *
  */
-typedef struct {
+typedef struct eviewitf_plot_yuv_color_attributes {
     uint8_t y; /*!< Y channel value */
     uint8_t u; /*!< U channel value */
     uint8_t v; /*!< V channel value */
@@ -502,13 +502,14 @@ static uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_
  * \param frame: Frame attributes pointer where to plot the rectangle
  * \param rect: Rectangle attributes pointer to plot
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * \return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
-int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect) {
+eviewitf_ret_t eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame,
+                                       eviewitf_plot_rectangle_attributes_t *rect) {
     uint8_t l_width = rect->line_width;
     uint32_t offset = 0;
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     if ((l_width % 2u) != 0u) {
         l_width++;
@@ -558,10 +559,10 @@ rect_out:
  * \param frame: Frame attributes pointer where to plot the text
  * \param text: Text attributes pointer to plot
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * \return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
-int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
+eviewitf_ret_t eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
     (void)plot_str(frame, text, text->color);
     return EVIEWITF_OK;
 }

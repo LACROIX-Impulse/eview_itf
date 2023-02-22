@@ -35,24 +35,24 @@ extern "C" {
  * \brief Initialize the eViewItf API
  * \ingroup eview
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * \return Return code as specified by the eviewitf_ret_t enumeration.
  *
  * Initialize the eViewItf API by opening a communication with eView and by retrieving devices information from eView.
  * This function must be called before any other function of this API.
  * Otherwise, the other functions will return the error code EVIEWITF_NOT_INITIALIZED (eviewitf_return_state).
  */
-int eviewitf_init(void);
+eviewitf_ret_t eviewitf_init(void);
 
 /**
  * \fn eviewitf_deinit
  * \brief De-initialize the eViewItf API
  * \ingroup eview
  *
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * De-initialize the eViewItf API by closing the communication with eView.
  */
-int eviewitf_deinit(void);
+eviewitf_ret_t eviewitf_deinit(void);
 
 /**
  * \fn eviewitf_set_R7_heartbeat_mode(uint32_t mode)
@@ -60,14 +60,14 @@ int eviewitf_deinit(void);
  * \ingroup eview
  *
  * \param[in] mode 0 to deactivate heartbeat other to activate it
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * The eView heartbeat can be activated to check if eView is still running as it should.
  * With the heartbeat activated, eView will regularly send a message over the eCube’s USB Debug port.
  * This is a debugging function. This function should not be used in a normal behavior.
- * However, it can help to identify the cause of an EVIEWITF_BLOCKED (eviewitf_return_code) error code.
+ * However, it can help to identify the cause of an EVIEWITF_BLOCKED (eviewitf_ret_t) error code.
  */
-int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
+eviewitf_ret_t eviewitf_set_R7_heartbeat_mode(uint32_t mode);
 
 /**
  * \fn eviewitf_set_R7_boot_mode(uint32_t mode)
@@ -75,13 +75,13 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode);
  * \ingroup eview
  *
  * \param[in] mode requets a specific R7 boot mode
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * An eView specific mode can be set under peculiar conditions.
  * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
  * requests.
  */
-int eviewitf_set_R7_boot_mode(uint32_t mode);
+eviewitf_ret_t eviewitf_set_R7_boot_mode(uint32_t mode);
 
 /**
  * \fn eviewitf_get_eview_version
@@ -114,7 +114,7 @@ const char* eviewitf_get_eviewitf_version(void);
  *
  * Content is voluntary not explicitly described in this interface, can be project specific.
  */
-int eviewitf_get_monitoring_info(uint32_t* data, uint8_t size);
+eviewitf_ret_t eviewitf_get_monitoring_info(uint32_t* data, uint8_t size);
 
 /**
  * \fn eviewitf_get_R7_boot_mode(uint32_t *mode)
@@ -128,7 +128,7 @@ int eviewitf_get_monitoring_info(uint32_t* data, uint8_t size);
  * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
  * requests.
  */
-int eviewitf_get_R7_boot_mode(uint32_t* mode);
+eviewitf_ret_t eviewitf_get_R7_boot_mode(uint32_t* mode);
 
 /**
  * \fn eviewitf_display_select_camera(int cam_id)
@@ -136,11 +136,11 @@ int eviewitf_get_R7_boot_mode(uint32_t* mode);
  * \ingroup display
  *
  * \param[in] cam_id: id of the camera
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Replace the currently displayed camera or streamer.
  */
-int eviewitf_display_select_camera(int cam_id);
+eviewitf_ret_t eviewitf_display_select_camera(int cam_id);
 
 /**
  * \fn eviewitf_display_select_streamer(int streamer_id)
@@ -148,11 +148,11 @@ int eviewitf_display_select_camera(int cam_id);
  * \ingroup display
  *
  * \param[in] streamer_id: id of the streamer
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Replace the currently displayed camera or streamer.
  */
-int eviewitf_display_select_streamer(int streamer_id);
+eviewitf_ret_t eviewitf_display_select_streamer(int streamer_id);
 
 /**
  * \fn eviewitf_display_select_blender(int blender_id)
@@ -161,12 +161,12 @@ int eviewitf_display_select_streamer(int streamer_id);
  * \ingroup display
  *
  * \param[in] blender_id: id of the blender
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Calling this function with blender_id not included between 0 and EVIEWITF_MAX_BLENDER – 1 (API macros) deactivates
  * the blender (no more overlay on the currently displayed camera or streamer).
  */
-int eviewitf_display_select_blender(int blender_id);
+eviewitf_ret_t eviewitf_display_select_blender(int blender_id);
 
 /**
  * \fn eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2)
@@ -177,11 +177,11 @@ int eviewitf_display_select_blender(int blender_id);
  * \param[in] y1: set first coordinate Y position
  * \param[in] x2: set second coordinate X position
  * \param[in] y2: set second coordinate Y position
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * \return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Setting all the coordinates to 0 deactivates the cropping.
  */
-int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
+eviewitf_ret_t eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 
 #ifdef __cplusplus
 }

@@ -17,7 +17,7 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct legacy_arguments {
+typedef struct legacy_arguments {
     int camera_id;
     int streamer_id;
     int display;
@@ -48,13 +48,13 @@ struct legacy_arguments {
     int y_offset;
     int cmd_pattern; /* Pattern command activated */
     uint8_t pattern; /* Selected pattern  */
-};
+} legacy_arguments_t;
 
 /* Possible patterns */
-struct legacy_pattern_mode {
+typedef struct legacy_pattern_mode {
     uint8_t tp;
     const char *name;
-};
+} legacy_pattern_mode_t;
 
 /* Program documentation */
 static char legacy_doc[] =
@@ -91,7 +91,7 @@ static char legacy_args_doc[] =
     "get frame rate:  -c[0-7] -F";
 
 /* Program options */
-static struct argp_option legacy_options[] = {
+static argp_option_t legacy_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
     {"display", 'd', 0, 0, "Select camera as display", 0},
@@ -123,7 +123,7 @@ static struct argp_option legacy_options[] = {
 };
 
 /* clang-format off */
-static struct legacy_pattern_mode patterns[] = {
+static legacy_pattern_mode_t patterns[] = {
         { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
         { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
         { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
@@ -158,9 +158,9 @@ static const char *pattern2str(uint8_t tp) {
 }
 
 /* Parse a single option. */
-static error_t legacy_parse_opt(int key, char *arg, struct argp_state *state) {
+static error_t legacy_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct legacy_arguments *arguments = state->input;
+    legacy_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'a':
@@ -313,7 +313,7 @@ static error_t legacy_parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 /* argp parser. */
-static struct argp legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, legacy_doc, NULL, NULL, NULL};
+static argp_t legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, legacy_doc, NULL, NULL, NULL};
 
 /**
  * @brief Parse the parameters and execute the  function
@@ -323,7 +323,7 @@ static struct argp legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_
  */
 int legacy_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
-    struct legacy_arguments arguments;
+    legacy_arguments_t arguments;
     uint32_t register_value = 0;
     /* cropping deparse variables */
     char *cropping_args;

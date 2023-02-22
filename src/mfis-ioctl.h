@@ -58,7 +58,7 @@
 /**
  * @brief MFIS IOCTL header (little endian)
  */
-struct mfis_ioctl {
+typedef struct mfis_ioctl {
     uint8_t funcid;
     uint8_t devtype;
     uint8_t requester;
@@ -66,6 +66,6 @@ struct mfis_ioctl {
     uint16_t result;
     uint16_t cmd;
     uint32_t arg[0];
-};
+} mfis_ioctl_t;
 
 #endif /* _MFIS_IOCTL_H */

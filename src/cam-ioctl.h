@@ -37,59 +37,59 @@
 /**
  * @brief Sensor registers
  */
-struct cam_reg {
+typedef struct cam_reg {
     uint32_t reg;
     uint32_t val;
-};
+} cam_reg_t;
 
 /**
  * @brief Camera point
  */
-struct cam_pt {
+typedef struct cam_pt {
     int32_t x; /* X axis */
     int32_t y; /* Y axis */
-};
+} cam_pt_t;
 
 /**
  * @brief Sensor exposure
  */
-struct cam_exp {
+typedef struct cam_exp {
     uint32_t exp_us;    /* Exposure duration (usecs) */
     uint32_t gain_thou; /* Gain value 1/1000 */
-};
+} cam_exp_t;
 
 /**
  * @brief Sensor CFA digital gains
  */
-struct cam_dg {
+typedef struct cam_dg {
     uint16_t cf00; /* CFA 00 digital gain */
     uint16_t cf01; /* CFA 01 digital gain */
     uint16_t cf10; /* CFA 10 digital gain */
     uint16_t cf11; /* CFA 11 digital gain */
-};
+} cam_dg_t;
 
 /**
  * @brief Camera I/O operations
  */
-#define IOCGCAMSTATE   MFIS_IOR(0, sizeof(uint32_t))        /* Gets the sensor state */
-#define IOCSCAMSTATE   MFIS_IOW(1, sizeof(uint32_t))        /* Sets the sensor state */
-#define IOCGCAMEXP     MFIS_IOR(2, sizeof(struct cam_exp))  /* Gets the sensor exposure parameters */
-#define IOCSCAMEXP     MFIS_IOW(3, sizeof(struct cam_exp))  /* Sets the sensor exposure parameters */
-#define IOCGCAMEXPMIN  MFIS_IOR(4, sizeof(struct cam_exp))  /* Gets the sensor min exposure parameters */
-#define IOCGCAMEXPMAX  MFIS_IOR(5, sizeof(struct cam_exp))  /* Gets the sensor max exposure parameters */
-#define IOCGCAMRATE    MFIS_IOR(6, sizeof(uint16_t))        /* Gets the sensor frame rate */
-#define IOCSCAMRATE    MFIS_IOW(7, sizeof(uint16_t))        /* Sets the sensor frame rate */
-#define IOCGCAMREADOUT MFIS_IOR(8, sizeof(uint8_t))         /* Gets the sensor image readout */
-#define IOCSCAMREADOUT MFIS_IOW(9, sizeof(uint8_t))         /* Sets the sensor image readout */
-#define IOCGCAMREG     MFIS_IOR(10, sizeof(struct cam_reg)) /* Sets the sensor register */
-#define IOCSCAMREG     MFIS_IOW(11, sizeof(struct cam_reg)) /* Sets the sensor register */
-#define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))       /* Gets the sensor temperature */
-#define IOCGCAMOFFSET  MFIS_IOR(13, sizeof(struct cam_pt))  /* Gets the frame offset */
-#define IOCSCAMOFFSET  MFIS_IOW(14, sizeof(struct cam_pt))  /* Sets the frame offset */
-#define IOCGCAMDG      MFIS_IOR(15, sizeof(struct cam_dg))  /* Gets the sensor CFA digital gains parameters */
-#define IOCSCAMDG      MFIS_IOW(16, sizeof(struct cam_dg))  /* Sets the sensor CFA digital gains parameters */
-#define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))        /* Gets the test pattern */
-#define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))        /* Sets the test pattern */
-#define IOCCAMREBOOT   MFIS_IO(100)                         /* Reboot command */
+#define IOCGCAMSTATE   MFIS_IOR(0, sizeof(uint32_t))   /* Gets the sensor state */
+#define IOCSCAMSTATE   MFIS_IOW(1, sizeof(uint32_t))   /* Sets the sensor state */
+#define IOCGCAMEXP     MFIS_IOR(2, sizeof(cam_exp_t))  /* Gets the sensor exposure parameters */
+#define IOCSCAMEXP     MFIS_IOW(3, sizeof(cam_exp_t))  /* Sets the sensor exposure parameters */
+#define IOCGCAMEXPMIN  MFIS_IOR(4, sizeof(cam_exp_t))  /* Gets the sensor min exposure parameters */
+#define IOCGCAMEXPMAX  MFIS_IOR(5, sizeof(cam_exp_t))  /* Gets the sensor max exposure parameters */
+#define IOCGCAMRATE    MFIS_IOR(6, sizeof(uint16_t))   /* Gets the sensor frame rate */
+#define IOCSCAMRATE    MFIS_IOW(7, sizeof(uint16_t))   /* Sets the sensor frame rate */
+#define IOCGCAMREADOUT MFIS_IOR(8, sizeof(uint8_t))    /* Gets the sensor image readout */
+#define IOCSCAMREADOUT MFIS_IOW(9, sizeof(uint8_t))    /* Sets the sensor image readout */
+#define IOCGCAMREG     MFIS_IOR(10, sizeof(cam_reg_t)) /* Sets the sensor register */
+#define IOCSCAMREG     MFIS_IOW(11, sizeof(cam_reg_t)) /* Sets the sensor register */
+#define IOCGCAMTEMP    MFIS_IOR(12, sizeof(uint16_t))  /* Gets the sensor temperature */
+#define IOCGCAMOFFSET  MFIS_IOR(13, sizeof(cam_pt_t))  /* Gets the frame offset */
+#define IOCSCAMOFFSET  MFIS_IOW(14, sizeof(cam_pt_t))  /* Sets the frame offset */
+#define IOCGCAMDG      MFIS_IOR(15, sizeof(cam_dg_t))  /* Gets the sensor CFA digital gains parameters */
+#define IOCSCAMDG      MFIS_IOW(16, sizeof(cam_dg_t))  /* Sets the sensor CFA digital gains parameters */
+#define IOCGCAMTP      MFIS_IOR(50, sizeof(uint8_t))   /* Gets the test pattern */
+#define IOCSCAMTP      MFIS_IOW(51, sizeof(uint8_t))   /* Sets the test pattern */
+#define IOCCAMREBOOT   MFIS_IO(100)                    /* Reboot command */
 
 #endif /* _CAM_IOCTL_H */

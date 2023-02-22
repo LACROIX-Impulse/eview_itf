@@ -15,7 +15,7 @@
  * @brief Parse the parameters and execute the  function
  * @param[in] argc arguments count
  * @param[in] argv arguments
- * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_return_code enum)
+ * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_ret_t enum)
  */
 int pipeline_parse(int argc, char **argv);
 

@@ -17,7 +17,7 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct pipeline_arguments {
+typedef struct pipeline_arguments {
     int pipeline_id;
     int state;
     int configure;
@@ -29,7 +29,7 @@ struct pipeline_arguments {
     int led;
     uint8_t led_id;
     uint8_t led_level;
-};
+} pipeline_arguments_t;
 
 /* Arguments description */
 static char pipeline_args_doc[] =
@@ -41,7 +41,7 @@ static char pipeline_args_doc[] =
     "set led:        -p[0-255] -L -i[0-2] -l[0-1]";
 
 /* Program options */
-static struct argp_option pipeline_options[] = {
+static argp_option_t pipeline_options[] = {
     {"pipeline", 'p', "ID", 0, "Select pipeline on which command occurs", 0},
     {"configure", 'c', 0, 0, "Configure the pipeline", 0},
     {"width", 'w', "VALUE", 0, "Set frame width", 0},
@@ -56,9 +56,9 @@ static struct argp_option pipeline_options[] = {
 };
 
 /* Parse a single option. */
-static error_t pipeline_parse_opt(int key, char *arg, struct argp_state *state) {
+static error_t pipeline_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct pipeline_arguments *arguments = state->input;
+    pipeline_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'c':
@@ -113,17 +113,17 @@ static error_t pipeline_parse_opt(int key, char *arg, struct argp_state *state) 
 }
 
 /* argp parser. */
-static struct argp pipeline_argp = {pipeline_options, pipeline_parse_opt, pipeline_args_doc, NULL, NULL, NULL, NULL};
+static argp_t pipeline_argp = {pipeline_options, pipeline_parse_opt, pipeline_args_doc, NULL, NULL, NULL, NULL};
 
 /**
  * @brief Parse the parameters and execute the  function
  * @param[in] argc arguments count
  * @param[in] argv arguments
- * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_return_code enum)
+ * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_ret_t enum)
  */
 int pipeline_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
-    struct pipeline_arguments arguments;
+    pipeline_arguments_t arguments;
 
     /* Default values. */
     arguments.pipeline_id = -1;

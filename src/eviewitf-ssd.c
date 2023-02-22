@@ -28,8 +28,8 @@ static const char *SSD_DIR_NAME_PATTERN = "frames_";
 
 int eviewitf_ssd_get_output_directory(char **storage_directory) {
     DIR *dir;
-    struct dirent *dirp;
-    struct stat statbuf;
+    dirent_t *dirp;
+    stat_t statbuf;
     int current_index;
     int next_index = 0;
     int length_index_to_add;
@@ -75,10 +75,10 @@ int eviewitf_ssd_record_stream(int camera_id, int duration, char *frames_directo
     int frame_id = 0;
     int file_ssd = 0;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
-    struct timespec res_start;
-    struct timespec res_run;
-    struct timespec difft = {0};
-    struct stat st;
+    timespec_t res_start;
+    timespec_t res_run;
+    timespec_t difft = {0};
+    stat_t st;
     char *buff_f;
     short revents;
 
@@ -165,9 +165,9 @@ int eviewitf_ssd_streamer_play(int streamer_id, uint32_t buffer_size, int fps, c
     int file_ssd = 1;
     char filename_ssd[SSD_MAX_FILENAME_SIZE];
     long int duration_ns;
-    struct timespec res_start;
-    struct timespec res_run;
-    struct timespec difft = {0};
+    timespec_t res_start;
+    timespec_t res_run;
+    timespec_t difft = {0};
     char pre_read = 1;
     int test_rw = 0;
     uint8_t *buff_f;

@@ -44,18 +44,18 @@
  * Private structures
  ******************************************************************************************/
 
-typedef struct {
+typedef struct seek_shared_memory {
     float frame[SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH];
-} seek_shared_memory;
+} seek_shared_memory_t;
 
-typedef struct {
+typedef struct seek_handler {
     int cam_id;
     bool used;
     sem_t *mutex_sem;
     int fd_shm;
-    seek_shared_memory *ptr_shm;
+    seek_shared_memory_t *ptr_shm;
     int sock;
-} seek_handler;
+} seek_handler_t;
 
 /******************************************************************************************
  * Private enumerations
@@ -65,7 +65,7 @@ typedef struct {
  * Private variables
  ******************************************************************************************/
 
-static seek_handler seek_handlers[SEEK_NB_CAMERAS] = {0};
+static seek_handler_t seek_handlers[SEEK_NB_CAMERAS] = {0};
 
 /******************************************************************************************
  * Functions
@@ -122,7 +122,7 @@ static int camera_seek_get_seek_id(int cam_id) {
 int camera_seek_open(int cam_id) {
     char tmp_string[SEEK_STRING_MAX_LENGTH];
     int seek_id = camera_seek_get_seek_id(cam_id);
-    struct sockaddr_un server_camera;
+    sockaddr_un_t server_camera;
 
     /* Open mutual exclusion semaphores */
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SEM_MUTEX_CAMERA, seek_id);
@@ -140,7 +140,7 @@ int camera_seek_open(int cam_id) {
 
     /* Map shared memory */
     seek_handlers[seek_id].ptr_shm =
-        mmap(NULL, sizeof(seek_shared_memory), PROT_READ, MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
+        mmap(NULL, sizeof(seek_shared_memory_t), PROT_READ, MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
     if (seek_handlers[seek_id].ptr_shm == MAP_FAILED) {
         return -1;
     }
@@ -156,7 +156,7 @@ int camera_seek_open(int cam_id) {
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SOCKET_CAMERA, seek_id);
     strcpy(server_camera.sun_path, tmp_string);
 
-    if (connect(seek_handlers[seek_id].sock, (struct sockaddr *)&server_camera, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(seek_handlers[seek_id].sock, (sockaddr_t *)&server_camera, sizeof(sockaddr_un_t)) < 0) {
         close(seek_handlers[seek_id].sock);
         seek_handlers[seek_id].sock = -1;
         return -1;
@@ -197,7 +197,7 @@ int camera_seek_close(int file_descriptor) {
  */
 int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
-    int min_size = MIN(buffer_size, sizeof(seek_shared_memory));
+    int min_size = MIN(buffer_size, sizeof(seek_shared_memory_t));
 
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].sock == file_descriptor) {
@@ -223,7 +223,7 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
  */
 int camera_seek_display(int cam_id) {
     int sock_config;
-    struct sockaddr_un server_config;
+    sockaddr_un_t server_config;
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
 
     /* Create config socket */;
@@ -235,7 +235,7 @@ int camera_seek_display(int cam_id) {
     strcpy(server_config.sun_path, SEEK_SOCKET_CONFIG);
 
     /* Establish connection */
-    if (connect(sock_config, (struct sockaddr *)&server_config, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(sock_config, (sockaddr_t *)&server_config, sizeof(sockaddr_un_t)) < 0) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }

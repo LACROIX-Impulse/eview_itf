@@ -21,18 +21,18 @@
  * \enum video_action
  * \brief Implemented action for video module
  */
-enum video_action {
+typedef enum video_action {
     VIDEO_ACTION_NC = 0,
     VIDEO_ACTION_RESUME,
     VIDEO_ACTION_SUSPEND,
     VIDEO_ACTION_STATE,
-};
+} video_action_t;
 
 /* Used by main to communicate with parse_opt. */
-struct video_arguments {
+typedef struct video_arguments {
     int camera_id;
-    enum video_action action;
-};
+    video_action_t action;
+} video_arguments_t;
 
 /* Program documentation */
 static char video_doc[] =
@@ -46,7 +46,7 @@ static char video_args_doc[] =
     "resume:          -c[0-7] -r\n";
 
 /* Program options */
-static struct argp_option video_options[] = {
+static argp_option_t video_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"suspend", 's', 0, 0, "Suspend video display", 0},
     {"resume", 'r', 0, 0, "Resume video display", 0},
@@ -55,9 +55,9 @@ static struct argp_option video_options[] = {
 };
 
 /* Parse a single option. */
-static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
+static error_t video_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct video_arguments *arguments = state->input;
+    video_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'c':
@@ -91,7 +91,7 @@ static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 /* argp parser. */
-static struct argp video_argp = {video_options, video_parse_opt, video_args_doc, video_doc, NULL, NULL, NULL};
+static argp_t video_argp = {video_options, video_parse_opt, video_args_doc, video_doc, NULL, NULL, NULL};
 
 /**
  * @brief Parse the parameters and execute the  function
@@ -101,7 +101,7 @@ static struct argp video_argp = {video_options, video_parse_opt, video_args_doc,
  */
 int video_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
-    struct video_arguments arguments;
+    video_arguments_t arguments;
 
     /* Default values. */
     arguments.camera_id = -1;

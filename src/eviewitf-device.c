@@ -29,7 +29,7 @@
  ******************************************************************************************/
 
 /* Device objects */
-static device_object device_objects[EVIEWITF_MAX_DEVICES] = {0};
+static device_object_t device_objects[EVIEWITF_MAX_DEVICES] = {0};
 
 static int file_descriptors[EVIEWITF_MAX_DEVICES];
 
@@ -73,8 +73,8 @@ int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_si
  */
 int device_objects_init() {
     int ret = EVIEWITF_OK;
-    struct eviewitf_mfis_camera_attributes cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
-    struct eviewitf_mfis_blending_attributes blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
+    eviewitf_mfis_camera_attributes_t cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
+    eviewitf_mfis_blending_attributes_t blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
 
     /* Get the cameras attributes (including streamers) */
     ret = mfis_get_cam_attributes(cameras_attributes);
@@ -173,7 +173,7 @@ int device_objects_init() {
  *
  * \return pointer on device object structure
  */
-device_object *get_device_object(int device_id) {
+device_object_t *get_device_object(int device_id) {
     if (device_id < 0 || device_id >= EVIEWITF_MAX_DEVICES) {
         return NULL;
     }
@@ -191,7 +191,7 @@ device_object *get_device_object(int device_id) {
  */
 int device_open(int device_id) {
     int ret = EVIEWITF_OK;
-    device_object *device;
+    device_object_t *device;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -230,7 +230,7 @@ int device_open(int device_id) {
  */
 int device_close(int device_id) {
     int ret = EVIEWITF_OK;
-    device_object *device;
+    device_object_t *device;
 
     // Test device has been opened
     if (file_descriptors[device_id] == -1) {
@@ -286,7 +286,7 @@ int device_seek(int device_id, off_t offset, int whence) {
  */
 int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
-    device_object *device;
+    device_object_t *device;
 
     if (frame_buffer == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -323,7 +323,7 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  */
 int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
     int ret = EVIEWITF_OK;
-    device_object *device;
+    device_object_t *device;
 
     if (frame_buffer == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -361,7 +361,7 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  * \return state of the function. Return 0 if okay
  */
 int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
-    struct pollfd pfd[nb_devices];
+    pollfd_t pfd[nb_devices];
     int r_poll;
     int ret = EVIEWITF_OK;
     int i;
@@ -409,7 +409,7 @@ int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_ret
 int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
     int ret = EVIEWITF_OK;
     /* Get the device attributes */
-    device_object *device = get_device_object(device_id);
+    device_object_t *device = get_device_object(device_id);
 
     /* Test attributes */
     if (ret >= EVIEWITF_OK) {

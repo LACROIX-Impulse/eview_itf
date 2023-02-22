@@ -41,31 +41,40 @@
 /**
  * @brief Device type
  */
-typedef enum {
+typedef enum device_type {
     DEVICE_TYPE_NONE,
     DEVICE_TYPE_CAMERA,
     DEVICE_TYPE_STREAMER,
     DEVICE_TYPE_BLENDER,
     DEVICE_TYPE_CAMERA_SEEK,
-} device_type;
+} device_type_t;
+
+typedef struct argp argp_t;
+typedef struct argp_state argp_state_t;
+typedef struct argp_option argp_option_t;
+typedef struct sockaddr sockaddr_t;
+typedef struct sockaddr_un sockaddr_un_t;
+typedef struct pollfd pollfd_t;
+typedef struct dirent dirent_t;
+typedef struct stat stat_t;
 
 /**
  * @brief Device attributes
  * Defines some attributes of the device
  */
-typedef struct {
-    device_type type;
+typedef struct device_attributes {
+    device_type_t type;
     uint32_t buffer_size;
     uint32_t width;
     uint32_t height;
     uint16_t dt;
-} device_attributes;
+} device_attributes_t;
 
 /**
  * @brief Device operation
  * Defines some operation that could be customized according to the device type
  */
-typedef struct {
+typedef struct device_operations {
     /* Operation to be performed on open request */
     int (*open)(int device_id);
 
@@ -83,37 +92,37 @@ typedef struct {
 
     /* Get device attributes */
     int (*get_attributes)(int device_id, eviewitf_device_attributes_t *attributes);
-} device_operations;
+} device_operations_t;
 
 /**
  * @brief Camera definition
  * Contains both attributes and operations for a device
  */
-typedef struct {
+typedef struct device_object {
     /* Device attributes */
-    device_attributes attributes;
+    device_attributes_t attributes;
 
     /* Device operations */
-    device_operations operations;
-} device_object;
+    device_operations_t operations;
+} device_object_t;
 
 /******************************************************************************************
  * Private Functions Prototypes
  ******************************************************************************************/
 
 /* App eViewItf */
-int eviewitf_app_reset_camera(int cam_id);
-int eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
-int eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
-int eviewitf_app_set_blending_from_file(int blender_id, char *frame);
-int eviewitf_app_print_monitoring_info(void);
+eviewitf_ret_t eviewitf_app_reset_camera(int cam_id);
+eviewitf_ret_t eviewitf_app_record_cam(int cam_id, int delay, char *record_path);
+eviewitf_ret_t eviewitf_app_streamer_play(int cam_id, int fps, char *frames_dir);
+eviewitf_ret_t eviewitf_app_set_blending_from_file(int blender_id, char *frame);
+eviewitf_ret_t eviewitf_app_print_monitoring_info(void);
 
 /* Common */
-int eviewitf_is_initialized();
+eviewitf_ret_t eviewitf_is_initialized();
 
 /* Devices */
 int device_objects_init();
-device_object *get_device_object(int device_id);
+device_object_t *get_device_object(int device_id);
 int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes);
 int device_open(int device_id);
 int device_close(int device_id);

@@ -67,14 +67,14 @@ out_ret:
 }
 
 /**
- * \fn void* mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes *cameras_attributes) {
+ * \fn void* mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t *cameras_attributes) {
  * \brief Get cameras attributes from MFIS
  *
- * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes
+ * \param [inout] cameras_attributes: Pointer to a table of struct eviewitf_mfis_camera_attributes_t
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes* cameras_attributes) {
+int mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* cameras_attributes) {
     int fd;
     int ret;
     pthread_mutex_lock(&mfis_mutex);
@@ -102,14 +102,14 @@ int mfis_get_cam_attributes(struct eviewitf_mfis_camera_attributes* cameras_attr
 }
 
 /**
- * \fn void* mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes *blendings_attributes) {
+ * \fn void* mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t *blendings_attributes) {
  * \brief Get blendings attributes from MFIS
  *
- * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes
+ * \param [inout] blendings_attributes: Pointer to a table of struct eviewitf_mfis_blending_attributes_t
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_blend_attributes(struct eviewitf_mfis_blending_attributes* blendings_attributes) {
+int mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* blendings_attributes) {
     int fd;
     int ret;
     pthread_mutex_lock(&mfis_mutex);
@@ -149,10 +149,10 @@ int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param
     int fd;
     int ret = EVIEWITF_OK;
     uint32_t msg[EVIEWITF_MFIS_MSG_SIZE];
-    struct mfis_ioctl* hdr;
+    mfis_ioctl_t* hdr;
 
     /* Prepares the message header */
-    hdr = (struct mfis_ioctl*)msg;
+    hdr = (mfis_ioctl_t*)msg;
     hdr->funcid = EVIEWITF_MFIS_FCT_IOCTL;
     hdr->requester = 0; /* Keep it empty, driver will set this field */
     hdr->devtype = devtype;

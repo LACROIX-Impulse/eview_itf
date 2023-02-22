@@ -41,8 +41,8 @@
  * \param delay: duration of the record in seconds
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     char *record_dir = NULL;
     eviewitf_device_attributes_t attributes;
 
@@ -74,8 +74,8 @@ int eviewitf_app_record_cam(int cam_id, int delay, char *record_path) {
  * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_app_reset_camera(int cam_id) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_app_reset_camera(int cam_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     /* Test camera id */
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
@@ -96,8 +96,8 @@ int eviewitf_app_reset_camera(int cam_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -127,8 +127,8 @@ int eviewitf_app_streamer_play(int streamer_id, int fps, char *frames_dir) {
  * \param in frame: path to the blending frame
  * \return state of the function. Return 0 if okay
  */
-int eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -147,8 +147,8 @@ int eviewitf_app_set_blending_from_file(int blender_id, char *frame) {
     return ret;
 }
 
-int eviewitf_app_print_monitoring_info(void) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_app_print_monitoring_info(void) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     uint32_t data[EVIEWITF_MONITORING_INFO_SIZE] = {0};
 
     ret = eviewitf_get_monitoring_info(data, EVIEWITF_MONITORING_INFO_SIZE);

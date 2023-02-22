@@ -17,7 +17,7 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct camera_arguments {
+typedef struct camera_arguments {
     int camera_id;
     int record;
     int record_duration;
@@ -39,13 +39,13 @@ struct camera_arguments {
     int y_offset;
     int cmd_pattern; /* Pattern command activated */
     uint8_t pattern; /* Selected pattern  */
-};
+} camera_arguments_t;
 
 /* Possible patterns */
-struct camera_pattern_mode {
+typedef struct camera_pattern_mode {
     uint8_t tp;
     const char *name;
-};
+} camera_pattern_mode_t;
 
 /* Program documentation */
 static char camera_doc[] =
@@ -76,7 +76,7 @@ static char camera_args_doc[] =
     "get frame rate:  -c[0-7] -F";
 
 /* Program options */
-static struct argp_option camera_options[] = {
+static argp_option_t camera_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
     {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
@@ -100,7 +100,7 @@ static struct argp_option camera_options[] = {
 };
 
 /* clang-format off */
-static struct camera_pattern_mode patterns[] = {
+static camera_pattern_mode_t patterns[] = {
         { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
         { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
         { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
@@ -135,9 +135,9 @@ static const char *pattern2str(uint8_t tp) {
 }
 
 /* Parse a single option. */
-static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
+static error_t camera_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct camera_arguments *arguments = state->input;
+    camera_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'a':
@@ -251,7 +251,7 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 /* argp parser. */
-static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
+static argp_t camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
 
 /**
  * @brief Parse the parameters and execute the  function
@@ -261,7 +261,7 @@ static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_
  */
 int camera_parse(int argc, char **argv) {
     int ret = EVIEWITF_OK;
-    struct camera_arguments arguments;
+    camera_arguments_t arguments;
     uint32_t register_value = 0;
 
     /* Default values. */

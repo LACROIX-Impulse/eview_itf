@@ -29,10 +29,11 @@ extern "C" {
  * \param frame: Frame attributes pointer where to plot the rectangle
  * \param rect: Rectangle attributes pointer to plot
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * \return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
-int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect);
+eviewitf_ret_t eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame,
+                                       eviewitf_plot_rectangle_attributes_t *rect);
 
 /* clang-format off */
 /**
@@ -42,10 +43,10 @@ int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_pl
  * \param frame: Frame attributes pointer where to plot the text
  * \param text: Text attribtues pointer to plot
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * \return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
-int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text);
+eviewitf_ret_t eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text);
 
 #ifdef __cplusplus
 }
