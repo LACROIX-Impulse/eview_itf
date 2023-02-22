@@ -99,8 +99,8 @@ static argp_t video_argp = {video_options, video_parse_opt, video_args_doc, vide
  * @param[in] argv arguments
  * @return
  */
-int video_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t video_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     video_arguments_t arguments;
 
     /* Default values. */

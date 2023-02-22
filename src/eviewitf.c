@@ -351,7 +351,7 @@ const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
  * Retrieve the running eView version.
  */
 const char *eviewitf_get_eview_version(void) {
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int i = 0;
     int j = 0;
     int size_div = 0;

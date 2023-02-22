@@ -121,8 +121,8 @@ static argp_t pipeline_argp = {pipeline_options, pipeline_parse_opt, pipeline_ar
  * @param[in] argv arguments
  * @return EVIEWITF_OK on success, negative value on failure (see eviewitf_ret_t enum)
  */
-int pipeline_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t pipeline_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     pipeline_arguments_t arguments;
 
     /* Default values. */

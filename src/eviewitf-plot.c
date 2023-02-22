@@ -269,7 +269,7 @@ static void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
 
 /* clang-format off */
 /**
- * \fn void set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * \fn eviewitf_ret_t set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
  * \brief Sets a pixel to the desired RGB color into a frame
  *
  * \param frame: Frame attributes pointer
@@ -279,9 +279,9 @@ static void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
  *
  */
 /* clang-format on */
-static int set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
-                     eviewitf_plot_rgb_color_attributes_t color) {
-    int ret = EVIEWITF_INVALID_PARAM;
+static eviewitf_ret_t set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
+                                eviewitf_plot_rgb_color_attributes_t color) {
+    eviewitf_ret_t ret = EVIEWITF_INVALID_PARAM;
     if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
         eviewitf_plot_yuv_color_attributes_t yuv_color;
         rgb_color_to_yuv_color(&color, &yuv_color);
@@ -404,7 +404,7 @@ static uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, u
 
 /* clang-format off */
 /**
- * \fn void plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * \fn eviewitf_ret_t plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
  * \brief Plots an horizontal line to the desired RGB color into a frame
  *
  * \param frame: Frame attributes pointer
@@ -415,9 +415,9 @@ static uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, u
  *
  */
 /* clang-format on */
-static int plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
-                       eviewitf_plot_rgb_color_attributes_t color) {
-    int ret = EVIEWITF_INVALID_PARAM;
+static eviewitf_ret_t plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
+                                  eviewitf_plot_rgb_color_attributes_t color) {
+    eviewitf_ret_t ret = EVIEWITF_INVALID_PARAM;
     if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
         eviewitf_plot_yuv_color_attributes_t yuv_color;
         rgb_color_to_yuv_color(&color, &yuv_color);

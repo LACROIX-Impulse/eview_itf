@@ -74,9 +74,9 @@ out_ret:
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* cameras_attributes) {
+eviewitf_ret_t mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* cameras_attributes) {
     int fd;
-    int ret;
+    eviewitf_ret_t ret;
     pthread_mutex_lock(&mfis_mutex);
 
     /* Open the mfis device */
@@ -109,9 +109,9 @@ int mfis_get_cam_attributes(eviewitf_mfis_camera_attributes_t* cameras_attribute
  *
  * \return pointer to virtual address (return NULL if error).
  */
-int mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* blendings_attributes) {
+eviewitf_ret_t mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* blendings_attributes) {
     int fd;
-    int ret;
+    eviewitf_ret_t ret;
     pthread_mutex_lock(&mfis_mutex);
 
     /* Open the mfis device */
@@ -145,9 +145,9 @@ int mfis_get_blend_attributes(eviewitf_mfis_blending_attributes_t* blendings_att
  * @param[in]  param         I/O parameter
  * @return EVIEWITF_OK on success, negative value on failure (see errno.h)
  */
-int mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param) {
+eviewitf_ret_t mfis_ioctl_request(uint8_t devtype, uint8_t devid, uint16_t cmd, void* param) {
     int fd;
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
     uint32_t msg[EVIEWITF_MFIS_MSG_SIZE];
     mfis_ioctl_t* hdr;
 

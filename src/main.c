@@ -19,7 +19,7 @@ const char *argp_program_version = "eviewitf-" VERSION;
 const char *argp_program_bug_address = "<support-ecube@lacroix.group>";
 
 int main(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     // if no argv
     if (argc == 1) {

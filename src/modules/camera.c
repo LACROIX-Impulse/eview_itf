@@ -259,8 +259,8 @@ static argp_t camera_argp = {camera_options, camera_parse_opt, camera_args_doc, 
  * @param[in] argv arguments
  * @return
  */
-int camera_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t camera_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     camera_arguments_t arguments;
     uint32_t register_value = 0;
 

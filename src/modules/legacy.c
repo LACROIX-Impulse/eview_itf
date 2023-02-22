@@ -321,8 +321,8 @@ static argp_t legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, 
  * @param[in] argv arguments
  * @return
  */
-int legacy_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t legacy_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     legacy_arguments_t arguments;
     uint32_t register_value = 0;
     /* cropping deparse variables */

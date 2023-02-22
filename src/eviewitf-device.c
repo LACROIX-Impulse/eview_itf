@@ -66,13 +66,13 @@ int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_si
 }
 
 /**
- * \fn int device_objects_init()
+ * \fn eviewitf_ret_t device_objects_init()
  * \brief Initialize device_objcets structure
  *
  * \return state of the function. Return 0 if okay
  */
-int device_objects_init() {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_objects_init() {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     eviewitf_mfis_camera_attributes_t cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
     eviewitf_mfis_blending_attributes_t blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
 
@@ -181,7 +181,7 @@ device_object_t *get_device_object(int device_id) {
 }
 
 /**
- * \fn int device_open(int device_id)
+ * \fn eviewitf_ret_t device_open(int device_id)
  * \brief Open a device
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
@@ -189,8 +189,8 @@ device_object_t *get_device_object(int device_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int device_open(int device_id) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_open(int device_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     device_object_t *device;
 
     /* Test API has been initialized */
@@ -220,7 +220,7 @@ int device_open(int device_id) {
 }
 
 /**
- * \fn int device_close(int device_id)
+ * \fn eviewitf_ret_t device_close(int device_id)
  * \brief Close a device
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
@@ -228,8 +228,8 @@ int device_open(int device_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int device_close(int device_id) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_close(int device_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     device_object_t *device;
 
     // Test device has been opened
@@ -254,7 +254,7 @@ int device_close(int device_id) {
 }
 
 /**
- * \fn int device_seek(int device_id, off_t offset, int whence)
+ * \fn eviewitf_ret_t device_seek(int device_id, off_t offset, int whence)
  * \brief Copy frame from physical memory to the given buffer location
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
@@ -264,8 +264,8 @@ int device_close(int device_id) {
  *
  * \return state of the function. Return 0 if okay
  */
-int device_seek(int device_id, off_t offset, int whence) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_seek(int device_id, off_t offset, int whence) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     if (lseek(file_descriptors[device_id], offset, whence) != offset) {
         ret = EVIEWITF_FAIL;
@@ -274,7 +274,7 @@ int device_seek(int device_id, off_t offset, int whence) {
     return ret;
 }
 /**
- * \fn int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
+ * \fn eviewitf_ret_t device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Copy frame from physical memory to the given buffer location
  *
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
@@ -284,8 +284,8 @@ int device_seek(int device_id, off_t offset, int whence) {
  *
  * \return state of the function. Return 0 if okay
  */
-int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     device_object_t *device;
 
     if (frame_buffer == NULL) {
@@ -311,7 +311,7 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
 }
 
 /**
- * \fn eviewitf_blender_write_frame
+ * \fn device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
  * \brief Write a frame to a blender
 
  * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
@@ -321,8 +321,8 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
  *
  * \return state of the function. Return 0 if okay
  */
-int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     device_object_t *device;
 
     if (frame_buffer == NULL) {
@@ -349,7 +349,7 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
 }
 
 /**
- * \fn int device_poll(int *device_id, int nb_cam, short *event_return)
+ * \fn eviewitf_ret_t device_poll(int *device_id, int nb_cam, short *event_return)
  * \brief Poll on multiple cameras to check a new frame is available
  *
  * \param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
@@ -360,10 +360,10 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
 
  * \return state of the function. Return 0 if okay
  */
-int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
+eviewitf_ret_t device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
     pollfd_t pfd[nb_devices];
     int r_poll;
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int i;
 
     if (event_return == NULL) {
@@ -397,7 +397,7 @@ int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_ret
 }
 
 /**
- * \fn int device_get_attributes(int cam_id)
+ * \fn eviewitf_ret_t device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes)
  * \brief Get device attributes such as buffer size
  *
  * \param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
@@ -406,8 +406,8 @@ int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_ret
 
  * \return state of the function. Return 0 if okay
  */
-int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     /* Get the device attributes */
     device_object_t *device = get_device_object(device_id);
 
