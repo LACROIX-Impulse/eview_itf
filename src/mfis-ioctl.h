@@ -58,14 +58,14 @@
 /**
  * @brief MFIS IOCTL header (little endian)
  */
-struct mfis_ioctl {
-    uint8_t funcid;
-    uint8_t devtype;
-    uint8_t requester;
-    uint8_t devid;
-    uint16_t result;
-    uint16_t cmd;
-    uint32_t arg[0];
-};
+typedef struct mfis_ioctl {
+    uint8_t funcid;    /*!< Function identifier */
+    uint8_t devtype;   /*!< Device type */
+    uint8_t requester; /*!< Requester */
+    uint8_t devid;     /*!< Device id */
+    uint16_t result;   /*!< Result */
+    uint16_t cmd;      /*!< Command */
+    uint32_t arg[0];   /*!< Arguments pointer */
+} mfis_ioctl_t;
 
 #endif /* _MFIS_IOCTL_H */

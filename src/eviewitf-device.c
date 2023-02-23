@@ -1,7 +1,7 @@
 /**
- * \file eviewitf_device.c
- * \brief Common functions for device management
- * \author LACROIX Impulse
+ * @file eviewitf-device.c
+ * @brief Common functions for device management
+ * @author LACROIX Impulse
  *
  * Common functions for device management (camera, streamer, blender, ...)
  *
@@ -18,6 +18,9 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
+/**
+ * @brief Maximum version size
+ */
 #define MAX_VERSION_SIZE 21
 
 /******************************************************************************************
@@ -28,9 +31,14 @@
  * Private enumerations
  ******************************************************************************************/
 
-/* Device objects */
-static device_object device_objects[EVIEWITF_MAX_DEVICES] = {0};
+/**
+ * @brief Device objects
+ */
+static device_object_t device_objects[EVIEWITF_MAX_DEVICES] = {0};
 
+/**
+ * @brief File descriptors
+ */
 static int file_descriptors[EVIEWITF_MAX_DEVICES];
 
 /******************************************************************************************
@@ -38,12 +46,12 @@ static int file_descriptors[EVIEWITF_MAX_DEVICES];
  ******************************************************************************************/
 
 /**
- * \fn int generic_close(int file_descriptor)
- * \brief close device
+ * @fn int generic_close(int file_descriptor)
+ * @brief close device
  *
- * \param file_descriptor: file descriptor on an opened device
+ * @param file_descriptor: file descriptor on an opened device
  *
- * \return 0 on success otherwise -1
+ * @return 0 on success otherwise -1
  */
 int generic_close(int file_descriptor) {
     /* Close file descriptor */
@@ -51,14 +59,14 @@ int generic_close(int file_descriptor) {
 }
 
 /**
- * \fn int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
- * \brief write to a device
+ * @fn int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
+ * @brief write to a device
  *
- * \param file_descriptor: file descriptor on an opened device
- * \param frame_buffer: buffer containing the frame
- * \param buffer_size: size of the frame
+ * @param file_descriptor: file descriptor on an opened device
+ * @param frame_buffer: buffer containing the frame
+ * @param buffer_size: size of the frame
  *
- * \return the number of written bytes or -1
+ * @return the number of written bytes or -1
  */
 int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     /* Write to the device */
@@ -66,15 +74,15 @@ int generic_write(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_si
 }
 
 /**
- * \fn int device_objects_init()
- * \brief Initialize device_objcets structure
+ * @fn eviewitf_ret_t device_objects_init()
+ * @brief Initialize device_objcets structure
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_objects_init() {
-    int ret = EVIEWITF_OK;
-    struct eviewitf_mfis_camera_attributes cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
-    struct eviewitf_mfis_blending_attributes blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
+eviewitf_ret_t device_objects_init() {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    eviewitf_mfis_camera_attributes_t cameras_attributes[EVIEWITF_MAX_CAMERA + EVIEWITF_MAX_STREAMER] = {0};
+    eviewitf_mfis_blending_attributes_t blendings_attributes[EVIEWITF_MAX_BLENDER] = {0};
 
     /* Get the cameras attributes (including streamers) */
     ret = mfis_get_cam_attributes(cameras_attributes);
@@ -166,14 +174,14 @@ int device_objects_init() {
 }
 
 /**
- * \fn get_device_object
- * \brief Get a pointer on the device object
+ * @fn device_object_t *get_device_object(int device_id)
+ * @brief Get a pointer on the device object
  *
- * \param [in] device_id: device id
+ * @param [in] device_id: device id
  *
- * \return pointer on device object structure
+ * @return pointer on device object structure
  */
-device_object *get_device_object(int device_id) {
+device_object_t *get_device_object(int device_id) {
     if (device_id < 0 || device_id >= EVIEWITF_MAX_DEVICES) {
         return NULL;
     }
@@ -181,17 +189,17 @@ device_object *get_device_object(int device_id) {
 }
 
 /**
- * \fn int device_open(int device_id)
- * \brief Open a device
+ * @fn eviewitf_ret_t device_open(int device_id)
+ * @brief Open a device
  *
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_open(int device_id) {
-    int ret = EVIEWITF_OK;
-    device_object *device;
+eviewitf_ret_t device_open(int device_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device;
 
     /* Test API has been initialized */
     if (eviewitf_is_initialized() == 0) {
@@ -220,17 +228,17 @@ int device_open(int device_id) {
 }
 
 /**
- * \fn int device_close(int device_id)
- * \brief Close a device
+ * @fn eviewitf_ret_t device_close(int device_id)
+ * @brief Close a device
  *
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_close(int device_id) {
-    int ret = EVIEWITF_OK;
-    device_object *device;
+eviewitf_ret_t device_close(int device_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device;
 
     // Test device has been opened
     if (file_descriptors[device_id] == -1) {
@@ -254,18 +262,18 @@ int device_close(int device_id) {
 }
 
 /**
- * \fn int device_seek(int device_id, off_t offset, int whence)
- * \brief Copy frame from physical memory to the given buffer location
+ * @fn eviewitf_ret_t device_seek(int device_id, off_t offset, int whence)
+ * @brief Copy frame from physical memory to the given buffer location
  *
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
- * \param offset: offset for seek operation (SEEK_SET)
- * \param whence: seek mode (SEEK_CUR / SEEK_CUR / SEEK_END)
+ * @param offset: offset for seek operation (SEEK_SET)
+ * @param whence: seek mode (SEEK_CUR / SEEK_CUR / SEEK_END)
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_seek(int device_id, off_t offset, int whence) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_seek(int device_id, off_t offset, int whence) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     if (lseek(file_descriptors[device_id], offset, whence) != offset) {
         ret = EVIEWITF_FAIL;
@@ -274,19 +282,19 @@ int device_seek(int device_id, off_t offset, int whence) {
     return ret;
 }
 /**
- * \fn int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
- * \brief Copy frame from physical memory to the given buffer location
+ * @fn eviewitf_ret_t device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
+ * @brief Copy frame from physical memory to the given buffer location
  *
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
- * \param frame_buffer: buffer to store the incoming frame
- * \param buffer_size: buffer size for coherency check
+ * @param frame_buffer: buffer to store the incoming frame
+ * @param buffer_size: buffer size for coherency check
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
-    device_object *device;
+eviewitf_ret_t device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device;
 
     if (frame_buffer == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -311,19 +319,19 @@ int device_read(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
 }
 
 /**
- * \fn eviewitf_blender_write_frame
- * \brief Write a frame to a blender
+ * @fn device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size)
+ * @brief Write a frame to a blender
 
- * \param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
- * \param in buffer_size: size of the blender frame buffer
- * \param in buffer: device frame buffer
+ * @param frame_buffer: device frame buffer
+ * @param buffer_size: size of the blender frame buffer
  *
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
-    int ret = EVIEWITF_OK;
-    device_object *device;
+eviewitf_ret_t device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device;
 
     if (frame_buffer == NULL) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -349,21 +357,21 @@ int device_write(int device_id, uint8_t *frame_buffer, uint32_t buffer_size) {
 }
 
 /**
- * \fn int device_poll(int *device_id, int nb_cam, short *event_return)
- * \brief Poll on multiple cameras to check a new frame is available
+ * @fn eviewitf_ret_t device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return)
+ * @brief Poll on multiple cameras to check a new frame is available
  *
- * \param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
  *        we assume those values has been tested by the caller
- * \param nb_devices: number of devices on which the polling applies
- * \param ms_timeout: number of millisecond the function should block waiting for a frame, negative value means infinite
- * \param event_return: detected events for each device, 0 if no frame, 1 if a frame is available
+ * @param nb_devices: number of devices on which the polling applies
+ * @param ms_timeout: number of millisecond the function should block waiting for a frame, negative value means infinite
+ * @param event_return: detected events for each device, 0 if no frame, 1 if a frame is available
 
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
-    struct pollfd pfd[nb_devices];
+eviewitf_ret_t device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_return) {
+    pollfd_t pfd[nb_devices];
     int r_poll;
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int i;
 
     if (event_return == NULL) {
@@ -397,19 +405,19 @@ int device_poll(int *device_id, int nb_devices, int ms_timeout, short *event_ret
 }
 
 /**
- * \fn int device_get_attributes(int cam_id)
- * \brief Get device attributes such as buffer size
+ * @fn eviewitf_ret_t device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes)
+ * @brief Get device attributes such as buffer size
  *
- * \param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
+ * @param device_id: table of device ids to poll between 0 and EVIEWITF_MAX_DEVICES
  *        we assume those values has been tested by the caller
- * \param attributes: pointer on the structure to be filled
+ * @param attributes: pointer on the structure to be filled
 
- * \return state of the function. Return 0 if okay
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  */
-int device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t device_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     /* Get the device attributes */
-    device_object *device = get_device_object(device_id);
+    device_object_t *device = get_device_object(device_id);
 
     /* Test attributes */
     if (ret >= EVIEWITF_OK) {

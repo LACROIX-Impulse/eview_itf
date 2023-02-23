@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Module legacy
- * \author LACROIX Impulse
+ * @file legacy.c
+ * @brief Module legacy
+ * @author LACROIX Impulse
  *
  * The module Camera handles operations that relate to streams and cameras
  *
@@ -17,46 +17,62 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct legacy_arguments {
-    int camera_id;
-    int streamer_id;
-    int display;
-    int record;
-    int record_duration;
-    int reg;
-    uint32_t reg_address;
-    int val;
-    int reg_value;
-    int read;
-    int write;
-    int reboot;
-    int fps_value;
-    int play;
-    char *path_frames_dir;
-    int blending;
-    char *path_blend_frame;
-    int stop_blending;
-    int blender_id;
-    int boot_mode;
-    int heartbeat;
-    int cropping;
-    char *cropping_coord;
-    int monitoring_info;
-    int exposure;
-    int gain;
-    int x_offset;
-    int y_offset;
-    int cmd_pattern; /* Pattern command activated */
-    uint8_t pattern; /* Selected pattern  */
-};
+/**
+ * @typedef legacy_arguments_t
+ * @brief legacy arguments structure
+ *
+ * @struct legacy_arguments
+ * @brief legacy arguments structure
+ */
+typedef struct legacy_arguments {
+    int camera_id;          /*!< Camera identifier */
+    int streamer_id;        /*!< Streamer identifier */
+    int display;            /*!< Display indicator */
+    int record;             /*!< Record indicator */
+    int record_duration;    /*!< Record duration */
+    int reg;                /*!< Register */
+    uint32_t reg_address;   /*!< Register address */
+    int val;                /*!< Value */
+    int reg_value;          /*!< Register value */
+    int read;               /*!< Read indicator*/
+    int write;              /*!< Write indicator */
+    int reboot;             /*!< Reboot indicator */
+    int fps_value;          /*!< FPS value */
+    int play;               /*!< Play indicator */
+    char *path_frames_dir;  /*!< Frames directory path */
+    int blending;           /*!< Blending indicator */
+    char *path_blend_frame; /*!< Blend frame path */
+    int stop_blending;      /*!< Stop blending indicator */
+    int blender_id;         /*!< Blender identifier */
+    int boot_mode;          /*!< Boot mode indicator */
+    int heartbeat;          /*!< Heartbeat indicator */
+    int cropping;           /*!< Cropping indicator*/
+    char *cropping_coord;   /*!< Cropping coordinates */
+    int monitoring_info;    /*!< Monitoring information */
+    int exposure;           /*!< Exposure */
+    int gain;               /*!< Gain */
+    int x_offset;           /*!< X offset */
+    int y_offset;           /*!< Y offset */
+    int cmd_pattern;        /*!< Pattern command activated */
+    uint8_t pattern;        /*!< Selected pattern  */
+} legacy_arguments_t;
 
 /* Possible patterns */
-struct legacy_pattern_mode {
-    uint8_t tp;
-    const char *name;
-};
+/**
+ * @typedef legacy_pattern_mode_t
+ * @brief legacy pattern mode structure
+ *
+ * @struct legacy_pattern_mode
+ * @brief legacy pattern mode structure
+ */
+typedef struct legacy_pattern_mode {
+    uint8_t tp;       /*!< Test Pattern */
+    const char *name; /*!< Name */
+} legacy_pattern_mode_t;
 
-/* Program documentation */
+/**
+ * @brief Program documentation
+ */
 static char legacy_doc[] =
     "eviewitf -- Program for communication between A53 and R7 CPUs"
     "\v"
@@ -64,7 +80,9 @@ static char legacy_doc[] =
     " none, solid-red, solid-green, solid-blue, solid-vbar, solid-vbar-faded,\n"
     " custom0, custom1, custom2, custom3, custom4\n";
 
-/* Arguments description */
+/**
+ * @brief Arguments description
+ */
 static char legacy_args_doc[] =
     "module:          [camera(default)|pipeline]\n"
     "change display:  -d -c[0-7]\n"
@@ -91,7 +109,10 @@ static char legacy_args_doc[] =
     "get frame rate:  -c[0-7] -F";
 
 /* Program options */
-static struct argp_option legacy_options[] = {
+/**
+ * @brief Legacy option list
+ */
+static argp_option_t legacy_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"streamer", 's', "ID", 0, "Select streamer on which command occurs", 0},
     {"display", 'd', 0, 0, "Select camera as display", 0},
@@ -123,7 +144,10 @@ static struct argp_option legacy_options[] = {
 };
 
 /* clang-format off */
-static struct legacy_pattern_mode patterns[] = {
+/**
+ * @brief Test pattern list
+ */
+static legacy_pattern_mode_t patterns[] = {
         { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
         { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
         { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
@@ -140,7 +164,12 @@ static struct legacy_pattern_mode patterns[] = {
 };
 /* clang-format on */
 
-/* Gets the pattern value related to the given string */
+/**
+ * @fn static int str2pattern(const char *pattern)
+ * @brief Gets the pattern value related to the given string
+ * @param pattern pattern string
+ * @return pattern value
+ */
 static int str2pattern(const char *pattern) {
     if (!pattern) return -1;
     for (int n = 0; patterns[n].name; n++) {
@@ -149,7 +178,12 @@ static int str2pattern(const char *pattern) {
     return -1;
 }
 
-/* Gets the pattern value related to the given string */
+/**
+ * @fn static const char *pattern2str(uint8_t tp) {
+ * @brief Gets the pattern string related to the given value
+ * @param tp pattern value
+ * @return pattern string
+ */
 static const char *pattern2str(uint8_t tp) {
     for (int n = 0; patterns[n].name; n++) {
         if (tp == patterns[n].tp) return patterns[n].name;
@@ -158,9 +192,17 @@ static const char *pattern2str(uint8_t tp) {
 }
 
 /* Parse a single option. */
-static error_t legacy_parse_opt(int key, char *arg, struct argp_state *state) {
+/**
+ * @fn static error_t legacy_parse_opt(int key, char *arg, argp_state_t *state)
+ * @brief Parse a single option
+ * @param key the key
+ * @param arg argument
+ * @param state state pointer
+ * @return return code as specified by the eviewitf_ret_t enumeration.
+ */
+static error_t legacy_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct legacy_arguments *arguments = state->input;
+    legacy_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'a':
@@ -312,18 +354,14 @@ static error_t legacy_parse_opt(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
-/* argp parser. */
-static struct argp legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, legacy_doc, NULL, NULL, NULL};
-
 /**
- * @brief Parse the parameters and execute the  function
- * @param[in] argc arguments count
- * @param[in] argv arguments
- * @return
+ * @brief argp parser
  */
-int legacy_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
-    struct legacy_arguments arguments;
+static argp_t legacy_argp = {legacy_options, legacy_parse_opt, legacy_args_doc, legacy_doc, NULL, NULL, NULL};
+
+eviewitf_ret_t legacy_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    legacy_arguments_t arguments;
     uint32_t register_value = 0;
     /* cropping deparse variables */
     char *cropping_args;

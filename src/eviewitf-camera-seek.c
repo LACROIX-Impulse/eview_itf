@@ -1,7 +1,7 @@
 /**
- * \file eviewitf_camera_seek.c
- * \brief Communication API between A53 and R7 CPUs for seek camera devices
- * \author LACROIX Impulse
+ * @file eviewitf-camera-seek.c
+ * @brief Communication API between A53 and R7 CPUs for seek camera devices
+ * @author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -24,38 +24,101 @@
  * Private definitions
  ******************************************************************************************/
 
+/**
+ * @brief Seek frame width
+ */
 #define SEEK_FRAME_WIDTH 200
+
+/**
+ * @brief Seek frame height
+ */
 #define SEEK_FRAME_HEIGH 150
-#define SEEK_DT          0x01F0
 
-#define SEEK_NB_CAMERAS           4
-#define SEEK_STRING_MAX_LENGTH    64
-#define SEEK_CONFIG_MESSAGE_SIZE  2
-#define SEEK_SOCKET_CONFIG        "/var/seek/seek_config"
-#define SEEK_SOCKET_CAMERA        "/var/seek/seek_camera_%d"
-#define SEEK_SEM_MUTEX_CAMERA     "/seek-mutex-camera-%d"
+/**
+ * @brief Seek data type
+ */
+#define SEEK_DT 0x01F0
+
+/**
+ * @brief Seek number of cameras
+ */
+#define SEEK_NB_CAMERAS 4
+
+/**
+ * @brief Seek string maximum length
+ */
+#define SEEK_STRING_MAX_LENGTH 64
+
+/**
+ * @brief Seek configuration message size
+ */
+#define SEEK_CONFIG_MESSAGE_SIZE 2
+
+/**
+ * @brief Seek socket configuration
+ */
+#define SEEK_SOCKET_CONFIG "/var/seek/seek_config"
+
+/**
+ * @brief Seek socket camera
+ */
+#define SEEK_SOCKET_CAMERA "/var/seek/seek_camera_%d"
+
+/**
+ * @brief Seek semaphore mutex camera
+ */
+#define SEEK_SEM_MUTEX_CAMERA "/seek-mutex-camera-%d"
+
+/**
+ * @brief Seek shared memory camera
+ */
 #define SEEK_SHARED_MEMORY_CAMERA "/seek-shared-mem-camera-%d"
-#define SEEK_STREAMER_ID          7
 
+/**
+ * @brief Seek streamer identifier
+ */
+#define SEEK_STREAMER_ID 7
+
+/**
+ * @brief Seek configuration start display camera
+ */
 #define SEEK_CONFIG_START_DISPLAY_CAMERA 1
-#define SEEK_CONFIG_STOP_DISPLAY_CAMERA  2
+
+/**
+ * @brief Seek configuration stop display camera
+ */
+#define SEEK_CONFIG_STOP_DISPLAY_CAMERA 2
 
 /******************************************************************************************
  * Private structures
  ******************************************************************************************/
 
-typedef struct {
-    float frame[SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH];
-} seek_shared_memory;
+/**
+ * @typedef seek_shared_memory_t
+ * @brief Seek shared memory
+ *
+ * @struct seek_shared_memory
+ * @brief Seek shared memory
+ */
+typedef struct seek_shared_memory {
+    float frame[SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH]; /*!< Seek shared memory frame */
+} seek_shared_memory_t;
 
-typedef struct {
-    int cam_id;
-    bool used;
-    sem_t *mutex_sem;
-    int fd_shm;
-    seek_shared_memory *ptr_shm;
-    int sock;
-} seek_handler;
+/**
+ * @typedef seek_handler_t
+ * @brief Seek handler
+ *
+ * @struct seek_handler
+ * @brief Seek handler
+ */
+typedef struct seek_handler {
+    int cam_id;                    /*!< Camera identifier */
+    bool used;                     /*!< Usage indicator */
+    sem_t *mutex_sem;              /*!< Semaphore mutex */
+    int fd_shm;                    /*!< Fiel descriptor */
+    seek_shared_memory_t *ptr_shm; /*!< Seek shared memory pointer */
+    int sock;                      /*!< Socket */
+} seek_handler_t;
 
 /******************************************************************************************
  * Private enumerations
@@ -65,22 +128,16 @@ typedef struct {
  * Private variables
  ******************************************************************************************/
 
-static seek_handler seek_handlers[SEEK_NB_CAMERAS] = {0};
+/**
+ * @brief Seek handlers
+ */
+static seek_handler_t seek_handlers[SEEK_NB_CAMERAS] = {0};
 
 /******************************************************************************************
  * Functions
  ******************************************************************************************/
 
-/**
- * \fn int camera_seek_register(int cam_id)
- * \brief register a seek camera
- *
- * \param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
- *        we assume this value has been tested by the caller
- *
- * \return EVIEWITF_OK or EVIEWITF_FAIL if no more slot available
- */
-int camera_seek_register(int cam_id) {
+eviewitf_ret_t camera_seek_register(int cam_id) {
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].used == false) {
             seek_handlers[i].cam_id = cam_id;
@@ -93,13 +150,13 @@ int camera_seek_register(int cam_id) {
 }
 
 /**
- * \fn int camera_seek_get_seek_id(int cam_id)
- * \brief get Seek ID from camera ID
+ * @fn int camera_seek_get_seek_id(int cam_id)
+ * @brief get Seek ID from camera ID
  *
- * \param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
+ * @param cam_id: id of the device between 0 and EVIEWITF_MAX_DEVICES
  *        we assume this value has been tested by the caller
  *
- * \return seek cmera id or -1
+ * @return seek cmera id or -1
  */
 static int camera_seek_get_seek_id(int cam_id) {
     for (int seek_id = 0; seek_id < SEEK_NB_CAMERAS; seek_id++) {
@@ -110,19 +167,10 @@ static int camera_seek_get_seek_id(int cam_id) {
     return -1;
 }
 
-/**
- * \fn int camera_seek_open(int cam_id)
- * \brief open a seek camera device
- *
- * \param cam_id: id of the camera between 0 and EVIEWITF_MAX_CAMERA
- *        we assume this value has been tested by the caller
- *
- * \return file descriptor or -1
- */
 int camera_seek_open(int cam_id) {
     char tmp_string[SEEK_STRING_MAX_LENGTH];
     int seek_id = camera_seek_get_seek_id(cam_id);
-    struct sockaddr_un server_camera;
+    sockaddr_un_t server_camera;
 
     /* Open mutual exclusion semaphores */
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SEM_MUTEX_CAMERA, seek_id);
@@ -140,7 +188,7 @@ int camera_seek_open(int cam_id) {
 
     /* Map shared memory */
     seek_handlers[seek_id].ptr_shm =
-        mmap(NULL, sizeof(seek_shared_memory), PROT_READ, MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
+        mmap(NULL, sizeof(seek_shared_memory_t), PROT_READ, MAP_SHARED, seek_handlers[seek_id].fd_shm, 0);
     if (seek_handlers[seek_id].ptr_shm == MAP_FAILED) {
         return -1;
     }
@@ -156,7 +204,7 @@ int camera_seek_open(int cam_id) {
     snprintf(tmp_string, SEEK_STRING_MAX_LENGTH, SEEK_SOCKET_CAMERA, seek_id);
     strcpy(server_camera.sun_path, tmp_string);
 
-    if (connect(seek_handlers[seek_id].sock, (struct sockaddr *)&server_camera, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(seek_handlers[seek_id].sock, (sockaddr_t *)&server_camera, sizeof(sockaddr_un_t)) < 0) {
         close(seek_handlers[seek_id].sock);
         seek_handlers[seek_id].sock = -1;
         return -1;
@@ -165,14 +213,6 @@ int camera_seek_open(int cam_id) {
     return seek_handlers[seek_id].sock;
 }
 
-/**
- * \fn int camera_seek_close(int file_descriptor)
- * \brief close seek camera device
- *
- * \param file_descriptor: file descriptor on an opened device
- *
- * \return 0 on success otherwise -1
- */
 int camera_seek_close(int file_descriptor) {
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].sock == file_descriptor) {
@@ -185,19 +225,9 @@ int camera_seek_close(int file_descriptor) {
     return -1;
 }
 
-/**
- * \fn int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size)
- * \brief Read from a seek camera
- *
- * \param file_descriptor: file descriptor on an opened device
- * \param frame_buffer: buffer containing the frame
- * \param buffer_size: size of the frame
- *
- * \return the number of read bytes or -1
- */
 int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer_size) {
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
-    int min_size = MIN(buffer_size, sizeof(seek_shared_memory));
+    int min_size = MIN(buffer_size, sizeof(seek_shared_memory_t));
 
     for (int i = 0; i < SEEK_NB_CAMERAS; i++) {
         if (seek_handlers[i].sock == file_descriptor) {
@@ -215,15 +245,9 @@ int camera_seek_read(int file_descriptor, uint8_t *frame_buffer, uint32_t buffer
     return -1;
 }
 
-/**
- * \fn camera_seek_display
- * \brief Request R7 to select camera device as display input
- *
- * \return state of the function. Return 0 if okay
- */
-int camera_seek_display(int cam_id) {
+eviewitf_ret_t camera_seek_display(int cam_id) {
     int sock_config;
-    struct sockaddr_un server_config;
+    sockaddr_un_t server_config;
     u_int8_t msg[SEEK_CONFIG_MESSAGE_SIZE];
 
     /* Create config socket */;
@@ -235,7 +259,7 @@ int camera_seek_display(int cam_id) {
     strcpy(server_config.sun_path, SEEK_SOCKET_CONFIG);
 
     /* Establish connection */
-    if (connect(sock_config, (struct sockaddr *)&server_config, sizeof(struct sockaddr_un)) < 0) {
+    if (connect(sock_config, (sockaddr_t *)&server_config, sizeof(sockaddr_un_t)) < 0) {
         close(sock_config);
         return EVIEWITF_FAIL;
     }
@@ -261,20 +285,14 @@ int camera_seek_display(int cam_id) {
     return camera_display(SEEK_STREAMER_ID + EVIEWITF_OFFSET_STREAMER);
 }
 
-/**
- * \fn int camera_seek_get_attributes(int device_id, eviewitf_device_attributes_t *attributes)
- * \brief Get seek camera attributes
- *
- * \param camera_id: id of the Seek camera
- * \param attributes: attributes structure to be filled in
- *
- * \return state of the function. Return 0 if okay
- */
-int camera_seek_get_attributes(__attribute__((unused)) int device_id, eviewitf_device_attributes_t *attributes) {
-    attributes->buffer_size = SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH * sizeof(float);
-    attributes->width = SEEK_FRAME_WIDTH;
-    attributes->height = SEEK_FRAME_HEIGH;
-    attributes->dt = SEEK_DT;
+eviewitf_ret_t camera_seek_get_attributes(int device_id, eviewitf_device_attributes_t *attributes) {
+    if (device_id > 0) {
+        attributes->buffer_size = SEEK_FRAME_WIDTH * SEEK_FRAME_HEIGH * sizeof(float);
+        attributes->width = SEEK_FRAME_WIDTH;
+        attributes->height = SEEK_FRAME_HEIGH;
+        attributes->dt = SEEK_DT;
 
-    return 0;
+        return EVIEWITF_OK;
+    }
+    return EVIEWITF_FAIL;
 }

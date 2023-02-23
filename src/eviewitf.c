@@ -1,7 +1,7 @@
 /**
- * \file eviewitf.c
- * \brief Communication API between A53 and R7 CPUs
- * \author LACROIX Impulse
+ * @file eviewitf.c
+ * @brief Communication API between A53 and R7 CPUs
+ * @author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -19,6 +19,9 @@
 /******************************************************************************************
  * Private definitions
  ******************************************************************************************/
+/**
+ * @brief Maximum version size
+ */
 #define MAX_VERSION_SIZE 21
 
 /******************************************************************************************
@@ -29,9 +32,24 @@
  * Private enumerations
  ******************************************************************************************/
 
+/**
+ * @brief Global initialization indicator
+ */
 static uint8_t eviewitf_global_init = 0;
+
+/**
+ * @brief eView version
+ */
 static char eview_version[MAX_VERSION_SIZE];
+
+/**
+ * @brief eView initialization mutex
+ */
 static pthread_mutex_t eviewitf_init_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+/**
+ * @brief eView deinitialization mutex
+ */
 static pthread_mutex_t eviewitf_deinit_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /******************************************************************************************
@@ -39,26 +57,26 @@ static pthread_mutex_t eviewitf_deinit_mutex = PTHREAD_MUTEX_INITIALIZER;
  ******************************************************************************************/
 
 /**
- * \fn eviewitf_is_initialized
- * \brief Check if initialization has been performed
+ * @fn eviewitf_is_initialized
+ * @brief Check if initialization has been performed
  *
- * \return 0 if not initialized
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
-int eviewitf_is_initialized() { return eviewitf_global_init; }
+eviewitf_ret_t eviewitf_is_initialized() { return eviewitf_global_init; }
 
 /**
- * \fn eviewitf_init
- * \brief Initialize the eViewItf API
- * \ingroup eview
+ * @fn eviewitf_init
+ * @brief Initialize the eViewItf API
+ * @ingroup eview
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  *
  * Initialize the eViewItf API by opening a communication with eView and by retrieving devices information from eView.
  * This function must be called before any other function of this API.
  * Otherwise, the other functions will return the error code EVIEWITF_NOT_INITIALIZED (eviewitf_return_state).
  */
-int eviewitf_init(void) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_init(void) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Critical section */
@@ -96,16 +114,16 @@ int eviewitf_init(void) {
 }
 
 /**
- * \fn eviewitf_deinit
- * \brief De-initialize the eViewItf API
- * \ingroup eview
+ * @fn eviewitf_deinit
+ * @brief De-initialize the eViewItf API
+ * @ingroup eview
  *
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  *
  * De-initialize the eViewItf API by closing the communication with eView.
  */
-int eviewitf_deinit(void) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_deinit(void) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Critical section */
@@ -139,13 +157,14 @@ int eviewitf_deinit(void) {
 }
 
 /**
- * \fn camera_display
- * \brief Request R7 to select camera device as display input
+ * @fn eviewitf_ret_t camera_display(int cam_id)
+ * @brief Request R7 to select camera device as display input
  *
- * \return state of the function. Return 0 if okay
+ * @param cam_id camera identifier
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
-int camera_display(int cam_id) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t camera_display(int cam_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
@@ -166,18 +185,18 @@ int camera_display(int cam_id) {
 }
 
 /**
- * \fn eviewitf_display_select_camera(int cam_id)
- * \brief Select a camera input to be displayed on the screen connected to the eCube
- * \ingroup display
+ * @fn eviewitf_display_select_camera(int cam_id)
+ * @brief Select a camera input to be displayed on the screen connected to the eCube
+ * @ingroup display
  *
- * \param[in] cam_id: id of the camera
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * @param[in] cam_id: id of the camera
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Replace the currently displayed camera or streamer.
  */
-int eviewitf_display_select_camera(int cam_id) {
-    int ret = EVIEWITF_OK;
-    device_object *device = get_device_object(cam_id + EVIEWITF_OFFSET_CAMERA);
+eviewitf_ret_t eviewitf_display_select_camera(int cam_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device = get_device_object(cam_id + EVIEWITF_OFFSET_CAMERA);
 
     if ((cam_id < 0) || (cam_id >= EVIEWITF_MAX_CAMERA)) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -195,18 +214,18 @@ int eviewitf_display_select_camera(int cam_id) {
 }
 
 /**
- * \fn eviewitf_display_select_streamer(int streamer_id)
- * \brief Select a streamer to be printed on the screen connected to the eCube
- * \ingroup display
+ * @fn eviewitf_display_select_streamer(int streamer_id)
+ * @brief Select a streamer to be printed on the screen connected to the eCube
+ * @ingroup display
  *
- * \param[in] streamer_id: id of the streamer
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * @param[in] streamer_id: id of the streamer
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Replace the currently displayed camera or streamer.
  */
-int eviewitf_display_select_streamer(int streamer_id) {
-    int ret = EVIEWITF_OK;
-    device_object *device = get_device_object(streamer_id + EVIEWITF_OFFSET_STREAMER);
+eviewitf_ret_t eviewitf_display_select_streamer(int streamer_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    device_object_t *device = get_device_object(streamer_id + EVIEWITF_OFFSET_STREAMER);
 
     if ((streamer_id < 0) || (streamer_id >= EVIEWITF_MAX_STREAMER)) {
         ret = EVIEWITF_INVALID_PARAM;
@@ -224,19 +243,19 @@ int eviewitf_display_select_streamer(int streamer_id) {
 }
 
 /**
- * \fn eviewitf_display_select_blender(int blender_id)
- * \brief Select a blender to be displayed, over the currently selected camera or streamer, on the screen connected to
+ * @fn eviewitf_display_select_blender(int blender_id)
+ * @brief Select a blender to be displayed, over the currently selected camera or streamer, on the screen connected to
  * the eCube.
- * \ingroup display
+ * @ingroup display
  *
- * \param[in] blender_id: id of the blender
- * \return return code as specified by the eviewitf_return_code enumeration.
+ * @param[in] blender_id: id of the blender
+ * @return return code as specified by the eviewitf_ret_t enumeration.
  *
  * Calling this function with blender_id not included between 0 and EVIEWITF_MAX_BLENDER – 1 (API macros) deactivates
  * the blender (no more overlay on the currently displayed camera or streamer).
  */
-int eviewitf_display_select_blender(int blender_id) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_display_select_blender(int blender_id) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Test blender id */
@@ -271,21 +290,8 @@ int eviewitf_display_select_blender(int blender_id) {
     return ret;
 }
 
-/**
- * \fn eviewitf_set_R7_heartbeat_mode(uint32_t mode)
- * \brief Activate or deactivate eView heartbeat.
- * \ingroup eview
- *
- * \param[in] mode 0 to deactivate heartbeat other to activate it
- * \return return code as specified by the eviewitf_return_code enumeration.
- *
- * The eView heartbeat can be activated to check if eView is still running as it should.
- * With the heartbeat activated, eView will regularly send a message over the eCube’s USB Debug port.
- * This is a debugging function. This function should not be used in a normal behavior.
- * However, it can help to identify the cause of an EVIEWITF_BLOCKED (eviewitf_return_code) error code.
- */
-int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
@@ -302,20 +308,8 @@ int eviewitf_set_R7_heartbeat_mode(uint32_t mode) {
     return ret;
 }
 
-/**
- * \fn eviewitf_set_R7_boot_mode(uint32_t mode)
- * \brief Set a specific boot mode to eView.
- * \ingroup eview
- *
- * \param[in] mode requets a specific R7 boot mode
- * \return return code as specified by the eviewitf_return_code enumeration.
- *
- * An eView specific mode can be set under peculiar conditions.
- * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
- * requests.
- */
-int eviewitf_set_R7_boot_mode(uint32_t mode) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_set_R7_boot_mode(uint32_t mode) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
@@ -333,25 +327,25 @@ int eviewitf_set_R7_boot_mode(uint32_t mode) {
 }
 
 /**
- * \fn eviewitf_get_eviewitf_version
- * \brief Get the version of eViewItf.
- * \ingroup version
+ * @fn eviewitf_get_eviewitf_version
+ * @brief Get the version of eViewItf.
+ * @ingroup version
  *
- * \return returns a pointer on a string containing the eViewItf version number.
+ * @return returns a pointer on a string containing the eViewItf version number.
  */
 const char *eviewitf_get_eviewitf_version(void) { return VERSION; }
 
 /**
- * \fn eviewitf_get_eview_version
- * \brief Retrieve eView version
- * \ingroup version
+ * @fn eviewitf_get_eview_version
+ * @brief Retrieve eView version
+ * @ingroup version
  *
- * \return returns a pointer on a string containing the eView version number.
+ * @return returns a pointer on a string containing the eView version number.
  *
  * Retrieve the running eView version.
  */
 const char *eviewitf_get_eview_version(void) {
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int i = 0;
     int j = 0;
     int size_div = 0;
@@ -388,19 +382,8 @@ const char *eviewitf_get_eview_version(void) {
     }
 }
 
-/**
- * \fn eviewitf_get_monitoring_info(uint32_t* data, uint8_t size)
- * \brief Request R7 to get monitoring info.
- * \ingroup eview
- *
- * \param[out] data pointer where to store monitoring info
- * \param[in] size size of the data table, should not be greater than EVIEWITF_MONITORING_INFO_SIZE
- * \return state of the function. Return 0 if okay
- *
- * Content is voluntary not explicitly described in this interface, can be project specific.
- */
-int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     uint8_t i;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
@@ -423,20 +406,8 @@ int eviewitf_get_monitoring_info(uint32_t *data, uint8_t size) {
     return ret;
 }
 
-/**
- * \fn eviewitf_get_R7_boot_mode(uint32_t *mode)
- * \brief Get current eView boot mode.
- * \ingroup eview
- *
- * \param[out] mode current/active boot mode of eView component
- * \return state of the function. Return 0 if okay
- *
- * An eView specific mode can be set under peculiar conditions.
- * This function is not needed most of the time. It can be used to tune the eView’s behavior for some customers’
- * requests.
- */
-int eviewitf_get_R7_boot_mode(uint32_t *mode) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_get_R7_boot_mode(uint32_t *mode) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */
@@ -454,17 +425,17 @@ int eviewitf_get_R7_boot_mode(uint32_t *mode) {
     return ret;
 }
 /**
- * \fn eviewitf_display_select_cropping
- * \brief Start the cropping with coordinates to R7
+ * @fn eviewitf_display_select_cropping
+ * @brief Start the cropping with coordinates to R7
  *
- * \param[in] x1: set first coordinate X position
- * \param[in] y1: set first coordinate Y position
- * \param[in] x2: set second coordinate X position
- * \param[in] y2: set second coordinate Y position
- * \return state of the function. Return 0 if okay
+ * @param[in] x1: set first coordinate X position
+ * @param[in] y1: set first coordinate Y position
+ * @param[in] x2: set second coordinate X position
+ * @param[in] y2: set second coordinate Y position
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
-int eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
-    int ret = EVIEWITF_OK;
+eviewitf_ret_t eviewitf_display_select_cropping(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
     int32_t request[EVIEWITF_MFIS_MSG_SIZE] = {0};
 
     /* Prepare TX buffer */

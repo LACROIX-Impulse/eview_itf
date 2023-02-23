@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Communication API between A53 and R7 CPUs for plot functions
- * \author LACROIX Impulse
+ * @file eviewitf-plot.c
+ * @brief Communication API between A53 and R7 CPUs for plot functions
+ * @author LACROIX Impulse
  *
  * API to communicate with the R7 CPU from the A53 (Linux).
  *
@@ -19,7 +19,9 @@
  * Private variables
  ******************************************************************************************/
 
-/* Font to pixel */
+/**
+ * @brief Font to pixel
+ */
 static uint8_t font_basic[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0000 (nul)
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0001
@@ -155,38 +157,42 @@ static uint8_t font_basic[128][8] = {
  * Private definitions
  ******************************************************************************************/
 /**
- * \brief Number of bytes for RGB definition.
+ * @brief Number of bytes for RGB definition.
  */
 #define NB_COMPONENTS_RGB (3u)
 
 /**
- * \struct eviewitf_plot_yuv_color_attributes_t
- * \brief Structure to set an YUV color
+ * @typedef eviewitf_plot_yuv_color_attributes_t
+ * @brief Structure to set an YUV color
+ *
+ * @struct eviewitf_plot_yuv_color_attributes
+ * @brief Structure to set an YUV color
  *
  */
-typedef struct {
+typedef struct eviewitf_plot_yuv_color_attributes {
     uint8_t y; /*!< Y channel value */
     uint8_t u; /*!< U channel value */
     uint8_t v; /*!< V channel value */
 } eviewitf_plot_yuv_color_attributes_t;
 
 /**
- * \fn uint8_t get_font_value(int i, int j)
- * \brief Gets a (i,j) font value
+ * @fn uint8_t get_font_value(int i, int j)
+ * @brief Gets a (i,j) font value
  *
- * \param i: Font value row position
- * \param j: Font value column position
+ * @param i: Font value row position
+ * @param j: Font value column position
  *
- * \return font value
+ * @return font value
  */
 static uint8_t get_font_value(int i, int j) { return font_basic[i][j]; }
 
 /**
- * \fn void rgb_color_to_plot_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb, eviewitf_plot_yuv_color_attributes_t
- * *yuv) \brief Converts an RGB color into an YUV one (BT.709 Computer RGB to YUV)
+ * @fn static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
+ * eviewitf_plot_yuv_color_attributes_t *yuv)
+ * @brief Converts an RGB color into an YUV one (BT.709 Computer RGB to YUV)
  *
- * \param rgb: RGB color to convert
- * \param yuv: YUV converted color
+ * @param rgb: RGB color to convert
+ * @param yuv: YUV converted color
  *
  */
 static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
@@ -209,13 +215,13 @@ static void rgb_color_to_yuv_color(eviewitf_plot_rgb_color_attributes_t *rgb,
 
 /* clang-format off */
 /**
- * \fn void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
- * \brief Sets a pixel to the desired YUV color into an YUV422 semi-planar frame
+ * @fn void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
+ * @brief Sets a pixel to the desired YUV color into an YUV422 semi-planar frame
  *
- * \param frame: YUV422 semi-planar frame attributes pointer
- * \param x: Row pixel position
- * \param y: Column pixel position
- * \param color: YUV pixel color attributes
+ * @param frame: YUV422 semi-planar frame attributes pointer
+ * @param x: Row pixel position
+ * @param y: Column pixel position
+ * @param color: YUV pixel color attributes
  *
  */
 /* clang-format on */
@@ -245,13 +251,13 @@ static void set_yuv422sp_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
 
 /* clang-format off */
 /**
- * \fn void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
- * \brief Sets a pixel to the desired RGB color into an RGB888 interleave frame
+ * @fn void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * @brief Sets a pixel to the desired RGB color into an RGB888 interleave frame
  *
- * \param frame: RGB888 interleave frame attributes pointer
- * \param x: Row pixel position
- * \param y: Column pixel position
- * \param color: RGB pixel color attributes
+ * @param frame: RGB888 interleave frame attributes pointer
+ * @param x: Row pixel position
+ * @param y: Column pixel position
+ * @param color: RGB pixel color attributes
  *
  */
 /* clang-format on */
@@ -269,19 +275,19 @@ static void set_rgb888il_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t
 
 /* clang-format off */
 /**
- * \fn void set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
- * \brief Sets a pixel to the desired RGB color into a frame
+ * @fn eviewitf_ret_t set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * @brief Sets a pixel to the desired RGB color into a frame
  *
- * \param frame: Frame attributes pointer
- * \param x: Row pixel position
- * \param y: Column pixel position
- * \param color: RGB pixel color attributes
+ * @param frame: Frame attributes pointer
+ * @param x: Row pixel position
+ * @param y: Column pixel position
+ * @param color: RGB pixel color attributes
  *
  */
 /* clang-format on */
-static int set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
-                     eviewitf_plot_rgb_color_attributes_t color) {
-    int ret = EVIEWITF_INVALID_PARAM;
+static eviewitf_ret_t set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y,
+                                eviewitf_plot_rgb_color_attributes_t color) {
+    eviewitf_ret_t ret = EVIEWITF_INVALID_PARAM;
     if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
         eviewitf_plot_yuv_color_attributes_t yuv_color;
         rgb_color_to_yuv_color(&color, &yuv_color);
@@ -297,14 +303,14 @@ static int set_pixel(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32
 
 /* clang-format off */
 /**
- * \fn void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
- * \brief Plots an horizontal line to the desired YUV color into an YUV422 semi-planar frame
+ * @fn void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_yuv_color_attributes_t color)
+ * @brief Plots an horizontal line to the desired YUV color into an YUV422 semi-planar frame
  *
- * \param frame: YUV422 semi-planar frame attributes pointer
- * \param x: Row pixel position
- * \param len: Line length
- * \param y: Column pixel position
- * \param color: YUV pixel color attributes
+ * @param frame: YUV422 semi-planar frame attributes pointer
+ * @param x: Row pixel position
+ * @param len: Line length
+ * @param y: Column pixel position
+ * @param color: YUV pixel color attributes
  *
  */
 /* clang-format on */
@@ -333,14 +339,14 @@ static void plot_yuv422sp_h_line(eviewitf_plot_frame_attributes_t *frame, uint32
 
 /* clang-format off */
 /**
- * \fn void plot_rgb888il_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
- * \brief Plots an horizontal line to the desired RGB color into an RGB888 interleave frame
+ * @fn void plot_rgb888il_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * @brief Plots an horizontal line to the desired RGB color into an RGB888 interleave frame
  *
- * \param frame: RGB888 interleave frame attributes pointer
- * \param x: Row pixel position
- * \param len: Line length
- * \param y: Column pixel position
- * \param color: RGB pixel color attributes
+ * @param frame: RGB888 interleave frame attributes pointer
+ * @param x: Row pixel position
+ * @param len: Line length
+ * @param y: Column pixel position
+ * @param color: RGB pixel color attributes
  *
  */
 /* clang-format on */
@@ -353,18 +359,18 @@ static void plot_rgb888il_h_line(eviewitf_plot_frame_attributes_t *frame, uint32
 
 /* clang-format off */
 /**
- * \fn uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_plot_rgb_color_attributes_t color, uint8_t disp)
- * \brief Plots a character in the desired RGB color into a frame
+ * @fn uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz, eviewitf_plot_rgb_color_attributes_t color, uint8_t disp)
+ * @brief Plots a character in the desired RGB color into a frame
  *
- * \param frame: Frame attributes pointer
- * \param x: Row pixel position
- * \param y: Column pixel position
- * \param c: Character to plot
- * \param sz: Character size
- * \param color: RGB pixel color attributes
- * \param disp: Will be plotted if disp is not equal to 0
+ * @param frame: Frame attributes pointer
+ * @param x: Row pixel position
+ * @param y: Column pixel position
+ * @param c: Character to plot
+ * @param sz: Character size
+ * @param color: RGB pixel color attributes
+ * @param disp: Will be plotted if disp is not equal to 0
  *
- * \return The row position after writting the character
+ * @return The row position after writting the character
  */
 /* clang-format on */
 static uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t y, char c, uint32_t sz,
@@ -404,20 +410,20 @@ static uint32_t plot_char(eviewitf_plot_frame_attributes_t *frame, uint32_t x, u
 
 /* clang-format off */
 /**
- * \fn void plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
- * \brief Plots an horizontal line to the desired RGB color into a frame
+ * @fn eviewitf_ret_t plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y, eviewitf_plot_rgb_color_attributes_t color)
+ * @brief Plots an horizontal line to the desired RGB color into a frame
  *
- * \param frame: Frame attributes pointer
- * \param x: Row pixel position
- * \param len: Line length
- * \param y: Column pixel position
- * \param color: RGB pixel color attributes
+ * @param frame: Frame attributes pointer
+ * @param x: Row pixel position
+ * @param len: Line length
+ * @param y: Column pixel position
+ * @param color: RGB pixel color attributes
  *
  */
 /* clang-format on */
-static int plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
-                       eviewitf_plot_rgb_color_attributes_t color) {
-    int ret = EVIEWITF_INVALID_PARAM;
+static eviewitf_ret_t plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint32_t len, uint32_t y,
+                                  eviewitf_plot_rgb_color_attributes_t color) {
+    eviewitf_ret_t ret = EVIEWITF_INVALID_PARAM;
     if (frame->format == EVIEWITF_PLOT_FRAME_FORMAT_YUV422SP) {
         eviewitf_plot_yuv_color_attributes_t yuv_color;
         rgb_color_to_yuv_color(&color, &yuv_color);
@@ -431,12 +437,12 @@ static int plot_h_line(eviewitf_plot_frame_attributes_t *frame, uint32_t x, uint
 }
 
 /**
- * \fn get_str_length(eviewitf_plot_text_attributes_t *text)
- * \brief Gets the string length in pixel
+ * @fn get_str_length(eviewitf_plot_text_attributes_t *text)
+ * @brief Gets the string length in pixel
  *
- * \param text: Text attributes pointer
+ * @param text: Text attributes pointer
  *
- * \return The string length in pixel
+ * @return The string length in pixel
  */
 static uint32_t get_str_length(eviewitf_plot_text_attributes_t *text) {
     uint32_t ret = 0;
@@ -450,14 +456,14 @@ static uint32_t get_str_length(eviewitf_plot_text_attributes_t *text) {
 
 /* clang-format off */
 /**
- * \fn uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text, eviewitf_plot_rgb_color_attributes_t color)
- * \brief Plots a text in the desired RGB color into a frame
+ * @fn uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text, eviewitf_plot_rgb_color_attributes_t color)
+ * @brief Plots a text in the desired RGB color into a frame
  *
- * \param frame: Frame attributes pointer
- * \param text: Text attributes pointer
- * \param color: RGB text pixel color attributes
+ * @param frame: Frame attributes pointer
+ * @param text: Text attributes pointer
+ * @param color: RGB text pixel color attributes
  *
- * \return The row position in pixel after writting the string
+ * @return The row position in pixel after writting the string
  */
 /* clang-format on */
 static uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text,
@@ -496,19 +502,20 @@ static uint32_t plot_str(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_
 
 /* clang-format off */
 /**
- * \fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
- * \brief Plots a rectangle into a frame
+ * @fn eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect)
+ * @brief Plots a rectangle into a frame
  *
- * \param frame: Frame attributes pointer where to plot the rectangle
- * \param rect: Rectangle attributes pointer to plot
+ * @param frame: Frame attributes pointer where to plot the rectangle
+ * @param rect: Rectangle attributes pointer to plot
  *
- * \return Return code as specified by the eviewitf_return_code enumeration.
+ * @return Return code as specified by the eviewitf_ret_t enumeration.
  */
 /* clang-format on */
-int eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_rectangle_attributes_t *rect) {
+eviewitf_ret_t eviewitf_plot_rectangle(eviewitf_plot_frame_attributes_t *frame,
+                                       eviewitf_plot_rectangle_attributes_t *rect) {
     uint8_t l_width = rect->line_width;
     uint32_t offset = 0;
-    int ret = EVIEWITF_OK;
+    eviewitf_ret_t ret = EVIEWITF_OK;
 
     if ((l_width % 2u) != 0u) {
         l_width++;
@@ -550,18 +557,7 @@ rect_out:
     return ret;
 }
 
-/* clang-format off */
-/**
- * \fn eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text)
- * \brief Plots a text into a frame
- *
- * \param frame: Frame attributes pointer where to plot the text
- * \param text: Text attributes pointer to plot
- *
- * \return Return code as specified by the eviewitf_return_code enumeration.
- */
-/* clang-format on */
-int eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
+eviewitf_ret_t eviewitf_plot_text(eviewitf_plot_frame_attributes_t *frame, eviewitf_plot_text_attributes_t *text) {
     (void)plot_str(frame, text, text->color);
     return EVIEWITF_OK;
 }

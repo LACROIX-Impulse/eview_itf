@@ -1,9 +1,9 @@
 pipeline {
     agent {
-        label 'sdk-ecube-1.1.0'
+        label 'slave2'
     }
     environment {
-        SYSROOTS = "${env.SYSROOTS_1_1_0}"
+        SYSROOTS = "/jenkins/opt/poky/ecube/pre/EMIRROR-2887-f9edf58/sysroots"
     }
     triggers {
         bitbucketPush()
