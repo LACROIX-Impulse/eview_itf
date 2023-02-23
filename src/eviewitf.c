@@ -20,7 +20,7 @@
  * Private definitions
  ******************************************************************************************/
 /**
- * @brief MAximum version size
+ * @brief Maximum version size
  */
 #define MAX_VERSION_SIZE 21
 
