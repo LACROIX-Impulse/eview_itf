@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Module camera
- * \author LACROIX Impulse
+ * @file camera.c
+ * @brief Module camera
+ * @author LACROIX Impulse
  *
  * The module Camera handles operations that relate to streams and cameras
  *
@@ -17,37 +17,53 @@
 #include "eviewitf-priv.h"
 
 /* Used by main to communicate with parse_opt. */
-struct camera_arguments {
-    int camera_id;
-    int record;
-    int record_duration;
-    int reg;
-    uint32_t reg_address;
-    int val;
-    int reg_value;
-    int read;
-    int write;
-    int start;
-    int stop;
-    int reboot;
-    int fps_value;
-    int heartbeat;
-    int monitoring_info;
-    int exposure;
-    int gain;
-    int x_offset;
-    int y_offset;
-    int cmd_pattern; /* Pattern command activated */
-    uint8_t pattern; /* Selected pattern  */
-};
+/**
+ * @typedef camera_arguments_t
+ * @brief Camera arguments
+ *
+ * @struct camera_arguments
+ * @brief Camera arguments
+ */
+typedef struct camera_arguments {
+    int camera_id;        /*!< Camera identifier */
+    int record;           /*!< Record indicator */
+    int record_duration;  /*!< Record duration */
+    int reg;              /*!< Register */
+    uint32_t reg_address; /*!< Register address */
+    int val;              /*!< Value */
+    int reg_value;        /*!< Register value */
+    int read;             /*!< Read indicator */
+    int write;            /*!< Write indicator */
+    int start;            /*!< Start indicator */
+    int stop;             /*!< Stop indicator */
+    int reboot;           /*!< Reboot indicator */
+    int fps_value;        /*!< FPS value*/
+    int heartbeat;        /*!< Heartbeat indicator */
+    int monitoring_info;  /*!< Monitoring information */
+    int exposure;         /*!< Exposure */
+    int gain;             /*!< Gain */
+    int x_offset;         /*!< X offset */
+    int y_offset;         /*!< Y offset*/
+    int cmd_pattern;      /*!< Pattern command activated */
+    uint8_t pattern;      /*!< Selected pattern  */
+} camera_arguments_t;
 
 /* Possible patterns */
-struct camera_pattern_mode {
-    uint8_t tp;
-    const char *name;
-};
+/**
+ * @typedef camera_pattern_mode_t
+ * @brief Camera pattern mode
+ *
+ * @struct camera_pattern_mode
+ * @brief Camera pattern mode
+ */
+typedef struct camera_pattern_mode {
+    uint8_t tp;       /*!< Test pattern */
+    const char *name; /*!< Name */
+} camera_pattern_mode_t;
 
-/* Program documentation */
+/**
+ * @brief Program documentation
+ */
 static char camera_doc[] =
     "eviewitf -- Program for communication between A53 and R7 CPUs"
     "\v"
@@ -55,7 +71,9 @@ static char camera_doc[] =
     " none, solid-red, solid-green, solid-blue, solid-vbar, solid-vbar-faded,\n"
     " custom0, custom1, custom2, custom3, custom4\n";
 
-/* Arguments description */
+/**
+ * @brief Arguments description
+ */
 static char camera_args_doc[] =
     "module:          [camera(default)|pipeline|video]\n"
     "record:          -c[0-7] -r[???] (-p[PATH])\n"
@@ -76,7 +94,10 @@ static char camera_args_doc[] =
     "get frame rate:  -c[0-7] -F";
 
 /* Program options */
-static struct argp_option camera_options[] = {
+/**
+ * @brief Camera options list
+ */
+static argp_option_t camera_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"record", 'r', "DURATION", 0, "Record camera ID stream on SSD for DURATION (s)", 0},
     {"address", 'a', "ADDRESS", 0, "Register ADDRESS on which read or write", 0},
@@ -100,7 +121,10 @@ static struct argp_option camera_options[] = {
 };
 
 /* clang-format off */
-static struct camera_pattern_mode patterns[] = {
+/**
+ * @brief Camera test pattern list
+ */
+static camera_pattern_mode_t patterns[] = {
         { EVIEWITF_TEST_PATTERN_UNKNOWN, "unknown" },                    /* Unknown pattern */
         { EVIEWITF_TEST_PATTERN_NONE, "none", },                         /* No test pattern */
         { EVIEWITF_TEST_PATTERN_SOLID_RED, "solid-red", },               /* Solid color - red */
@@ -117,7 +141,12 @@ static struct camera_pattern_mode patterns[] = {
 };
 /* clang-format on */
 
-/* Gets the pattern value related to the given string */
+/**
+ * @fn static int str2pattern(const char *pattern)
+ * @brief Gets the pattern value related to the given string
+ * @param pattern pattern string
+ * @return pattern value
+ */
 static int str2pattern(const char *pattern) {
     if (!pattern) return -1;
     for (int n = 0; patterns[n].name; n++) {
@@ -126,7 +155,12 @@ static int str2pattern(const char *pattern) {
     return -1;
 }
 
-/* Gets the pattern value related to the given string */
+/**
+ * @fn static const char *pattern2str(uint8_t tp) {
+ * @brief Gets the pattern string related to the given value
+ * @param tp pattern value
+ * @return pattern string
+ */
 static const char *pattern2str(uint8_t tp) {
     for (int n = 0; patterns[n].name; n++) {
         if (tp == patterns[n].tp) return patterns[n].name;
@@ -135,9 +169,17 @@ static const char *pattern2str(uint8_t tp) {
 }
 
 /* Parse a single option. */
-static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
+/**
+ * @fn static error_t camera_parse_opt(int key, char *arg, argp_state_t *state)
+ * @brief Parse a single option
+ * @param key the key
+ * @param arg argument
+ * @param state state pointer
+ * @return return code as specified by the eviewitf_ret_t enumeration.
+ */
+static error_t camera_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct camera_arguments *arguments = state->input;
+    camera_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'a':
@@ -250,18 +292,14 @@ static error_t camera_parse_opt(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
-/* argp parser. */
-static struct argp camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
-
 /**
- * @brief Parse the parameters and execute the  function
- * @param[in] argc arguments count
- * @param[in] argv arguments
- * @return
+ * @brief argp parser
  */
-int camera_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
-    struct camera_arguments arguments;
+static argp_t camera_argp = {camera_options, camera_parse_opt, camera_args_doc, camera_doc, NULL, NULL, NULL};
+
+eviewitf_ret_t camera_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    camera_arguments_t arguments;
     uint32_t register_value = 0;
 
     /* Default values. */

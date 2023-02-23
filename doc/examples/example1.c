@@ -6,7 +6,7 @@
 #include "user_processing.h"
 
 int main(void) {
-    int ret;
+    eviewitf_ret_t ret;
     eviewitf_device_attributes_t camera_attributes;
     uint8_t* frame_buffer;
     int cam_id[1] = {0};

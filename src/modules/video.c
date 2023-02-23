@@ -1,7 +1,7 @@
 /**
- * \file
- * \brief Module video
- * \author LACROIX Impulse
+ * @file video.c
+ * @brief Module video
+ * @author LACROIX Impulse
  *
  * The module Video handles operations that relate to video display
  *
@@ -18,35 +18,51 @@
 #include "eviewitf/eviewitf-video.h"
 
 /**
- * \enum video_action
- * \brief Implemented action for video module
+ * @typedef video_action_t
+ * @brief Implemented action for video module
+ *
+ * @enum video_action
+ * @brief Implemented action for video module
  */
-enum video_action {
+typedef enum video_action {
     VIDEO_ACTION_NC = 0,
     VIDEO_ACTION_RESUME,
     VIDEO_ACTION_SUSPEND,
     VIDEO_ACTION_STATE,
-};
+} video_action_t;
 
 /* Used by main to communicate with parse_opt. */
-struct video_arguments {
-    int camera_id;
-    enum video_action action;
-};
+/**
+ * @typedef video_arguments_t
+ * @brief Video module arguments
+ *
+ * @struct video_arguments
+ * @brief Video module arguments
+ */
+typedef struct video_arguments {
+    int camera_id;         /*!< Camera identifier */
+    video_action_t action; /*!< Video action */
+} video_arguments_t;
 
-/* Program documentation */
+/**
+ * @brief Program documentation
+ */
 static char video_doc[] =
     "eviewitf -- Program for communication between A53 and R7 CPUs"
     "\n";
 
-/* Arguments description */
+/**
+ *@brief Arguments description
+ */
 static char video_args_doc[] =
     "module:          [camera(default)|pipeline|video]\n"
     "suspend:         -c[0-7] -s\n"
     "resume:          -c[0-7] -r\n";
 
-/* Program options */
-static struct argp_option video_options[] = {
+/**
+ * @brief Program options
+ */
+static argp_option_t video_options[] = {
     {"camera", 'c', "ID", 0, "Select camera on which command occurs", 0},
     {"suspend", 's', 0, 0, "Suspend video display", 0},
     {"resume", 'r', 0, 0, "Resume video display", 0},
@@ -54,10 +70,12 @@ static struct argp_option video_options[] = {
     {0},
 };
 
-/* Parse a single option. */
-static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
+/**
+ * @brief Parse a single option
+ */
+static error_t video_parse_opt(int key, char *arg, argp_state_t *state) {
     /* Get the input argument from argp_parse */
-    struct video_arguments *arguments = state->input;
+    video_arguments_t *arguments = state->input;
 
     switch (key) {
         case 'c':
@@ -90,18 +108,14 @@ static error_t video_parse_opt(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
-/* argp parser. */
-static struct argp video_argp = {video_options, video_parse_opt, video_args_doc, video_doc, NULL, NULL, NULL};
-
 /**
- * @brief Parse the parameters and execute the  function
- * @param[in] argc arguments count
- * @param[in] argv arguments
- * @return
+ * @brief argp parser
  */
-int video_parse(int argc, char **argv) {
-    int ret = EVIEWITF_OK;
-    struct video_arguments arguments;
+static argp_t video_argp = {video_options, video_parse_opt, video_args_doc, video_doc, NULL, NULL, NULL};
+
+eviewitf_ret_t video_parse(int argc, char **argv) {
+    eviewitf_ret_t ret = EVIEWITF_OK;
+    video_arguments_t arguments;
 
     /* Default values. */
     arguments.camera_id = -1;
